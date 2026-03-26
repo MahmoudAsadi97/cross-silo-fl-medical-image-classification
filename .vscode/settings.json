@@ -1,0 +1,4 @@
+{
+  "python.defaultInterpreterPath": "/home/nima_unix/miniconda3/envs/fl_gpu/bin/python",
+  "python.terminal.activateEnvironment": true
+}
