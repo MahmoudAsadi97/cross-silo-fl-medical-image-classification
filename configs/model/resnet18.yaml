@@ -1,0 +1,4 @@
+model_name: resnet18
+num_classes: 8
+pretrained: true
+dropout: 0.0

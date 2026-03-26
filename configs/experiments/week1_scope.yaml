@@ -1,0 +1,22 @@
+project:
+  title: "Cross-Silo Federated Learning for Medical Image Classification"
+  dataset: "Fed-ISIC2019"
+  model: "resnet18"
+  baselines:
+    - centralized
+    - local_only
+  fl_methods:
+    - fedavg
+    - fedprox
+    - scaffold
+  privacy:
+    method: "dp_sgd"
+    apply_after_core_baselines: true
+extensions:
+  raspberry_pi: optional
+  azure: optional
+week_1_objectives:
+  - finalize_scope
+  - setup_structure
+  - verify_environment
+  - prepare_configs

@@ -1,27 +1,51 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*.so
 
-# Data
-data/
-datasets/
+# Virtual environments
+.venv/
+venv/
+env/
 
-# Results
-results/
-*.pth
-*.pt
-
-# Logs
-*.log
-
-# Env
-.env
-*.env
+# Conda
+.conda/
 
 # Jupyter
 .ipynb_checkpoints/
 
-# OS
+# Data
+data/
+datasets/
+*.zip
+*.tar
+*.gz
+
+# Results artifacts
+results/checkpoints/*
+!results/checkpoints/.gitkeep
+results/logs/*
+!results/logs/.gitkeep
+results/plots/*
+!results/plots/.gitkeep
+results/tables/*
+!results/tables/.gitkeep
+
+# Model files
+*.pt
+*.pth
+*.ckpt
+
+# OS / Editor
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+
+# Secrets
+.env
+*.env
+
+# Azure / misc
+*.pem
+*.key
