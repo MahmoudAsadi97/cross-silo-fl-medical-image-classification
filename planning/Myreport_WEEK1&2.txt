@@ -1,0 +1,256 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\title{Federated Learning for Medical Image Classification\
+\large Weeks 1--2 Detailed Technical Report}
+\author{Nima}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This report documents the technical progress achieved during Weeks 1 and 2 of the project on cross-silo federated learning for medical image classification. The primary goal is to design a system where multiple institutions collaboratively train a model without sharing raw data, while analyzing the effects of data heterogeneity and privacy.
+
+These initial weeks focused on:
+\begin{itemize}
+\item building a reproducible experimental framework
+\item acquiring and structuring a federated dataset
+\item performing quantitative analysis of data heterogeneity (non-IID)
+\end{itemize}
+
+---
+
+\section{Week 1: System Setup and Experimental Foundations}
+
+\subsection{Environment and Hardware Setup}
+
+A Conda-based environment (\texttt{fl_gpu}) was configured with GPU support. The system successfully detected:
+
+\begin{itemize}
+\item GPU: NVIDIA GeForce RTX 2070
+\item CUDA: Enabled
+\end{itemize}
+
+This ensures feasibility for training deep learning models such as ResNet-18.
+
+\subsection{Reproducibility Design}
+
+To ensure scientific validity:
+\begin{itemize}
+\item Exact package versions were frozen using \texttt{pip freeze}
+\item Random seed control was implemented
+\item Configuration files (YAML) were introduced
+\end{itemize}
+
+This allows experiments to be reproducible and comparable.
+
+\subsection{Modular Project Architecture}
+
+A structured codebase was designed to support:
+\begin{itemize}
+\item centralized learning
+\item federated learning algorithms (FedAvg, FedProx, SCAFFOLD)
+\item privacy mechanisms
+\item evaluation and logging
+\end{itemize}
+
+This design enables scalable experimentation and clean separation of components.
+
+---
+
+\section{Week 2: Dataset Acquisition and Non-IID Analysis}
+
+\subsection{Dataset Description}
+
+The project uses the \textbf{Fed-ISIC2019} dataset, a federated adaptation of the ISIC 2019 skin lesion classification dataset.
+
+\begin{itemize}
+\item Total samples: 23,247
+\item Training samples: 18,597
+\item Test samples: 4,650
+\item Number of clients: 6
+\item Number of classes: 8
+\end{itemize}
+
+Each client simulates a healthcare institution.
+
+---
+
+\subsection{Client-Level Sample Distribution}
+
+The number of samples per client varies significantly:
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+Client & Train Samples & Test Samples \
+\midrule
+0 & 9930 & 2483 \
+1 & 3163 & 791 \
+2 & 2691 & 672 \
+3 & 1807 & 452 \
+4 & 655 & 164 \
+5 & 351 & 88 \
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{Observation: Extreme Data Imbalance}
+
+The imbalance ratio is computed as:
+
+[
+\text{Imbalance Ratio} = \frac{\max(\text{client size})}{\min(\text{client size})}
+]
+
+\begin{itemize}
+\item Train imbalance: $\approx 28.29$
+\item Test imbalance: $\approx 28.21$
+\end{itemize}
+
+\textbf{Interpretation:}
+This indicates severe quantity skew. Some clients dominate training, while others contribute very little data.
+
+---
+
+\subsection{Label Distribution (Class Availability)}
+
+The number of classes present per client:
+
+\begin{itemize}
+\item Client 0: 8 classes (complete)
+\item Client 4: only 3 classes
+\item Client 5: 4--6 classes
+\end{itemize}
+
+\textbf{Interpretation:}
+Clients do not share the same label space, indicating strong \textbf{label skew}.
+
+---
+
+\subsection{Entropy-Based Heterogeneity Analysis}
+
+To quantify label distribution diversity, entropy was computed:
+
+[
+H(p) = -\sum_{i} p_i \log p_i
+]
+
+where $p_i$ is the probability of class $i$.
+
+\subsubsection{Results}
+
+\begin{itemize}
+\item High entropy (e.g., Client 0): balanced class distribution
+\item Low entropy (e.g., Client 1): highly skewed distribution
+\end{itemize}
+
+Example values:
+
+\begin{itemize}
+\item Client 0 (train): $H \approx 1.63$
+\item Client 1 (train): $H \approx 0.29$
+\item Client 4 (train): $H \approx 1.01$
+\end{itemize}
+
+\textbf{Interpretation:}
+\begin{itemize}
+\item Some clients observe only a limited subset of classes
+\item Learning locally will bias models toward partial distributions
+\end{itemize}
+
+---
+
+\subsection{Combined Non-IID Characterization}
+
+The dataset exhibits two major forms of heterogeneity:
+
+\begin{enumerate}
+\item \textbf{Quantity skew} (sample imbalance)
+\item \textbf{Label skew} (class distribution differences)
+\end{enumerate}
+
+This combination creates a \textbf{strongly non-IID setting}, which is significantly more challenging than standard IID scenarios.
+
+---
+
+\section{Implications for Federated Learning}
+
+The observed heterogeneity directly impacts algorithm behavior:
+
+\subsection{FedAvg}
+\begin{itemize}
+\item Sensitive to client drift
+\item Likely to converge slowly or unstably
+\end{itemize}
+
+\subsection{FedProx}
+\begin{itemize}
+\item Introduces regularization to stabilize updates
+\item Expected to perform better under imbalance
+\end{itemize}
+
+\subsection{SCAFFOLD}
+\begin{itemize}
+\item Uses control variates to correct client drift
+\item Particularly suitable for highly non-IID data
+\end{itemize}
+
+\subsection{Baselines}
+
+\begin{itemize}
+\item Local-only models:
+\begin{itemize}
+\item Expected to perform poorly for small or skewed clients
+\end{itemize}
+\item Centralized model:
+\begin{itemize}
+\item Expected to provide upper-bound performance
+\end{itemize}
+\end{itemize}
+
+---
+
+\section{Key Insights}
+
+\begin{itemize}
+\item The dataset exhibits \textbf{extreme heterogeneity}, making it highly suitable for federated learning research.
+\item Both sample imbalance and label skew are present simultaneously.
+\item These properties create a realistic simulation of cross-silo healthcare environments.
+\end{itemize}
+
+---
+
+\section{Conclusion}
+
+Weeks 1 and 2 successfully established:
+
+\begin{itemize}
+\item A robust and reproducible experimental framework
+\item A correctly structured federated dataset
+\item Quantitative evidence of strong non-IID data distribution
+\end{itemize}
+
+This provides a solid scientific and engineering foundation for the next phase of the project.
+
+---
+
+\section{Next Steps}
+
+The next phase will focus on:
+
+\begin{itemize}
+\item implementing PyTorch dataset loaders
+\item training a centralized baseline model
+\item preparing the federated learning pipeline
+\end{itemize}
+
+\end{document}
