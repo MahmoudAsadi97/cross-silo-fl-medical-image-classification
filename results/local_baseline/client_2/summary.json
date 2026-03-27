@@ -1,0 +1,28 @@
+{
+  "client_id": 2,
+  "epochs": 25,
+  "device": "cuda",
+  "best_epoch_by_macro_f1": 24,
+  "best_test_metrics_by_macro_f1": {
+    "epoch": 24,
+    "accuracy": 0.7276785714285714,
+    "balanced_accuracy": 0.603748728717017,
+    "macro_f1": 0.6038182370511015,
+    "loss": 1.0273870783192771
+  },
+  "final_train_metrics": {
+    "epoch": 25,
+    "accuracy": 0.8821999256781865,
+    "balanced_accuracy": 0.750562879030692,
+    "macro_f1": 0.7751741110955066,
+    "loss": 0.31154547042560504
+  },
+  "final_test_metrics": {
+    "epoch": 25,
+    "accuracy": 0.6904761904761905,
+    "balanced_accuracy": 0.6195443587659452,
+    "macro_f1": 0.46409161950222166,
+    "loss": 1.0572199942100615
+  },
+  "checkpoint": "/mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_2/checkpoints/best_model_by_macro_f1.pt"
+}

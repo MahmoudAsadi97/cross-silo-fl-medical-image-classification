@@ -1,0 +1,159 @@
+\section{Week 3: Centralized Baseline Development and Evaluation}
+
+\subsection{Objective}
+The objective of this stage was to establish a strong centralized baseline for medical image classification using the Fed-ISIC2019 dataset. This baseline serves as an upper-bound reference for subsequent comparisons with local-only and federated learning approaches.
+
+\subsection{Motivation}
+Before evaluating federated learning methods, it is essential to understand the performance achievable when all data is pooled centrally. This provides:
+\begin{itemize}
+    \item A performance upper bound
+    \item A reference for quantifying the loss due to decentralization
+    \item A benchmark for evaluating the effectiveness of federated algorithms
+\end{itemize}
+
+\subsection{Dataset Setup}
+The Fed-ISIC2019 dataset was used in a centralized manner by combining all client datasets into a single training set. The dataset consists of dermoscopic images categorized into multiple classes, with inherent class imbalance and client-level heterogeneity.
+
+\subsection{Model Selection}
+A ResNet-18 architecture was selected due to:
+\begin{itemize}
+    \item Its balance between performance and computational efficiency
+    \item Proven effectiveness in medical image classification tasks
+    \item Compatibility with limited GPU resources (RTX 2070)
+\end{itemize}
+
+Pretrained weights (ImageNet) were used to accelerate convergence and improve generalization.
+
+\subsection{Training Configuration}
+The model was trained using the following configuration:
+\begin{itemize}
+    \item Optimizer: Adam
+    \item Learning rate: $1 \times 10^{-3}$
+    \item Batch size: 32
+    \item Epochs: 25
+    \item Weight decay: $1 \times 10^{-4}$
+    \item Image size: $224 \times 224$
+\end{itemize}
+
+\subsection{Enhancements Applied}
+To improve training stability and generalization, two key techniques were introduced:
+
+\subsubsection{Learning Rate Scheduling}
+A ReduceLROnPlateau scheduler was used:
+\begin{itemize}
+    \item Monitored metric: macro-F1
+    \item Factor: 0.5
+    \item Patience: 2 epochs
+\end{itemize}
+
+This allows the learning rate to adapt dynamically based on validation performance, improving convergence in later training stages.
+
+\subsubsection{Early Stopping}
+Early stopping was implemented with:
+\begin{itemize}
+    \item Monitor: macro-F1
+    \item Patience: 5 epochs
+    \item Minimum improvement threshold: 0.001
+\end{itemize}
+
+This prevents unnecessary overfitting and ensures that the model selection is based on meaningful performance improvements.
+
+\subsection{Evaluation Metrics}
+Due to class imbalance, multiple evaluation metrics were used:
+\begin{itemize}
+    \item Accuracy
+    \item Balanced Accuracy
+    \item Macro-F1 Score
+    \item Loss
+\end{itemize}
+
+Macro-F1 and balanced accuracy were prioritized as they provide a fairer evaluation across all classes.
+
+\subsection{Results}
+The best observed performance was:
+
+\begin{itemize}
+    \item Accuracy: 0.7456
+    \item Macro-F1: 0.6213
+    \item Balanced Accuracy: 0.6073
+\end{itemize}
+
+These results were obtained from different checkpoints:
+\begin{itemize}
+    \item Best accuracy at epoch 23
+    \item Best macro-F1 at epoch 24
+    \item Best balanced accuracy at epoch 25
+\end{itemize}
+
+\subsection{Analysis of Results}
+
+\subsubsection{Performance vs Class Imbalance}
+Although the model achieved relatively high accuracy, the gap between accuracy and macro-F1 indicates uneven performance across classes. This confirms that:
+\begin{itemize}
+    \item Majority classes dominate the learning process
+    \item Minority classes are harder to classify
+\end{itemize}
+
+\subsubsection{Generalization Behavior}
+A noticeable gap between training and testing performance was observed:
+\begin{itemize}
+    \item Training accuracy: $\sim$0.92
+    \item Test accuracy: $\sim$0.74
+\end{itemize}
+
+This suggests mild overfitting, which is expected given:
+\begin{itemize}
+    \item dataset imbalance
+    \item limited augmentation
+    \item heterogeneous data distribution
+\end{itemize}
+
+\subsubsection{Convergence Stability}
+The learning rate scheduler contributed to:
+\begin{itemize}
+    \item smoother convergence
+    \item improved late-stage performance
+    \item reduced oscillation in validation metrics
+\end{itemize}
+
+\subsection{Design Choices and Justification}
+
+\subsubsection{Why ResNet-18}
+Alternative architectures such as EfficientNet and MobileNet were considered. However:
+\begin{itemize}
+    \item ResNet-18 provides a strong baseline with lower complexity
+    \item It reduces training time and resource usage
+\end{itemize}
+
+\subsubsection{Why ReduceLROnPlateau}
+Alternative schedulers such as StepLR and CosineAnnealing were considered. ReduceLROnPlateau was chosen because:
+\begin{itemize}
+    \item It adapts to validation performance
+    \item It is robust in non-stationary training conditions
+\end{itemize}
+
+\subsubsection{Why Not Advanced Techniques}
+Techniques such as focal loss, class weighting, and heavy augmentation were not applied at this stage to:
+\begin{itemize}
+    \item maintain a fair baseline
+    \item avoid over-optimization before federated comparisons
+\end{itemize}
+
+\subsection{Limitations}
+The centralized baseline has several limitations:
+\begin{itemize}
+    \item Does not address data privacy constraints
+    \item Ignores real-world data silos
+    \item Performance is affected by class imbalance
+\end{itemize}
+
+\subsection{Key Findings}
+\begin{itemize}
+    \item Centralized training achieves strong overall performance
+    \item Class imbalance significantly affects macro-level metrics
+    \item Scheduler and early stopping improve stability and results
+    \item This baseline provides a reliable upper bound for comparison
+\end{itemize}
+
+\subsection{Conclusion}
+The centralized baseline is successfully established and provides a solid reference for subsequent experiments. The results highlight the impact of class imbalance and motivate the need for federated approaches to handle heterogeneous and distributed data settings.

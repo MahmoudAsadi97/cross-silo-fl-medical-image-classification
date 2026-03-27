@@ -1,0 +1,80 @@
+2026-03-27 13:19:58,791 | INFO | local_client_4 | Starting local training for client 4
+2026-03-27 13:20:01,134 | INFO | local_client_4 | Epoch 1/25 | lr=0.00100000
+2026-03-27 13:20:05,043 | INFO | local_client_4 | Train | loss=1.1631 acc=0.5389 bacc=0.4641 f1=0.2033
+2026-03-27 13:20:05,044 | INFO | local_client_4 | Test  | loss=5.6743 acc=0.4329 bacc=0.3691 f1=0.2641
+2026-03-27 13:20:05,671 | INFO | local_client_4 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_4/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 13:20:05,673 | INFO | local_client_4 | Epoch 2/25 | lr=0.00100000
+2026-03-27 13:20:09,517 | INFO | local_client_4 | Train | loss=0.8497 acc=0.6351 bacc=0.5672 f1=0.5739
+2026-03-27 13:20:09,520 | INFO | local_client_4 | Test  | loss=0.9612 acc=0.5732 bacc=0.5361 f1=0.4769
+2026-03-27 13:20:10,158 | INFO | local_client_4 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_4/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 13:20:10,160 | INFO | local_client_4 | Epoch 3/25 | lr=0.00100000
+2026-03-27 13:20:13,987 | INFO | local_client_4 | Train | loss=0.7738 acc=0.6611 bacc=0.6017 f1=0.6072
+2026-03-27 13:20:13,988 | INFO | local_client_4 | Test  | loss=1.1181 acc=0.5915 bacc=0.5582 f1=0.5478
+2026-03-27 13:20:14,632 | INFO | local_client_4 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_4/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 13:20:14,634 | INFO | local_client_4 | Epoch 4/25 | lr=0.00100000
+2026-03-27 13:20:18,402 | INFO | local_client_4 | Train | loss=0.6791 acc=0.7160 bacc=0.6731 f1=0.6777
+2026-03-27 13:20:18,402 | INFO | local_client_4 | Test  | loss=1.4042 acc=0.5122 bacc=0.5189 f1=0.4604
+2026-03-27 13:20:18,406 | INFO | local_client_4 | Epoch 5/25 | lr=0.00100000
+2026-03-27 13:21:28,619 | INFO | local_client_4 | Train | loss=0.6684 acc=0.7359 bacc=0.7046 f1=0.7038
+2026-03-27 13:21:28,620 | INFO | local_client_4 | Test  | loss=1.2782 acc=0.3963 bacc=0.4229 f1=0.3419
+2026-03-27 13:21:28,635 | INFO | local_client_4 | Epoch 6/25 | lr=0.00100000
+2026-03-27 13:22:06,735 | INFO | local_client_4 | Train | loss=0.6234 acc=0.7389 bacc=0.7072 f1=0.7094
+2026-03-27 13:22:06,737 | INFO | local_client_4 | Test  | loss=1.5424 acc=0.5427 bacc=0.5003 f1=0.4518
+2026-03-27 13:22:06,752 | INFO | local_client_4 | Epoch 7/25 | lr=0.00100000
+2026-03-27 13:22:51,338 | INFO | local_client_4 | Train | loss=0.6251 acc=0.7252 bacc=0.6727 f1=0.6839
+2026-03-27 13:22:51,340 | INFO | local_client_4 | Test  | loss=1.1239 acc=0.5366 bacc=0.5250 f1=0.4713
+2026-03-27 13:22:51,354 | INFO | local_client_4 | Epoch 8/25 | lr=0.00100000
+2026-03-27 13:23:29,866 | INFO | local_client_4 | Train | loss=0.5383 acc=0.7771 bacc=0.7455 f1=0.7497
+2026-03-27 13:23:29,867 | INFO | local_client_4 | Test  | loss=2.0589 acc=0.5366 bacc=0.4882 f1=0.4356
+2026-03-27 13:23:29,882 | INFO | local_client_4 | Epoch 9/25 | lr=0.00100000
+2026-03-27 13:24:09,462 | INFO | local_client_4 | Train | loss=0.5300 acc=0.7908 bacc=0.7727 f1=0.7718
+2026-03-27 13:24:09,463 | INFO | local_client_4 | Test  | loss=0.9716 acc=0.6463 bacc=0.6247 f1=0.6215
+2026-03-27 13:24:13,325 | INFO | local_client_4 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_4/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 13:24:13,337 | INFO | local_client_4 | Epoch 10/25 | lr=0.00100000
+2026-03-27 13:24:21,425 | INFO | local_client_4 | Train | loss=0.5777 acc=0.7466 bacc=0.7116 f1=0.7130
+2026-03-27 13:24:21,425 | INFO | local_client_4 | Test  | loss=1.0174 acc=0.5976 bacc=0.6036 f1=0.5855
+2026-03-27 13:24:21,428 | INFO | local_client_4 | Epoch 11/25 | lr=0.00100000
+2026-03-27 13:24:25,350 | INFO | local_client_4 | Train | loss=0.4995 acc=0.7939 bacc=0.7685 f1=0.7708
+2026-03-27 13:24:25,350 | INFO | local_client_4 | Test  | loss=1.7853 acc=0.5549 bacc=0.5052 f1=0.4481
+2026-03-27 13:24:25,355 | INFO | local_client_4 | Epoch 12/25 | lr=0.00100000
+2026-03-27 13:24:29,192 | INFO | local_client_4 | Train | loss=0.4117 acc=0.8443 bacc=0.8272 f1=0.8295
+2026-03-27 13:24:29,192 | INFO | local_client_4 | Test  | loss=1.1447 acc=0.6341 bacc=0.6076 f1=0.6050
+2026-03-27 13:24:29,196 | INFO | local_client_4 | Epoch 13/25 | lr=0.00100000
+2026-03-27 13:24:32,890 | INFO | local_client_4 | Train | loss=0.4425 acc=0.8046 bacc=0.7938 f1=0.7884
+2026-03-27 13:24:32,890 | INFO | local_client_4 | Test  | loss=1.0292 acc=0.5488 bacc=0.5649 f1=0.5446
+2026-03-27 13:24:32,894 | INFO | local_client_4 | Epoch 14/25 | lr=0.00100000
+2026-03-27 13:24:36,638 | INFO | local_client_4 | Train | loss=0.4626 acc=0.8107 bacc=0.7758 f1=0.7872
+2026-03-27 13:24:36,638 | INFO | local_client_4 | Test  | loss=1.0578 acc=0.6098 bacc=0.6014 f1=0.5973
+2026-03-27 13:24:36,641 | INFO | local_client_4 | Epoch 15/25 | lr=0.00100000
+2026-03-27 13:24:40,335 | INFO | local_client_4 | Train | loss=0.3557 acc=0.8611 bacc=0.8607 f1=0.8520
+2026-03-27 13:24:40,336 | INFO | local_client_4 | Test  | loss=1.2240 acc=0.5915 bacc=0.5547 f1=0.5458
+2026-03-27 13:24:40,339 | INFO | local_client_4 | Epoch 16/25 | lr=0.00100000
+2026-03-27 13:24:44,111 | INFO | local_client_4 | Train | loss=0.3522 acc=0.8611 bacc=0.8427 f1=0.8513
+2026-03-27 13:24:44,111 | INFO | local_client_4 | Test  | loss=1.7791 acc=0.4634 bacc=0.4995 f1=0.4342
+2026-03-27 13:24:44,115 | INFO | local_client_4 | Epoch 17/25 | lr=0.00100000
+2026-03-27 13:24:47,903 | INFO | local_client_4 | Train | loss=0.3754 acc=0.8473 bacc=0.8309 f1=0.8325
+2026-03-27 13:24:47,904 | INFO | local_client_4 | Test  | loss=1.2852 acc=0.6341 bacc=0.6129 f1=0.6162
+2026-03-27 13:24:47,906 | INFO | local_client_4 | Epoch 18/25 | lr=0.00100000
+2026-03-27 13:26:02,335 | INFO | local_client_4 | Train | loss=0.3302 acc=0.8748 bacc=0.8680 f1=0.8653
+2026-03-27 13:26:02,337 | INFO | local_client_4 | Test  | loss=1.1662 acc=0.5854 bacc=0.5830 f1=0.5798
+2026-03-27 13:26:02,353 | INFO | local_client_4 | Epoch 19/25 | lr=0.00100000
+2026-03-27 13:26:26,134 | INFO | local_client_4 | Train | loss=0.3396 acc=0.8779 bacc=0.8695 f1=0.8720
+2026-03-27 13:26:26,135 | INFO | local_client_4 | Test  | loss=1.6319 acc=0.6220 bacc=0.5852 f1=0.5806
+2026-03-27 13:26:26,137 | INFO | local_client_4 | Epoch 20/25 | lr=0.00100000
+2026-03-27 13:26:30,125 | INFO | local_client_4 | Train | loss=0.2541 acc=0.8977 bacc=0.8882 f1=0.8888
+2026-03-27 13:26:30,125 | INFO | local_client_4 | Test  | loss=1.5712 acc=0.5793 bacc=0.5446 f1=0.5438
+2026-03-27 13:26:30,129 | INFO | local_client_4 | Epoch 21/25 | lr=0.00100000
+2026-03-27 13:26:33,978 | INFO | local_client_4 | Train | loss=0.1806 acc=0.9298 bacc=0.9250 f1=0.9241
+2026-03-27 13:26:33,979 | INFO | local_client_4 | Test  | loss=2.4094 acc=0.5549 bacc=0.5227 f1=0.4652
+2026-03-27 13:26:33,982 | INFO | local_client_4 | Epoch 22/25 | lr=0.00100000
+2026-03-27 13:26:37,647 | INFO | local_client_4 | Train | loss=0.2243 acc=0.9191 bacc=0.9102 f1=0.9105
+2026-03-27 13:26:37,648 | INFO | local_client_4 | Test  | loss=1.2226 acc=0.6220 bacc=0.6185 f1=0.6027
+2026-03-27 13:26:37,651 | INFO | local_client_4 | Epoch 23/25 | lr=0.00100000
+2026-03-27 13:26:41,360 | INFO | local_client_4 | Train | loss=0.2763 acc=0.9023 bacc=0.8855 f1=0.8890
+2026-03-27 13:26:41,360 | INFO | local_client_4 | Test  | loss=1.7733 acc=0.5793 bacc=0.5692 f1=0.5539
+2026-03-27 13:26:41,364 | INFO | local_client_4 | Epoch 24/25 | lr=0.00100000
+2026-03-27 13:26:45,137 | INFO | local_client_4 | Train | loss=0.3253 acc=0.8718 bacc=0.8621 f1=0.8614
+2026-03-27 13:26:45,138 | INFO | local_client_4 | Test  | loss=2.0146 acc=0.4207 bacc=0.4414 f1=0.3810
+2026-03-27 13:26:45,141 | INFO | local_client_4 | Epoch 25/25 | lr=0.00100000
+2026-03-27 13:26:49,107 | INFO | local_client_4 | Train | loss=0.1635 acc=0.9405 bacc=0.9310 f1=0.9318
+2026-03-27 13:26:49,108 | INFO | local_client_4 | Test  | loss=1.9696 acc=0.5305 bacc=0.5270 f1=0.4683

@@ -1,0 +1,173 @@
+2026-03-27 11:07:39,577 | INFO | centralized_baseline | Starting centralized baseline training
+2026-03-27 11:07:39,577 | INFO | centralized_baseline | Using device: cuda
+2026-03-27 11:07:39,577 | INFO | centralized_baseline | Old centralized results were removed and will be replaced.
+2026-03-27 11:08:39,401 | INFO | centralized_baseline | Epoch 1/25 | lr=0.00100000
+2026-03-27 11:09:57,272 | INFO | centralized_baseline | Train | loss=1.1109 acc=0.6083 bacc=0.2907 f1=0.2943
+2026-03-27 11:09:57,272 | INFO | centralized_baseline | Test  | loss=1.0181 acc=0.6368 bacc=0.3261 f1=0.3342
+2026-03-27 11:09:57,905 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:09:58,531 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:09:59,144 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:09:59,145 | INFO | centralized_baseline | Scheduler step on macro_f1=0.3342 | new_lr=0.00100000
+2026-03-27 11:09:59,145 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.3342
+2026-03-27 11:09:59,149 | INFO | centralized_baseline | Epoch 2/25 | lr=0.00100000
+2026-03-27 11:11:19,197 | INFO | centralized_baseline | Train | loss=0.9969 acc=0.6418 bacc=0.3371 f1=0.3429
+2026-03-27 11:11:19,197 | INFO | centralized_baseline | Test  | loss=0.9923 acc=0.6424 bacc=0.3587 f1=0.3584
+2026-03-27 11:11:19,836 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:11:20,473 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:11:21,144 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:11:21,144 | INFO | centralized_baseline | Scheduler step on macro_f1=0.3584 | new_lr=0.00100000
+2026-03-27 11:11:21,144 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.3584
+2026-03-27 11:11:21,147 | INFO | centralized_baseline | Epoch 3/25 | lr=0.00100000
+2026-03-27 11:12:43,438 | INFO | centralized_baseline | Train | loss=0.9534 acc=0.6563 bacc=0.3726 f1=0.3858
+2026-03-27 11:12:43,438 | INFO | centralized_baseline | Test  | loss=0.9710 acc=0.6535 bacc=0.3910 f1=0.3820
+2026-03-27 11:12:44,062 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:12:44,690 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:12:45,309 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:12:45,310 | INFO | centralized_baseline | Scheduler step on macro_f1=0.3820 | new_lr=0.00100000
+2026-03-27 11:12:45,310 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.3820
+2026-03-27 11:12:45,312 | INFO | centralized_baseline | Epoch 4/25 | lr=0.00100000
+2026-03-27 11:14:12,857 | INFO | centralized_baseline | Train | loss=0.9223 acc=0.6665 bacc=0.3911 f1=0.4026
+2026-03-27 11:14:12,857 | INFO | centralized_baseline | Test  | loss=0.9801 acc=0.6469 bacc=0.4120 f1=0.4054
+2026-03-27 11:14:13,496 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:14:14,137 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:14:14,138 | INFO | centralized_baseline | Scheduler step on macro_f1=0.4054 | new_lr=0.00100000
+2026-03-27 11:14:14,138 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.4054
+2026-03-27 11:14:14,140 | INFO | centralized_baseline | Epoch 5/25 | lr=0.00100000
+2026-03-27 11:15:42,315 | INFO | centralized_baseline | Train | loss=0.9020 acc=0.6693 bacc=0.4020 f1=0.4146
+2026-03-27 11:15:42,315 | INFO | centralized_baseline | Test  | loss=1.0325 acc=0.6430 bacc=0.4156 f1=0.4198
+2026-03-27 11:15:43,021 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:15:43,703 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:15:43,704 | INFO | centralized_baseline | Scheduler step on macro_f1=0.4198 | new_lr=0.00100000
+2026-03-27 11:15:43,704 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.4198
+2026-03-27 11:15:43,706 | INFO | centralized_baseline | Epoch 6/25 | lr=0.00100000
+2026-03-27 11:17:14,493 | INFO | centralized_baseline | Train | loss=0.8825 acc=0.6751 bacc=0.4142 f1=0.4290
+2026-03-27 11:17:14,493 | INFO | centralized_baseline | Test  | loss=1.0121 acc=0.6426 bacc=0.4183 f1=0.4182
+2026-03-27 11:17:15,147 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:17:15,148 | INFO | centralized_baseline | Scheduler step on macro_f1=0.4182 | new_lr=0.00100000
+2026-03-27 11:17:15,148 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=1/5
+2026-03-27 11:17:15,150 | INFO | centralized_baseline | Epoch 7/25 | lr=0.00100000
+2026-03-27 11:18:46,955 | INFO | centralized_baseline | Train | loss=0.8616 acc=0.6824 bacc=0.4329 f1=0.4533
+2026-03-27 11:18:46,956 | INFO | centralized_baseline | Test  | loss=0.9403 acc=0.6518 bacc=0.4576 f1=0.4674
+2026-03-27 11:18:47,654 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:18:48,358 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:18:48,359 | INFO | centralized_baseline | Scheduler step on macro_f1=0.4674 | new_lr=0.00100000
+2026-03-27 11:18:48,359 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.4674
+2026-03-27 11:18:48,361 | INFO | centralized_baseline | Epoch 8/25 | lr=0.00100000
+2026-03-27 11:20:18,899 | INFO | centralized_baseline | Train | loss=0.8359 acc=0.6952 bacc=0.4603 f1=0.4838
+2026-03-27 11:20:18,900 | INFO | centralized_baseline | Test  | loss=1.0079 acc=0.6239 bacc=0.4413 f1=0.4277
+2026-03-27 11:20:18,901 | INFO | centralized_baseline | Scheduler step on macro_f1=0.4277 | new_lr=0.00100000
+2026-03-27 11:20:18,902 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=1/5
+2026-03-27 11:20:18,905 | INFO | centralized_baseline | Epoch 9/25 | lr=0.00100000
+2026-03-27 11:21:51,083 | INFO | centralized_baseline | Train | loss=0.8116 acc=0.7030 bacc=0.4789 f1=0.5039
+2026-03-27 11:21:51,083 | INFO | centralized_baseline | Test  | loss=0.8220 acc=0.6996 bacc=0.4622 f1=0.4898
+2026-03-27 11:21:51,749 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:21:52,442 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:21:53,133 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:21:53,133 | INFO | centralized_baseline | Scheduler step on macro_f1=0.4898 | new_lr=0.00100000
+2026-03-27 11:21:53,133 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.4898
+2026-03-27 11:21:53,135 | INFO | centralized_baseline | Epoch 10/25 | lr=0.00100000
+2026-03-27 11:23:26,855 | INFO | centralized_baseline | Train | loss=0.7903 acc=0.7143 bacc=0.4976 f1=0.5254
+2026-03-27 11:23:26,856 | INFO | centralized_baseline | Test  | loss=0.9024 acc=0.6677 bacc=0.5077 f1=0.5029
+2026-03-27 11:23:27,519 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:23:28,209 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:23:28,210 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5029 | new_lr=0.00100000
+2026-03-27 11:23:28,210 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.5029
+2026-03-27 11:23:28,212 | INFO | centralized_baseline | Epoch 11/25 | lr=0.00100000
+2026-03-27 11:24:59,659 | INFO | centralized_baseline | Train | loss=0.7633 acc=0.7204 bacc=0.5118 f1=0.5385
+2026-03-27 11:24:59,660 | INFO | centralized_baseline | Test  | loss=0.8306 acc=0.6970 bacc=0.4941 f1=0.5157
+2026-03-27 11:25:00,325 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:25:00,325 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5157 | new_lr=0.00100000
+2026-03-27 11:25:00,325 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.5157
+2026-03-27 11:25:00,327 | INFO | centralized_baseline | Epoch 12/25 | lr=0.00100000
+2026-03-27 11:26:31,576 | INFO | centralized_baseline | Train | loss=0.7488 acc=0.7246 bacc=0.5265 f1=0.5516
+2026-03-27 11:26:31,577 | INFO | centralized_baseline | Test  | loss=0.8112 acc=0.7056 bacc=0.5198 f1=0.5449
+2026-03-27 11:26:32,235 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:26:32,918 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:26:33,620 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:26:33,621 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5449 | new_lr=0.00100000
+2026-03-27 11:26:33,621 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.5449
+2026-03-27 11:26:33,623 | INFO | centralized_baseline | Epoch 13/25 | lr=0.00100000
+2026-03-27 11:28:06,080 | INFO | centralized_baseline | Train | loss=0.7257 acc=0.7309 bacc=0.5401 f1=0.5696
+2026-03-27 11:28:06,081 | INFO | centralized_baseline | Test  | loss=0.7893 acc=0.7138 bacc=0.5054 f1=0.5357
+2026-03-27 11:28:06,729 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:28:06,729 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5357 | new_lr=0.00100000
+2026-03-27 11:28:06,729 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=1/5
+2026-03-27 11:28:06,731 | INFO | centralized_baseline | Epoch 14/25 | lr=0.00100000
+2026-03-27 11:29:39,341 | INFO | centralized_baseline | Train | loss=0.6974 acc=0.7434 bacc=0.5619 f1=0.5901
+2026-03-27 11:29:39,342 | INFO | centralized_baseline | Test  | loss=0.9575 acc=0.6665 bacc=0.4586 f1=0.4965
+2026-03-27 11:29:39,343 | INFO | centralized_baseline | Scheduler step on macro_f1=0.4965 | new_lr=0.00100000
+2026-03-27 11:29:39,344 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=2/5
+2026-03-27 11:29:39,348 | INFO | centralized_baseline | Epoch 15/25 | lr=0.00100000
+2026-03-27 11:31:13,071 | INFO | centralized_baseline | Train | loss=0.6799 acc=0.7516 bacc=0.5708 f1=0.5981
+2026-03-27 11:31:13,072 | INFO | centralized_baseline | Test  | loss=0.8221 acc=0.7006 bacc=0.5103 f1=0.5240
+2026-03-27 11:31:13,073 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5240 | new_lr=0.00050000
+2026-03-27 11:31:13,074 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=3/5
+2026-03-27 11:31:13,077 | INFO | centralized_baseline | Epoch 16/25 | lr=0.00050000
+2026-03-27 11:32:47,907 | INFO | centralized_baseline | Train | loss=0.5649 acc=0.7948 bacc=0.6629 f1=0.6883
+2026-03-27 11:32:47,907 | INFO | centralized_baseline | Test  | loss=0.8271 acc=0.7252 bacc=0.5297 f1=0.5464
+2026-03-27 11:32:48,604 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:32:49,264 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:32:49,943 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:32:49,943 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5464 | new_lr=0.00050000
+2026-03-27 11:32:49,943 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.5464
+2026-03-27 11:32:49,946 | INFO | centralized_baseline | Epoch 17/25 | lr=0.00050000
+2026-03-27 11:34:23,617 | INFO | centralized_baseline | Train | loss=0.5292 acc=0.8044 bacc=0.6820 f1=0.7075
+2026-03-27 11:34:23,617 | INFO | centralized_baseline | Test  | loss=0.7476 acc=0.7432 bacc=0.5849 f1=0.6012
+2026-03-27 11:34:24,278 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:34:24,941 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:34:25,666 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:34:25,666 | INFO | centralized_baseline | Scheduler step on macro_f1=0.6012 | new_lr=0.00050000
+2026-03-27 11:34:25,666 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.6012
+2026-03-27 11:34:25,669 | INFO | centralized_baseline | Epoch 18/25 | lr=0.00050000
+2026-03-27 11:35:59,601 | INFO | centralized_baseline | Train | loss=0.4935 acc=0.8166 bacc=0.7078 f1=0.7310
+2026-03-27 11:35:59,602 | INFO | centralized_baseline | Test  | loss=0.7742 acc=0.7398 bacc=0.5711 f1=0.5843
+2026-03-27 11:35:59,604 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5843 | new_lr=0.00050000
+2026-03-27 11:35:59,604 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=1/5
+2026-03-27 11:35:59,608 | INFO | centralized_baseline | Epoch 19/25 | lr=0.00050000
+2026-03-27 11:37:33,954 | INFO | centralized_baseline | Train | loss=0.4629 acc=0.8296 bacc=0.7255 f1=0.7486
+2026-03-27 11:37:33,954 | INFO | centralized_baseline | Test  | loss=0.8215 acc=0.7323 bacc=0.5928 f1=0.6076
+2026-03-27 11:37:34,616 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:37:35,266 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:37:35,266 | INFO | centralized_baseline | Scheduler step on macro_f1=0.6076 | new_lr=0.00050000
+2026-03-27 11:37:35,266 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.6076
+2026-03-27 11:37:35,268 | INFO | centralized_baseline | Epoch 20/25 | lr=0.00050000
+2026-03-27 11:39:08,893 | INFO | centralized_baseline | Train | loss=0.4287 acc=0.8449 bacc=0.7647 f1=0.7823
+2026-03-27 11:39:08,893 | INFO | centralized_baseline | Test  | loss=0.9344 acc=0.7310 bacc=0.5121 f1=0.5575
+2026-03-27 11:39:08,894 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5575 | new_lr=0.00050000
+2026-03-27 11:39:08,895 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=1/5
+2026-03-27 11:39:08,898 | INFO | centralized_baseline | Epoch 21/25 | lr=0.00050000
+2026-03-27 11:40:42,393 | INFO | centralized_baseline | Train | loss=0.3970 acc=0.8565 bacc=0.7793 f1=0.8001
+2026-03-27 11:40:42,394 | INFO | centralized_baseline | Test  | loss=0.8093 acc=0.7344 bacc=0.5705 f1=0.5774
+2026-03-27 11:40:42,395 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5774 | new_lr=0.00050000
+2026-03-27 11:40:42,395 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=2/5
+2026-03-27 11:40:42,399 | INFO | centralized_baseline | Epoch 22/25 | lr=0.00050000
+2026-03-27 11:42:17,710 | INFO | centralized_baseline | Train | loss=0.3769 acc=0.8633 bacc=0.8038 f1=0.8149
+2026-03-27 11:42:17,711 | INFO | centralized_baseline | Test  | loss=0.8374 acc=0.7318 bacc=0.5844 f1=0.5962
+2026-03-27 11:42:17,712 | INFO | centralized_baseline | Scheduler step on macro_f1=0.5962 | new_lr=0.00025000
+2026-03-27 11:42:17,713 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=3/5
+2026-03-27 11:42:17,717 | INFO | centralized_baseline | Epoch 23/25 | lr=0.00025000
+2026-03-27 11:43:52,751 | INFO | centralized_baseline | Train | loss=0.2931 acc=0.8936 bacc=0.8407 f1=0.8546
+2026-03-27 11:43:52,752 | INFO | centralized_baseline | Test  | loss=0.8045 acc=0.7456 bacc=0.6014 f1=0.6206
+2026-03-27 11:43:53,441 | INFO | centralized_baseline | Saved best accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt
+2026-03-27 11:43:54,119 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:43:54,795 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:43:54,796 | INFO | centralized_baseline | Scheduler step on macro_f1=0.6206 | new_lr=0.00025000
+2026-03-27 11:43:54,796 | INFO | centralized_baseline | Early stopping monitor improved: macro_f1=0.6206
+2026-03-27 11:43:54,799 | INFO | centralized_baseline | Epoch 24/25 | lr=0.00025000
+2026-03-27 11:45:28,564 | INFO | centralized_baseline | Train | loss=0.2477 acc=0.9106 bacc=0.8703 f1=0.8818
+2026-03-27 11:45:28,565 | INFO | centralized_baseline | Test  | loss=0.8795 acc=0.7404 bacc=0.5911 f1=0.6213
+2026-03-27 11:45:29,248 | INFO | centralized_baseline | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 11:45:29,249 | INFO | centralized_baseline | Scheduler step on macro_f1=0.6213 | new_lr=0.00025000
+2026-03-27 11:45:29,249 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=1/5
+2026-03-27 11:45:29,251 | INFO | centralized_baseline | Epoch 25/25 | lr=0.00025000
+2026-03-27 11:47:05,102 | INFO | centralized_baseline | Train | loss=0.2203 acc=0.9201 bacc=0.8867 f1=0.8981
+2026-03-27 11:47:05,102 | INFO | centralized_baseline | Test  | loss=0.9001 acc=0.7357 bacc=0.6073 f1=0.6144
+2026-03-27 11:47:05,791 | INFO | centralized_baseline | Saved best balanced-accuracy checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt
+2026-03-27 11:47:05,791 | INFO | centralized_baseline | Scheduler step on macro_f1=0.6144 | new_lr=0.00025000
+2026-03-27 11:47:05,791 | INFO | centralized_baseline | No significant improvement in macro_f1. bad_epochs=2/5
+2026-03-27 11:47:05,796 | INFO | centralized_baseline | Training completed
+2026-03-27 11:47:05,796 | INFO | centralized_baseline | Best test accuracy: 0.7456 at epoch 23
+2026-03-27 11:47:05,797 | INFO | centralized_baseline | Best test macro-F1: 0.6213 at epoch 24
+2026-03-27 11:47:05,797 | INFO | centralized_baseline | Best test balanced accuracy: 0.6073 at epoch 25
+2026-03-27 11:47:05,797 | INFO | centralized_baseline | History saved to: /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/history.json
+2026-03-27 11:47:05,797 | INFO | centralized_baseline | Summary saved to: /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/summary.json

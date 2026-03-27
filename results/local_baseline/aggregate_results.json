@@ -1,0 +1,8 @@
+{
+  "mean_best_accuracy": 0.7589835800999024,
+  "std_best_accuracy": 0.14342416945336717,
+  "mean_best_balanced_accuracy": 0.5771193573674894,
+  "std_best_balanced_accuracy": 0.040688416102139205,
+  "mean_best_macro_f1": 0.5992436913689908,
+  "std_best_macro_f1": 0.0314986932154712
+}

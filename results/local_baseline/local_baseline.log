@@ -1,0 +1,12 @@
+2026-03-27 12:12:53,243 | INFO | local_baseline | Starting local-only baseline training
+2026-03-27 12:12:53,243 | INFO | local_baseline | Using device: cuda
+2026-03-27 12:16:05,651 | INFO | local_baseline | Starting local-only baseline training
+2026-03-27 12:16:05,652 | INFO | local_baseline | Using device: cuda
+2026-03-27 12:35:36,518 | INFO | local_baseline | Finished client 0 | best_macro_f1=0.5494 | best_accuracy=0.6927
+2026-03-27 12:46:12,811 | INFO | local_baseline | Finished client 1 | best_macro_f1=0.6413 | best_accuracy=0.9722
+2026-03-27 13:01:32,221 | INFO | local_baseline | Finished client 2 | best_macro_f1=0.6038 | best_accuracy=0.7277
+2026-03-27 13:19:58,778 | INFO | local_baseline | Finished client 3 | best_macro_f1=0.5871 | best_accuracy=0.6173
+2026-03-27 13:26:49,113 | INFO | local_baseline | Finished client 4 | best_macro_f1=0.6215 | best_accuracy=0.6463
+2026-03-27 13:30:27,635 | INFO | local_baseline | Finished client 5 | best_macro_f1=0.5924 | best_accuracy=0.8977
+2026-03-27 13:30:27,669 | INFO | local_baseline | Local-only baseline completed
+2026-03-27 13:30:27,669 | INFO | local_baseline | Aggregate results: {'mean_best_accuracy': 0.7589835800999024, 'std_best_accuracy': 0.14342416945336717, 'mean_best_balanced_accuracy': 0.5771193573674894, 'std_best_balanced_accuracy': 0.040688416102139205, 'mean_best_macro_f1': 0.5992436913689908, 'std_best_macro_f1': 0.0314986932154712}

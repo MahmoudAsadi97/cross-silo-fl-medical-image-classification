@@ -1,0 +1,59 @@
+{
+  "run_name": "centralized_baseline",
+  "device": "cuda",
+  "epochs_requested": 25,
+  "epochs_completed": 25,
+  "batch_size": 32,
+  "image_size": 224,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "seed": 42,
+  "scheduler": {
+    "name": "reduce_on_plateau",
+    "mode": "max",
+    "factor": 0.5,
+    "patience": 2,
+    "min_lr": "1e-6",
+    "monitor": "macro_f1"
+  },
+  "early_stopping": {
+    "enabled": true,
+    "monitor": "macro_f1",
+    "mode": "max",
+    "patience": 5,
+    "min_delta": 0.001,
+    "stopped_early": false,
+    "stopped_epoch": null
+  },
+  "best_by_accuracy": {
+    "epoch": 23,
+    "accuracy": 0.7455913978494624,
+    "checkpoint": "/mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_accuracy.pt"
+  },
+  "best_by_macro_f1": {
+    "epoch": 24,
+    "macro_f1": 0.621338818146381,
+    "checkpoint": "/mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_macro_f1.pt"
+  },
+  "best_by_balanced_accuracy": {
+    "epoch": 25,
+    "balanced_accuracy": 0.6072862709591424,
+    "checkpoint": "/mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/centralized_baseline/checkpoints/best_model_by_balanced_accuracy.pt"
+  },
+  "final_train_metrics": {
+    "epoch": 25,
+    "lr": 0.00025,
+    "accuracy": 0.920094638920256,
+    "balanced_accuracy": 0.8867246857327146,
+    "macro_f1": 0.898116438665855,
+    "loss": 0.2202570162653032
+  },
+  "final_test_metrics": {
+    "epoch": 25,
+    "lr": 0.00025,
+    "accuracy": 0.7356989247311828,
+    "balanced_accuracy": 0.6072862709591424,
+    "macro_f1": 0.6144394399924052,
+    "loss": 0.9000546875179455
+  }
+}

@@ -1,0 +1,84 @@
+2026-03-27 12:35:36,531 | INFO | local_client_1 | Starting local training for client 1
+2026-03-27 12:37:24,330 | INFO | local_client_1 | Epoch 1/25 | lr=0.00100000
+2026-03-27 12:39:58,080 | INFO | local_client_1 | Train | loss=0.2890 acc=0.9298 bacc=0.2435 f1=0.1976
+2026-03-27 12:39:58,080 | INFO | local_client_1 | Test  | loss=0.3523 acc=0.9456 bacc=0.4195 f1=0.3666
+2026-03-27 12:39:58,717 | INFO | local_client_1 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_1/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 12:39:58,719 | INFO | local_client_1 | Epoch 2/25 | lr=0.00100000
+2026-03-27 12:40:12,085 | INFO | local_client_1 | Train | loss=0.1765 acc=0.9491 bacc=0.3186 f1=0.3387
+2026-03-27 12:40:12,088 | INFO | local_client_1 | Test  | loss=0.1895 acc=0.9482 bacc=0.4476 f1=0.4385
+2026-03-27 12:40:12,726 | INFO | local_client_1 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_1/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 12:40:12,728 | INFO | local_client_1 | Epoch 3/25 | lr=0.00100000
+2026-03-27 12:40:27,033 | INFO | local_client_1 | Train | loss=0.1526 acc=0.9551 bacc=0.3664 f1=0.3891
+2026-03-27 12:40:27,033 | INFO | local_client_1 | Test  | loss=0.4745 acc=0.8597 bacc=0.3068 f1=0.2404
+2026-03-27 12:40:27,036 | INFO | local_client_1 | Epoch 4/25 | lr=0.00100000
+2026-03-27 12:40:41,160 | INFO | local_client_1 | Train | loss=0.1639 acc=0.9545 bacc=0.3367 f1=0.3613
+2026-03-27 12:40:41,161 | INFO | local_client_1 | Test  | loss=0.2254 acc=0.9381 bacc=0.4729 f1=0.4187
+2026-03-27 12:40:41,164 | INFO | local_client_1 | Epoch 5/25 | lr=0.00100000
+2026-03-27 12:40:55,468 | INFO | local_client_1 | Train | loss=0.1439 acc=0.9589 bacc=0.4007 f1=0.4174
+2026-03-27 12:40:55,468 | INFO | local_client_1 | Test  | loss=0.1818 acc=0.9456 bacc=0.5158 f1=0.4483
+2026-03-27 12:40:56,118 | INFO | local_client_1 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_1/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 12:40:56,120 | INFO | local_client_1 | Epoch 6/25 | lr=0.00100000
+2026-03-27 12:41:10,655 | INFO | local_client_1 | Train | loss=0.1352 acc=0.9624 bacc=0.4180 f1=0.4407
+2026-03-27 12:41:10,655 | INFO | local_client_1 | Test  | loss=0.1816 acc=0.9482 bacc=0.4957 f1=0.4523
+2026-03-27 12:41:11,330 | INFO | local_client_1 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_1/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 12:41:11,332 | INFO | local_client_1 | Epoch 7/25 | lr=0.00100000
+2026-03-27 12:41:26,296 | INFO | local_client_1 | Train | loss=0.1259 acc=0.9668 bacc=0.4473 f1=0.4813
+2026-03-27 12:41:26,296 | INFO | local_client_1 | Test  | loss=0.1607 acc=0.9482 bacc=0.5301 f1=0.4561
+2026-03-27 12:41:26,981 | INFO | local_client_1 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_1/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 12:41:26,983 | INFO | local_client_1 | Epoch 8/25 | lr=0.00100000
+2026-03-27 12:41:42,026 | INFO | local_client_1 | Train | loss=0.1356 acc=0.9595 bacc=0.4018 f1=0.4304
+2026-03-27 12:41:42,026 | INFO | local_client_1 | Test  | loss=0.3952 acc=0.8647 bacc=0.5887 f1=0.4501
+2026-03-27 12:41:42,030 | INFO | local_client_1 | Epoch 9/25 | lr=0.00100000
+2026-03-27 12:41:57,272 | INFO | local_client_1 | Train | loss=0.1264 acc=0.9646 bacc=0.4342 f1=0.4571
+2026-03-27 12:41:57,273 | INFO | local_client_1 | Test  | loss=0.2083 acc=0.9608 bacc=0.5124 f1=0.5558
+2026-03-27 12:41:57,961 | INFO | local_client_1 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_1/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 12:41:57,964 | INFO | local_client_1 | Epoch 10/25 | lr=0.00100000
+2026-03-27 12:42:13,561 | INFO | local_client_1 | Train | loss=0.1218 acc=0.9636 bacc=0.4283 f1=0.4507
+2026-03-27 12:42:13,561 | INFO | local_client_1 | Test  | loss=0.1977 acc=0.9482 bacc=0.5166 f1=0.4907
+2026-03-27 12:42:13,565 | INFO | local_client_1 | Epoch 11/25 | lr=0.00100000
+2026-03-27 12:42:29,112 | INFO | local_client_1 | Train | loss=0.1184 acc=0.9659 bacc=0.4649 f1=0.4852
+2026-03-27 12:42:29,112 | INFO | local_client_1 | Test  | loss=0.1615 acc=0.9482 bacc=0.4944 f1=0.4876
+2026-03-27 12:42:29,115 | INFO | local_client_1 | Epoch 12/25 | lr=0.00100000
+2026-03-27 12:42:44,691 | INFO | local_client_1 | Train | loss=0.1175 acc=0.9671 bacc=0.4834 f1=0.5128
+2026-03-27 12:42:44,691 | INFO | local_client_1 | Test  | loss=0.2475 acc=0.9621 bacc=0.5561 f1=0.5754
+2026-03-27 12:42:45,377 | INFO | local_client_1 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_1/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 12:42:45,379 | INFO | local_client_1 | Epoch 13/25 | lr=0.00100000
+2026-03-27 12:43:00,924 | INFO | local_client_1 | Train | loss=0.0986 acc=0.9712 bacc=0.5149 f1=0.5286
+2026-03-27 12:43:00,925 | INFO | local_client_1 | Test  | loss=0.1835 acc=0.9621 bacc=0.4698 f1=0.4736
+2026-03-27 12:43:00,929 | INFO | local_client_1 | Epoch 14/25 | lr=0.00100000
+2026-03-27 12:43:16,837 | INFO | local_client_1 | Train | loss=0.1117 acc=0.9662 bacc=0.4664 f1=0.4872
+2026-03-27 12:43:16,838 | INFO | local_client_1 | Test  | loss=0.2774 acc=0.9241 bacc=0.6368 f1=0.5237
+2026-03-27 12:43:16,841 | INFO | local_client_1 | Epoch 15/25 | lr=0.00100000
+2026-03-27 12:43:32,516 | INFO | local_client_1 | Train | loss=0.1144 acc=0.9693 bacc=0.5029 f1=0.5147
+2026-03-27 12:43:32,517 | INFO | local_client_1 | Test  | loss=0.1230 acc=0.9722 bacc=0.5981 f1=0.6413
+2026-03-27 12:43:33,197 | INFO | local_client_1 | Saved best macro-F1 checkpoint to /mnt/c/Users/Nima/Desktop/MINE/My_projects/Research&Innovation_Project/cross-silo-fl-medical-image-classification/results/local_baseline/client_1/checkpoints/best_model_by_macro_f1.pt
+2026-03-27 12:43:33,200 | INFO | local_client_1 | Epoch 16/25 | lr=0.00100000
+2026-03-27 12:43:48,843 | INFO | local_client_1 | Train | loss=0.1013 acc=0.9709 bacc=0.5033 f1=0.5325
+2026-03-27 12:43:48,843 | INFO | local_client_1 | Test  | loss=0.1631 acc=0.9583 bacc=0.5253 f1=0.4858
+2026-03-27 12:43:48,847 | INFO | local_client_1 | Epoch 17/25 | lr=0.00100000
+2026-03-27 12:44:04,794 | INFO | local_client_1 | Train | loss=0.1081 acc=0.9696 bacc=0.5039 f1=0.5315
+2026-03-27 12:44:04,795 | INFO | local_client_1 | Test  | loss=0.1564 acc=0.9633 bacc=0.5333 f1=0.4874
+2026-03-27 12:44:04,798 | INFO | local_client_1 | Epoch 18/25 | lr=0.00100000
+2026-03-27 12:44:20,730 | INFO | local_client_1 | Train | loss=0.1050 acc=0.9715 bacc=0.5023 f1=0.5261
+2026-03-27 12:44:20,731 | INFO | local_client_1 | Test  | loss=0.1450 acc=0.9621 bacc=0.5415 f1=0.5718
+2026-03-27 12:44:20,735 | INFO | local_client_1 | Epoch 19/25 | lr=0.00100000
+2026-03-27 12:44:36,688 | INFO | local_client_1 | Train | loss=0.0973 acc=0.9706 bacc=0.5158 f1=0.5350
+2026-03-27 12:44:36,688 | INFO | local_client_1 | Test  | loss=0.1769 acc=0.9532 bacc=0.6443 f1=0.5776
+2026-03-27 12:44:36,693 | INFO | local_client_1 | Epoch 20/25 | lr=0.00100000
+2026-03-27 12:44:52,639 | INFO | local_client_1 | Train | loss=0.0907 acc=0.9722 bacc=0.5200 f1=0.5507
+2026-03-27 12:44:52,640 | INFO | local_client_1 | Test  | loss=0.1469 acc=0.9608 bacc=0.5748 f1=0.5459
+2026-03-27 12:44:52,644 | INFO | local_client_1 | Epoch 21/25 | lr=0.00100000
+2026-03-27 12:45:08,615 | INFO | local_client_1 | Train | loss=0.1046 acc=0.9690 bacc=0.4916 f1=0.5107
+2026-03-27 12:45:08,615 | INFO | local_client_1 | Test  | loss=0.1300 acc=0.9646 bacc=0.4899 f1=0.5725
+2026-03-27 12:45:08,620 | INFO | local_client_1 | Epoch 22/25 | lr=0.00100000
+2026-03-27 12:45:24,507 | INFO | local_client_1 | Train | loss=0.0933 acc=0.9709 bacc=0.5142 f1=0.5355
+2026-03-27 12:45:24,507 | INFO | local_client_1 | Test  | loss=0.2491 acc=0.9570 bacc=0.5550 f1=0.5488
+2026-03-27 12:45:24,511 | INFO | local_client_1 | Epoch 23/25 | lr=0.00100000
+2026-03-27 12:45:40,522 | INFO | local_client_1 | Train | loss=0.0832 acc=0.9747 bacc=0.5453 f1=0.5704
+2026-03-27 12:45:40,522 | INFO | local_client_1 | Test  | loss=0.1965 acc=0.9646 bacc=0.5978 f1=0.6139
+2026-03-27 12:45:40,528 | INFO | local_client_1 | Epoch 24/25 | lr=0.00100000
+2026-03-27 12:45:56,706 | INFO | local_client_1 | Train | loss=0.0927 acc=0.9719 bacc=0.5130 f1=0.5242
+2026-03-27 12:45:56,706 | INFO | local_client_1 | Test  | loss=0.2079 acc=0.9558 bacc=0.6036 f1=0.5543
+2026-03-27 12:45:56,711 | INFO | local_client_1 | Epoch 25/25 | lr=0.00100000
+2026-03-27 12:46:12,804 | INFO | local_client_1 | Train | loss=0.0854 acc=0.9709 bacc=0.5101 f1=0.5400
+2026-03-27 12:46:12,805 | INFO | local_client_1 | Test  | loss=0.2120 acc=0.9608 bacc=0.5129 f1=0.5004
