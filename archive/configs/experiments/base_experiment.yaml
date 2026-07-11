@@ -1,0 +1,53 @@
+project:
+  name: cross_silo_fl_medical_image_classification
+  dataset: fed_isic2019
+  task: medical_image_classification
+  output_dir: results
+
+experiment:
+  seed: 42
+  device: cuda
+  num_workers: 4
+  deterministic: true
+
+data:
+  root_dir: data/fed_isic2019
+  image_size: 224
+  num_classes: 8
+  normalize_mean: [0.485, 0.456, 0.406]
+  normalize_std: [0.229, 0.224, 0.225]
+
+model:
+  name: resnet18
+  pretrained: true
+  num_classes: 8
+
+training:
+  optimizer: adam
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  batch_size: 32
+
+federated:
+  num_clients: 6
+  participation_fraction: 1.0
+  rounds: 50
+  local_epochs: 1
+
+evaluation:
+  metrics:
+    - accuracy
+    - balanced_accuracy
+    - macro_f1
+    - confusion_matrix
+
+privacy:
+  enabled: false
+  method: dp_sgd
+  noise_multiplier: 1.0
+  max_grad_norm: 1.0
+  delta: 1e-5
+
+extensions:
+  raspberry_pi: optional
+  azure: optional

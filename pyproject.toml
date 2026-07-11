@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fl_med"
+version = "0.1.0"
+description = "Cross-silo federated learning for medical image classification (Fed-ISIC2019)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Mahmoud" }]
+dependencies = [
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "pillow>=9.0",
+    "pandas>=2.0",
+    "matplotlib>=3.7",
+    "scikit-learn>=1.3",
+    "scipy>=1.10",
+]
+
+# Heavy / environment-specific extras are intentionally optional so the pure-python
+# core (config, seeding, metrics, aggregation math) can be imported and unit-tested
+# without a GPU stack. Install with:  pip install -e ".[torch]"
+[project.optional-dependencies]
+torch = ["torch>=2.0", "torchvision>=0.15", "tqdm>=4.65"]
+privacy = ["opacus>=1.4", "dp-accounting>=0.4"]
+dashboard = ["streamlit>=1.30"]
+edge = ["onnx>=1.14", "onnxruntime>=1.16"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.1"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["fl_med*"]
+
+[tool.setuptools.package-data]
+fl_med = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["archive", "notebooks", "data", "experiments", "results"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "torch: tests that require the optional torch stack",
+    "slow: long-running tests",
+]

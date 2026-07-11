@@ -1,0 +1,57 @@
+# Shared defaults for every experiment. Experiment files override the pieces
+# they care about; the `tiers` block below then applies smoke/dev/full overrides
+# on top. Switching tier is a flag (`--tier`), never a code edit.
+
+seed: 42
+seeds: [0, 1, 2]          # multi-seed set used at the `full` tier
+
+model:
+  name: small_cnn         # overridden per tier (resnet18 for dev/full)
+  num_classes: 8
+  pretrained: false
+  norm: batch             # 'group' for the DP-comparable baseline
+
+data:
+  # root: null            # left unset -> chosen by tier (fixture for smoke, real for dev/full)
+  image_size: 200
+  batch_size: 32
+  num_workers: 0
+
+optimizer:
+  name: adam
+  lr: 0.001
+  weight_decay: 0.0001
+
+# Centralized / local-only baselines
+training:
+  epochs: 20
+  max_batches: null       # cap batches/epoch (used to shrink dev/smoke)
+
+# Federated defaults
+federated:
+  rounds: 50
+  local_epochs: 1
+  max_batches: null
+
+# ---------------------------------------------------------------------------
+# Tier overrides (later wins). smoke = fixture + tiny; dev = real subset on CPU;
+# full = real data, full schedule, GPU (launched by Mahmoud).
+# ---------------------------------------------------------------------------
+tiers:
+  smoke:
+    model: { name: small_cnn, pretrained: false, norm: group }
+    data: { image_size: 32, batch_size: 8, num_workers: 0 }
+    training: { epochs: 1, max_batches: 2 }
+    federated: { rounds: 2, local_epochs: 1, max_batches: 2 }
+
+  dev:
+    model: { name: resnet18, pretrained: true, norm: batch }
+    data: { image_size: 64, batch_size: 16, num_workers: 2 }
+    training: { epochs: 3, max_batches: 20 }
+    federated: { rounds: 5, local_epochs: 1, max_batches: 20 }
+
+  full:
+    model: { name: resnet18, pretrained: true, norm: batch }
+    data: { image_size: 200, batch_size: 32, num_workers: 4 }
+    training: { epochs: 40, max_batches: null }
+    federated: { rounds: 50, local_epochs: 1, max_batches: null }

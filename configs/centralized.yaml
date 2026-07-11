@@ -1,0 +1,3 @@
+# Centralized baseline: pool all clients' training data (practical upper bound).
+experiment: centralized
+task: centralized

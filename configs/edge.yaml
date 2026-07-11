@@ -1,0 +1,10 @@
+# Edge-deployment config: export + INT8 quantization + Raspberry Pi 5 benchmark.
+experiment: edge
+task: edge
+model:
+  name: mobilenet_v2
+  pretrained: true
+edge:
+  quantize: int8
+  warmup_iters: 10
+  timed_iters: 100

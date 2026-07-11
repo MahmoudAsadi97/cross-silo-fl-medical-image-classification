@@ -1,0 +1,11 @@
+# SCAFFOLD (Karimireddy et al., 2020): control variates correct client drift.
+experiment: scaffold
+task: federated
+strategy:
+  name: scaffold
+  server_lr: 1.0
+optimizer:
+  name: sgd          # SCAFFOLD's control-variate math assumes SGD local steps
+  lr: 0.01
+  momentum: 0.0
+  weight_decay: 0.0001

@@ -1,0 +1,5 @@
+# FedAvg (McMahan et al., 2017).
+experiment: fedavg
+task: federated
+strategy:
+  name: fedavg

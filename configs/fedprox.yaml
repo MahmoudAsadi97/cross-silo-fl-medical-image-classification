@@ -1,0 +1,6 @@
+# FedProx (Li et al., 2020): proximal term mu anchors local models to the global.
+experiment: fedprox
+task: federated
+strategy:
+  name: fedprox
+  mu: 0.1

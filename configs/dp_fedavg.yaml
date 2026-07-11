@@ -1,0 +1,17 @@
+# Local DP-SGD (Opacus) on top of FedAvg. Uses the GroupNorm model so per-sample
+# gradients are well-defined; report per-client (epsilon, delta). The matched
+# NON-private baseline must use the SAME GroupNorm model to isolate the DP effect.
+experiment: dp_fedavg
+task: federated
+strategy:
+  name: fedavg
+model:
+  norm: group
+privacy:
+  enabled: true
+  noise_multiplier: 1.0    # sigma
+  max_grad_norm: 1.0       # clip C
+  target_delta: 1.0e-5     # must be < 1/N_client
+optimizer:
+  name: sgd
+  lr: 0.01

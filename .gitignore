@@ -2,39 +2,53 @@
 __pycache__/
 *.py[cod]
 *.so
+*.egg-info/
+build/
+dist/
 
 # Virtual environments
 .venv/
 venv/
 env/
-
-# Conda
 .conda/
 
 # Jupyter
 .ipynb_checkpoints/
 
-# Data
-data/
-datasets/
+# --- Data -------------------------------------------------------------------
+# Ignore the real (multi-GB) dataset, but KEEP the committed tiny fixture and
+# the data acquisition README so the pipeline/tests run without the real data.
+data/*
+!data/fixtures/
+!data/README.md
+data/fixtures/**/*.zip
 *.zip
 *.tar
 *.gz
 
-# Results artifacts
+# --- Experiment outputs -----------------------------------------------------
+# Keep small, regenerable example artifacts (csv/json/png) so the report and
+# dashboard have something to render; drop heavy checkpoints and logs.
+experiments/**/checkpoints/
+experiments/**/*.pt
+experiments/**/*.pth
+experiments/**/run.log
+
+# Legacy results tree (pre-restructure)
 results/checkpoints/*
 !results/checkpoints/.gitkeep
-results/logs/*
-!results/logs/.gitkeep
-results/plots/*
-!results/plots/.gitkeep
-results/tables/*
-!results/tables/.gitkeep
 
 # Model files
 *.pt
 *.pth
 *.ckpt
+*.onnx
+
+# Test / tooling caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # OS / Editor
 .DS_Store
@@ -46,7 +60,5 @@ Thumbs.db
 # Secrets
 .env
 *.env
-
-# Azure / misc
 *.pem
 *.key

@@ -1,0 +1,4 @@
+# Local-only baseline: each client trains alone, evaluated on the pooled test set
+# (lower reference; no collaboration).
+experiment: local_only
+task: local_only

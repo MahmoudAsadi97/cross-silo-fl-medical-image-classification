@@ -1,0 +1,161 @@
+{
+  "counts": [
+    [
+      1824,
+      2691,
+      1796,
+      485,
+      739,
+      78,
+      70,
+      264
+    ],
+    [
+      16,
+      2382,
+      1,
+      0,
+      77,
+      19,
+      36,
+      0
+    ],
+    [
+      427,
+      1176,
+      140,
+      16,
+      304,
+      32,
+      52,
+      9
+    ],
+    [
+      221,
+      520,
+      179,
+      69,
+      325,
+      16,
+      2,
+      116
+    ],
+    [
+      133,
+      280,
+      0,
+      0,
+      112,
+      0,
+      0,
+      0
+    ],
+    [
+      47,
+      221,
+      4,
+      0,
+      5,
+      3,
+      1,
+      0
+    ]
+  ],
+  "num_clients": 6,
+  "num_classes": 8,
+  "class_names": [
+    "Melanoma",
+    "Melanocytic nevus",
+    "Basal cell carcinoma",
+    "Actinic keratosis",
+    "Benign keratosis",
+    "Dermatofibroma",
+    "Vascular lesion",
+    "Squamous cell carcinoma"
+  ],
+  "global_distribution": [
+    0.17920472864051584,
+    0.488312735088662,
+    0.14239656098871575,
+    0.03828586781300376,
+    0.10491671144545943,
+    0.009940891993551854,
+    0.010814078452444921,
+    0.026128425577646427
+  ],
+  "global_entropy_nats": 1.4871486204028312,
+  "per_client": [
+    {
+      "client_id": 0,
+      "num_samples": 7947,
+      "num_classes_present": 8,
+      "num_classes_missing": 0,
+      "entropy_nats": 1.6322993103246382,
+      "normalized_entropy": 0.7849700400839436,
+      "kl_to_global": 0.060506313989076244,
+      "js_to_global": 0.14664715661465685,
+      "hellinger_to_global": 0.12228936705517272,
+      "emd_to_global": 0.18957549873500365
+    },
+    {
+      "client_id": 1,
+      "num_samples": 2531,
+      "num_classes_present": 6,
+      "num_classes_missing": 2,
+      "entropy_nats": 0.2956772533443074,
+      "normalized_entropy": 0.142190702367834,
+      "kl_to_global": 0.5581573329472282,
+      "js_to_global": 0.4930365127317119,
+      "hellinger_to_global": 0.45098902345660613,
+      "emd_to_global": 0.7643968949454486
+    },
+    {
+      "client_id": 2,
+      "num_samples": 2156,
+      "num_classes_present": 8,
+      "num_classes_missing": 0,
+      "entropy_nats": 1.3166733030324194,
+      "normalized_entropy": 0.6331860149185876,
+      "kl_to_global": 0.07632281798679237,
+      "js_to_global": 0.1758862452607625,
+      "hellinger_to_global": 0.14876181413504838,
+      "emd_to_global": 0.16299725644739851
+    },
+    {
+      "client_id": 3,
+      "num_samples": 1448,
+      "num_classes_present": 8,
+      "num_classes_missing": 0,
+      "entropy_nats": 1.6546045208325162,
+      "normalized_entropy": 0.7956965789458437,
+      "kl_to_global": 0.1168503239733415,
+      "js_to_global": 0.19528909191087393,
+      "hellinger_to_global": 0.1640657320491093,
+      "emd_to_global": 0.66629062376611
+    },
+    {
+      "client_id": 4,
+      "num_samples": 525,
+      "num_classes_present": 3,
+      "num_classes_missing": 5,
+      "entropy_nats": 1.012675602542226,
+      "normalized_entropy": 0.48699402327230423,
+      "kl_to_global": 0.28613354456770174,
+      "js_to_global": 0.3642731224370297,
+      "hellinger_to_global": 0.35636631331478574,
+      "emd_to_global": 0.388012717177145
+    },
+    {
+      "client_id": 5,
+      "num_samples": 281,
+      "num_classes_present": 6,
+      "num_classes_missing": 2,
+      "entropy_nats": 0.6887493377022492,
+      "normalized_entropy": 0.33121841797286433,
+      "kl_to_global": 0.2957559000321611,
+      "js_to_global": 0.3574264098791028,
+      "hellinger_to_global": 0.3200328237850808,
+      "emd_to_global": 0.6681540078135008
+    }
+  ]
+}
