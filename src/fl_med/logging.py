@@ -75,14 +75,45 @@ def collect_hardware() -> Dict[str, Any]:
     try:
         import torch
 
-        info["torch"] = torch.__version__
-        info["cuda_available"] = torch.cuda.is_available()
+        # torch.__version__ is a TorchVersion (str subclass) that yaml.safe_dump
+        # cannot represent -> coerce to plain str.
+        info["torch"] = str(torch.__version__)
+        info["cuda_available"] = bool(torch.cuda.is_available())
         if torch.cuda.is_available():
-            info["gpu"] = torch.cuda.get_device_name(0)
-            info["gpu_count"] = torch.cuda.device_count()
+            info["gpu"] = str(torch.cuda.get_device_name(0))
+            info["gpu_count"] = int(torch.cuda.device_count())
     except ImportError:
         info["torch"] = None
     return info
+
+
+def _yaml_safe(obj):
+    """Recursively coerce a structure into YAML-safe primitives.
+
+    yaml.safe_dump only handles exact built-in types; str/int subclasses (e.g.
+    torch's TorchVersion) and numpy scalars raise RepresenterError. This makes the
+    run manifest robust to whatever ends up in a resolved config.
+    """
+    if obj is None or isinstance(obj, bool):
+        return obj
+    if isinstance(obj, str):
+        return str(obj)
+    if isinstance(obj, int):
+        return int(obj)
+    if isinstance(obj, float):
+        return float(obj)
+    if isinstance(obj, dict):
+        return {str(k): _yaml_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple, set)):
+        return [_yaml_safe(v) for v in obj]
+    # numpy scalars and anything exotic -> python scalar or str.
+    item = getattr(obj, "item", None)
+    if callable(item):
+        try:
+            return _yaml_safe(item())
+        except Exception:
+            pass
+    return str(obj)
 
 
 def write_run_manifest(
@@ -106,5 +137,5 @@ def write_run_manifest(
         manifest["extra"] = extra
 
     path = output_dir / "run_config.yaml"
-    save_yaml(manifest, path)
+    save_yaml(_yaml_safe(manifest), path)
     return path
