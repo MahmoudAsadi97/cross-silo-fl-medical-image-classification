@@ -8,7 +8,7 @@ hypothesis that drift-correcting strategies actually reduce drift under skew.
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List
 
 from ..strategies import scaffold as scaffold_math
 from ..strategies.scaffold import Scaffold, zeros_like_state
@@ -34,9 +34,7 @@ def _mean_update_deviation(updates: List[Dict[str, Any]], global_state) -> float
         {k: (u["state_dict"][k].float() - global_state[k].float()) for k in keys}
         for u in updates
     ]
-    mean_delta = {
-        k: sum(d[k] for d in deltas) / len(deltas) for k in keys
-    }
+    mean_delta = {k: sum(d[k] for d in deltas) / len(deltas) for k in keys}
     drifts = []
     for d in deltas:
         sq = sum(float(torch.sum((d[k] - mean_delta[k]) ** 2).item()) for k in keys)
@@ -53,18 +51,19 @@ def run_federated(
     client_loader_fn: Callable[[int], Any],
     test_loader,
     device: str = "cpu",
+    criterion=None,
     logger=None,
 ) -> Dict[str, Any]:
     """Run the full federated training loop and return a history dict.
 
     ``client_loader_fn(client_id)`` returns that client's train loader.
     """
-    import torch
+    import torch  # noqa: F401  (ensures torch present; used by helpers)
 
     fl_cfg = config.get("federated", {}) or {}
     rounds = int(fl_cfg.get("rounds", 2))
     local_epochs = int(fl_cfg.get("local_epochs", 1))
-    max_batches = fl_cfg.get("max_batches")  # None unless a tier caps it
+    max_batches = fl_cfg.get("max_batches")
     optimizer_cfg = config.get("optimizer", {"name": "adam", "lr": 1e-3})
     num_classes = int(config.get("model", {}).get("num_classes", 8))
     server_lr = float(getattr(strategy, "server_lr", 1.0))
@@ -75,7 +74,6 @@ def run_federated(
         (k, v.detach().cpu().clone()) for k, v in global_model.state_dict().items()
     )
 
-    # SCAFFOLD control variates (global + per-client), zero-initialised.
     c_global = zeros_like_state(global_state) if is_scaffold else None
     c_locals: Dict[int, Any] = (
         {cid: zeros_like_state(global_state) for cid in client_ids} if is_scaffold else {}
@@ -99,13 +97,12 @@ def run_federated(
                 local_epochs=local_epochs, global_state=global_state,
                 global_model=frozen_global,
                 c_global=c_global, c_local=c_locals.get(cid),
-                num_classes=num_classes, max_batches=max_batches,
+                num_classes=num_classes, max_batches=max_batches, criterion=criterion,
             )
             updates.append(update)
 
         drift = _mean_update_deviation(updates, global_state)
 
-        # ---- aggregate ----
         weights = [u["num_samples"] for u in updates]
         if is_scaffold:
             out = scaffold_math.server_update(
@@ -122,7 +119,6 @@ def run_federated(
         else:
             global_state = strategy.aggregate([u["state_dict"] for u in updates], weights)
 
-        # ---- evaluate global model on the pooled held-out test set ----
         global_model.load_state_dict(global_state)
         test_metrics = evaluate(global_model, test_loader, device, num_classes=num_classes)
         record = {

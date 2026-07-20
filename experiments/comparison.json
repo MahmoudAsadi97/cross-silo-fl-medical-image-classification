@@ -1,0 +1,38 @@
+[
+  {
+    "method": "centralized",
+    "tier": "smoke",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.125,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": 0.0703125,
+    "macro_f1_std": 0.0
+  },
+  {
+    "method": "fedavg",
+    "tier": "smoke",
+    "n_seeds": 2,
+    "balanced_acc_mean": 0.3125,
+    "balanced_acc_std": 0.08838834764831845,
+    "macro_f1_mean": 0.21458333333333335,
+    "macro_f1_std": 0.13847507798236555
+  },
+  {
+    "method": "fedprox",
+    "tier": "smoke",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.25,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": 0.11666666666666667,
+    "macro_f1_std": 0.0
+  },
+  {
+    "method": "scaffold",
+    "tier": "smoke",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.25,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": 0.11666666666666667,
+    "macro_f1_std": 0.0
+  }
+]

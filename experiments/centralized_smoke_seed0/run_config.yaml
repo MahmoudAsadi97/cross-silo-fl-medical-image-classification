@@ -1,0 +1,49 @@
+timestamp_utc: '2026-07-12T12:55:32.801637+00:00'
+tier: smoke
+git_commit: ec85ac5227122c61910f6f47efb31afa1c0bcaa6
+git_dirty: true
+hardware:
+  python: 3.10.19
+  platform: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+  processor: x86_64
+  cpu_count: 12
+  torch: 2.5.1+cu121
+  cuda_available: true
+  gpu: NVIDIA GeForce RTX 2070
+  gpu_count: 1
+config:
+  seed: 0
+  seeds:
+  - 0
+  - 1
+  - 2
+  model:
+    name: small_cnn
+    num_classes: 8
+    pretrained: false
+    norm: group
+  data:
+    image_size: 32
+    batch_size: 8
+    num_workers: 0
+  optimizer:
+    name: adam
+    lr: 0.001
+    weight_decay: 0.0001
+  training:
+    epochs: 1
+    max_batches: 2
+  federated:
+    rounds: 2
+    local_epochs: 1
+    max_batches: 2
+  experiment: centralized
+  task: centralized
+  _meta:
+    tier: smoke
+    base_file: configs/_base.yaml
+    experiment_file: configs/centralized.yaml
+    overrides:
+    - seed=0
+extra:
+  device: cpu

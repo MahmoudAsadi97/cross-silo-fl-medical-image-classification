@@ -15,11 +15,10 @@ import argparse
 import sys
 from pathlib import Path
 
-# Make ``src`` importable without an editable install (useful in CI/environment).
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from fl_med import CLASS_NAMES  # noqa: E402
+from fl_med import CLASS_NAMES  # noqa: E402,F401
 from fl_med.config import resolve_config  # noqa: E402
 from fl_med.eval import plot_curves, save_history_csv, save_json  # noqa: E402
 from fl_med.logging import get_logger, write_run_manifest  # noqa: E402
@@ -60,7 +59,7 @@ def main(argv=None) -> int:
     task = config.get("task", "federated")
     logger.info("task=%s tier=%s seed=%d output=%s", task, args.tier, seed, output_dir)
 
-    # torch-dependent imports are deferred so --help / config resolution need no torch.
+    # torch-dependent imports deferred so --help / config resolution need no torch.
     from fl_med.data.loaders import (
         build_centralized_dataloaders, build_client_dataloaders, list_clients,
     )
@@ -68,15 +67,34 @@ def main(argv=None) -> int:
     from fl_med.engine.baselines import run_centralized, run_local_only
     from fl_med.engine.server import run_federated
     from fl_med.strategies import build_strategy
+    from fl_med.data.heterogeneity import counts_from_dataset
+    from fl_med.data.paths import resolve_data_root
+    from fl_med.losses import build_criterion
 
     model_builder = model_builder_from_config(config)
+
+    # Class-imbalance-aware loss: inverse-frequency weights from train label counts
+    # (label counts are shareable meta-info, so global weights don't leak images).
+    criterion = None
+    try:
+        counts = counts_from_dataset(
+            Path(resolve_data_root(config)) / "train",
+            num_classes=int(config.get("model", {}).get("num_classes", 8)),
+        ).sum(axis=0)
+        criterion = build_criterion(config, counts, device=args.device)
+        logger.info(
+            "loss=%s train_class_counts=%s",
+            (config.get("loss") or {}).get("class_weights", "none"), counts.tolist(),
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("weighted criterion unavailable (%s); using unweighted CE", exc)
 
     if task == "centralized":
         train_loader, test_loader = build_centralized_dataloaders(config)
         result = run_centralized(
             config=config, model_builder=model_builder,
             train_loader=train_loader, test_loader=test_loader,
-            device=args.device, logger=logger,
+            device=args.device, criterion=criterion, logger=logger,
         )
         save_history_csv(result["history"], output_dir / "metrics.csv")
         plot_curves(result["history"], "epoch",
@@ -91,7 +109,7 @@ def main(argv=None) -> int:
         result = run_local_only(
             config=config, model_builder=model_builder, client_ids=clients,
             client_loader_fn=lambda cid: build_client_dataloaders(config, cid),
-            test_loader=test_loader, device=args.device, logger=logger,
+            test_loader=test_loader, device=args.device, criterion=criterion, logger=logger,
         )
         save_json(result, output_dir / "summary.json")
 
@@ -102,7 +120,7 @@ def main(argv=None) -> int:
             config=config, model_builder=model_builder,
             strategy=build_strategy(config), client_ids=clients,
             client_loader_fn=lambda cid: build_client_dataloaders(config, cid)[0],
-            test_loader=test_loader, device=args.device, logger=logger,
+            test_loader=test_loader, device=args.device, criterion=criterion, logger=logger,
         )
         save_history_csv(result["history"], output_dir / "metrics.csv")
         plot_curves(result["history"], "round",

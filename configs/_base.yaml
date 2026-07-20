@@ -22,6 +22,12 @@ optimizer:
   lr: 0.001
   weight_decay: 0.0001
 
+# Loss: inverse-frequency class weighting counters the severe imbalance (nevus
+# dominates). Without it, cross-entropy collapses to the majority class
+# (balanced accuracy = 1/8). Mirrors FLamby's weighted-loss baseline.
+loss:
+  class_weights: balanced   # one of: balanced | none
+
 # Centralized / local-only baselines
 training:
   epochs: 20
@@ -34,8 +40,13 @@ federated:
   max_batches: null
 
 # ---------------------------------------------------------------------------
-# Tier overrides (later wins). smoke = fixture + tiny; dev = real subset on CPU;
+# Tier overrides (later wins). smoke = fixture + tiny; dev = real subset on CPU/GPU;
 # full = real data, full schedule, GPU (launched by Mahmoud).
+# GroupNorm is used for dev/full: BatchNorm running-stat averaging is ill-defined
+# across non-IID silos and destabilizes FedAvg; GN keeps FL/baselines/DP on ONE
+# architecture (brief section 4.1). Conv weights stay ImageNet-pretrained.
+# dev volumes (60 batches x 15 rounds/epochs) are empirically enough for the
+# GroupNorm-pretrained model to escape majority collapse and show real trends.
 # ---------------------------------------------------------------------------
 tiers:
   smoke:
@@ -45,13 +56,13 @@ tiers:
     federated: { rounds: 2, local_epochs: 1, max_batches: 2 }
 
   dev:
-    model: { name: resnet18, pretrained: true, norm: batch }
+    model: { name: resnet18, pretrained: true, norm: group }
     data: { image_size: 64, batch_size: 16, num_workers: 2 }
-    training: { epochs: 3, max_batches: 20 }
-    federated: { rounds: 5, local_epochs: 1, max_batches: 20 }
+    training: { epochs: 15, max_batches: 60 }
+    federated: { rounds: 15, local_epochs: 1, max_batches: 60 }
 
   full:
-    model: { name: resnet18, pretrained: true, norm: batch }
+    model: { name: resnet18, pretrained: true, norm: group }
     data: { image_size: 200, batch_size: 32, num_workers: 4 }
     training: { epochs: 40, max_batches: null }
     federated: { rounds: 50, local_epochs: 1, max_batches: null }

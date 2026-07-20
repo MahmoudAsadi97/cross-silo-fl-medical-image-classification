@@ -1,0 +1,49 @@
+timestamp_utc: '2026-07-12T12:59:20.181505+00:00'
+tier: dev
+git_commit: fa07402ebd1003850c8eb186c7e1fad310f4ace7
+git_dirty: true
+hardware:
+  python: 3.10.19
+  platform: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+  processor: x86_64
+  cpu_count: 12
+  torch: 2.5.1+cu121
+  cuda_available: true
+  gpu: NVIDIA GeForce RTX 2070
+  gpu_count: 1
+config:
+  seed: 0
+  seeds:
+  - 0
+  - 1
+  - 2
+  model:
+    name: resnet18
+    num_classes: 8
+    pretrained: true
+    norm: batch
+  data:
+    image_size: 64
+    batch_size: 16
+    num_workers: 2
+  optimizer:
+    name: adam
+    lr: 0.001
+    weight_decay: 0.0001
+  training:
+    epochs: 3
+    max_batches: 20
+  federated:
+    rounds: 5
+    local_epochs: 1
+    max_batches: 20
+  experiment: local_only
+  task: local_only
+  _meta:
+    tier: dev
+    base_file: configs/_base.yaml
+    experiment_file: configs/local_only.yaml
+    overrides:
+    - seed=0
+extra:
+  device: cuda

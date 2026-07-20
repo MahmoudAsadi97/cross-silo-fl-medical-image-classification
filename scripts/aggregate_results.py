@@ -3,7 +3,7 @@
 
 Scans ``experiments/<name>_<tier>_seed<k>/summary.json``, groups by (name, tier),
 and reports mean/std/95%CI of the headline metrics across seeds. Optionally runs a
-paired Wilcoxon test between two named methods. Writes ``experiments/comparison.csv``.
+paired Wilcoxon test between two named methods. Writes ``experiments/comparison.json``.
 """
 from __future__ import annotations
 
@@ -32,6 +32,9 @@ def collect(exp_dir: Path):
         if not m or not summary.exists():
             continue
         data = json.loads(summary.read_text())
+        # local-only summaries expose mean_test_* instead of test_*.
+        if "test_balanced_accuracy" not in data and "mean_test_balanced_accuracy" in data:
+            data["test_balanced_accuracy"] = data["mean_test_balanced_accuracy"]
         key = (m["name"], m["tier"])
         per_group_seeds[key].append(int(m["seed"]))
         for metric in HEADLINE:

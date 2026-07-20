@@ -4,8 +4,7 @@ task: federated
 strategy:
   name: scaffold
   server_lr: 1.0
-optimizer:
-  name: sgd          # SCAFFOLD's control-variate math assumes SGD local steps
-  lr: 0.01
-  momentum: 0.0
-  weight_decay: 0.0001
+# Uses the shared Adam optimizer (inherited from _base) so FedAvg/FedProx/SCAFFOLD
+# are directly comparable. Caveat: SCAFFOLD's control-variate scaling 1/(K*lr)
+# nominally assumes SGD local steps; with Adam we use the nominal lr there (a
+# common practical choice). SGD-SCAFFOLD is a possible refinement for the report.

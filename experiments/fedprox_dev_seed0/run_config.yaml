@@ -1,0 +1,56 @@
+timestamp_utc: '2026-07-12T13:15:39.678257+00:00'
+tier: dev
+git_commit: fa07402ebd1003850c8eb186c7e1fad310f4ace7
+git_dirty: true
+hardware:
+  python: 3.10.19
+  platform: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+  processor: x86_64
+  cpu_count: 12
+  torch: 2.5.1+cu121
+  cuda_available: true
+  gpu: NVIDIA GeForce RTX 2070
+  gpu_count: 1
+config:
+  seed: 0
+  seeds:
+  - 0
+  - 1
+  - 2
+  model:
+    name: resnet18
+    num_classes: 8
+    pretrained: true
+    norm: group
+  data:
+    image_size: 64
+    batch_size: 16
+    num_workers: 2
+  optimizer:
+    name: sgd
+    lr: 0.01
+    weight_decay: 0.0001
+    momentum: 0.9
+  training:
+    epochs: 3
+    max_batches: 20
+  federated:
+    rounds: 5
+    local_epochs: 1
+    max_batches: 20
+  experiment: fedprox
+  task: federated
+  strategy:
+    name: fedprox
+    mu: 0.1
+  _meta:
+    tier: dev
+    base_file: configs/_base.yaml
+    experiment_file: configs/fedprox.yaml
+    overrides:
+    - optimizer.name=sgd
+    - optimizer.lr=0.01
+    - optimizer.momentum=0.9
+    - seed=0
+extra:
+  device: cuda

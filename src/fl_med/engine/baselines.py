@@ -24,6 +24,7 @@ def train_supervised(
     optimizer_cfg: Dict[str, Any],
     num_classes: int = 8,
     max_batches: Optional[int] = None,
+    criterion=None,
     logger=None,
     tag: str = "train",
 ) -> Dict[str, Any]:
@@ -46,7 +47,7 @@ def train_supervised(
     for epoch in range(1, epochs + 1):
         train_m = train_one_epoch(
             model, train_loader, optimizer, device,
-            num_classes=num_classes, max_batches=max_batches,
+            criterion=criterion, num_classes=num_classes, max_batches=max_batches,
         )
         test_m = evaluate(model, test_loader, device, num_classes=num_classes)
         record = {
@@ -70,7 +71,7 @@ def train_supervised(
 
 def run_centralized(
     *, config, model_builder: Callable[[], Any], train_loader, test_loader,
-    device="cpu", logger=None,
+    device="cpu", criterion=None, logger=None,
 ) -> Dict[str, Any]:
     tr = config.get("training", {}) or {}
     return train_supervised(
@@ -78,13 +79,13 @@ def run_centralized(
         device=device, epochs=int(tr.get("epochs", 1)),
         optimizer_cfg=config.get("optimizer", {"name": "adam", "lr": 1e-3}),
         num_classes=int(config.get("model", {}).get("num_classes", 8)),
-        max_batches=tr.get("max_batches"), logger=logger, tag="centralized",
+        max_batches=tr.get("max_batches"), criterion=criterion, logger=logger, tag="centralized",
     )
 
 
 def run_local_only(
     *, config, model_builder, client_ids, client_loader_fn, test_loader,
-    device="cpu", logger=None,
+    device="cpu", criterion=None, logger=None,
 ) -> Dict[str, Any]:
     """Train one model per client independently; evaluate each on the pooled test set."""
     tr = config.get("training", {}) or {}
@@ -96,7 +97,8 @@ def run_local_only(
             device=device, epochs=int(tr.get("epochs", 1)),
             optimizer_cfg=config.get("optimizer", {"name": "adam", "lr": 1e-3}),
             num_classes=int(config.get("model", {}).get("num_classes", 8)),
-            max_batches=tr.get("max_batches"), logger=logger, tag=f"local/client_{cid}",
+            max_batches=tr.get("max_batches"), criterion=criterion,
+            logger=logger, tag=f"local/client_{cid}",
         )
         per_client[cid] = res["final_metrics"]
     mean_bal = sum(m.get("test_balanced_accuracy", 0.0) for m in per_client.values()) / max(

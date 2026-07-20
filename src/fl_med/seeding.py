@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import os
 import random
-from typing import Optional
 
 import numpy as np
 
@@ -17,6 +16,10 @@ import numpy as np
 def set_seed(seed: int = 42, deterministic: bool = True) -> int:
     """Seed all RNGs. Returns the seed for convenient logging."""
     os.environ["PYTHONHASHSEED"] = str(seed)
+    # Make cuBLAS matmuls deterministic (also silences torch's per-backward warning
+    # when deterministic algorithms are enabled on CUDA >= 10.2). Must be set before
+    # the CUDA context initializes, so set_seed is called early in every entrypoint.
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     random.seed(seed)
     np.random.seed(seed)
 

@@ -31,6 +31,7 @@ def local_train(
     c_local: Optional[Dict[str, Any]] = None,
     num_classes: int = 8,
     max_batches: Optional[int] = None,
+    criterion=None,
 ) -> Dict[str, Any]:
     """Train ``model`` locally and return an update dict for the server.
 
@@ -60,8 +61,8 @@ def local_train(
     for epoch in range(1, local_epochs + 1):
         m = train_one_epoch(
             model, train_loader, optimizer, device,
-            strategy=strategy, global_model=global_model, client_state=client_state,
-            num_classes=num_classes, max_batches=max_batches,
+            criterion=criterion, strategy=strategy, global_model=global_model,
+            client_state=client_state, num_classes=num_classes, max_batches=max_batches,
         )
         m["local_epoch"] = epoch
         history.append(m)
