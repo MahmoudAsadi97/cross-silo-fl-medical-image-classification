@@ -1,4 +1,4 @@
-timestamp_utc: '2026-07-20T12:43:35.776913+00:00'
+timestamp_utc: '2026-07-20T13:48:09.614715+00:00'
 tier: dev
 git_commit: 2f7f7bf4db5decff800f71a7e33bff9072e99665
 git_dirty: true
@@ -28,9 +28,10 @@ config:
     num_workers: 2
     root: /home/<user>/fl_data/fed_isic2019/raw
   optimizer:
-    name: adam
-    lr: 0.001
+    name: sgd
+    lr: 0.05
     weight_decay: 0.0001
+    momentum: 0.0
   loss:
     class_weights: balanced
   training:
@@ -40,14 +41,15 @@ config:
     rounds: 15
     local_epochs: 1
     max_batches: 60
-  experiment: fedavg
+  experiment: scaffold
   task: federated
   strategy:
-    name: fedavg
+    name: scaffold
+    server_lr: 1.0
   _meta:
     tier: dev
     base_file: configs/_base.yaml
-    experiment_file: configs/fedavg.yaml
+    experiment_file: configs/scaffold.yaml
     overrides:
     - data.root=/home/<user>/fl_data/fed_isic2019/raw
     - seed=0

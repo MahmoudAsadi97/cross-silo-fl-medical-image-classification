@@ -3,6 +3,11 @@
 The single training loop honours the strategy hooks (FedProx's ``extra_loss`` and
 SCAFFOLD's ``after_backward`` gradient correction), so all methods share exactly
 the same optimization code -- part of the fair-comparison protocol.
+
+A generous gradient-norm clip (``GRAD_CLIP_NORM``) is applied after the strategy's
+gradient edit as a numerical safety net: it never triggers for normal training
+(grad norms are O(1-10)) but prevents a runaway (e.g. mis-tuned SCAFFOLD control
+variates) from reaching nan and corrupting a run.
 """
 from __future__ import annotations
 
@@ -11,6 +16,8 @@ from typing import Any, Dict, Optional
 import numpy as np
 
 from ..metrics import compute_metrics
+
+GRAD_CLIP_NORM = 1e3
 
 
 def train_one_epoch(
@@ -50,6 +57,7 @@ def train_one_epoch(
         loss.backward()
         if strategy is not None:
             strategy.after_backward(model, client_state)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=GRAD_CLIP_NORM)
         optimizer.step()
 
         running_loss += float(loss.item()) * images.size(0)

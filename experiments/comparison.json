@@ -1,11 +1,29 @@
 [
   {
     "method": "centralized",
+    "tier": "dev",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.19120135425605486,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": 0.16519784981312605,
+    "macro_f1_std": 0.0
+  },
+  {
+    "method": "centralized",
     "tier": "smoke",
     "n_seeds": 1,
     "balanced_acc_mean": 0.125,
     "balanced_acc_std": 0.0,
     "macro_f1_mean": 0.0703125,
+    "macro_f1_std": 0.0
+  },
+  {
+    "method": "fedavg",
+    "tier": "dev",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.2078612404565124,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": 0.18268550859584215,
     "macro_f1_std": 0.0
   },
   {
@@ -19,11 +37,47 @@
   },
   {
     "method": "fedprox",
+    "tier": "dev",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.21174705755448972,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": 0.1740328061053664,
+    "macro_f1_std": 0.0
+  },
+  {
+    "method": "fedprox",
     "tier": "smoke",
     "n_seeds": 1,
     "balanced_acc_mean": 0.25,
     "balanced_acc_std": 0.0,
     "macro_f1_mean": 0.11666666666666667,
+    "macro_f1_std": 0.0
+  },
+  {
+    "method": "local_only",
+    "tier": "dev",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.16932257265130798,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": NaN,
+    "macro_f1_std": NaN
+  },
+  {
+    "method": "local_only",
+    "tier": "smoke",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.16666666666666666,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": NaN,
+    "macro_f1_std": NaN
+  },
+  {
+    "method": "scaffold",
+    "tier": "dev",
+    "n_seeds": 1,
+    "balanced_acc_mean": 0.125,
+    "balanced_acc_std": 0.0,
+    "macro_f1_mean": 0.08132617527568195,
     "macro_f1_std": 0.0
   },
   {

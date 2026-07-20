@@ -4,7 +4,14 @@ task: federated
 strategy:
   name: scaffold
   server_lr: 1.0
-# Uses the shared Adam optimizer (inherited from _base) so FedAvg/FedProx/SCAFFOLD
-# are directly comparable. Caveat: SCAFFOLD's control-variate scaling 1/(K*lr)
-# nominally assumes SGD local steps; with Adam we use the nominal lr there (a
-# common practical choice). SGD-SCAFFOLD is a possible refinement for the report.
+# Plain SGD (momentum 0) is REQUIRED: the control-variate update
+# c_i^+ = c_i - c + (x - y)/(K*eta_l) assumes y - x = -eta_l * sum(g - c_i + c).
+# With momentum the correction accumulates in the velocity and the control
+# variates diverge (observed loss -> nan). Momentum 0 makes c_i^+ collapse to the
+# client's mean gradient (bounded, stable). FedAvg/FedProx use Adam; a matched
+# all-plain-SGD comparison is a report refinement.
+optimizer:
+  name: sgd
+  lr: 0.05
+  momentum: 0.0
+  weight_decay: 0.0001

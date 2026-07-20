@@ -1,6 +1,6 @@
-timestamp_utc: '2026-07-12T12:59:20.181505+00:00'
+timestamp_utc: '2026-07-20T12:36:24.842110+00:00'
 tier: dev
-git_commit: fa07402ebd1003850c8eb186c7e1fad310f4ace7
+git_commit: 2f7f7bf4db5decff800f71a7e33bff9072e99665
 git_dirty: true
 hardware:
   python: 3.10.19
@@ -21,22 +21,25 @@ config:
     name: resnet18
     num_classes: 8
     pretrained: true
-    norm: batch
+    norm: group
   data:
     image_size: 64
     batch_size: 16
     num_workers: 2
+    root: /home/<user>/fl_data/fed_isic2019/raw
   optimizer:
     name: adam
     lr: 0.001
     weight_decay: 0.0001
+  loss:
+    class_weights: balanced
   training:
-    epochs: 3
-    max_batches: 20
+    epochs: 15
+    max_batches: 60
   federated:
-    rounds: 5
+    rounds: 15
     local_epochs: 1
-    max_batches: 20
+    max_batches: 60
   experiment: local_only
   task: local_only
   _meta:
@@ -44,6 +47,7 @@ config:
     base_file: configs/_base.yaml
     experiment_file: configs/local_only.yaml
     overrides:
+    - data.root=/home/<user>/fl_data/fed_isic2019/raw
     - seed=0
 extra:
   device: cuda

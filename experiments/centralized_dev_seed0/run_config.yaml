@@ -1,7 +1,7 @@
-timestamp_utc: '2026-07-20T12:25:24.432767+00:00'
+timestamp_utc: '2026-07-20T12:35:08.486299+00:00'
 tier: dev
-git_commit: fa07402ebd1003850c8eb186c7e1fad310f4ace7
-git_dirty: true
+git_commit: 2f7f7bf4db5decff800f71a7e33bff9072e99665
+git_dirty: false
 hardware:
   python: 3.10.19
   platform: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
@@ -34,12 +34,12 @@ config:
   loss:
     class_weights: balanced
   training:
-    epochs: 3
-    max_batches: 20
+    epochs: 15
+    max_batches: 60
   federated:
-    rounds: 5
+    rounds: 15
     local_epochs: 1
-    max_batches: 20
+    max_batches: 60
   experiment: centralized
   task: centralized
   _meta:
