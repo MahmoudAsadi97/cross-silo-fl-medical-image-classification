@@ -1,12 +1,12 @@
 {
-  "round": 15,
-  "client_drift": 23.13518979855215,
-  "global_weight_norm": 117.12652351720035,
-  "test_balanced_accuracy": 0.125,
-  "test_macro_f1": 0.08132617527568195,
-  "test_accuracy": 0.4821505376344086,
-  "test_loss": 1.7216748523712158,
-  "epsilon_max": 13.396977874671085,
-  "epsilon_mean": 4.31331640734804,
+  "round": 20,
+  "client_drift": 14.53424972476207,
+  "global_weight_norm": 119.19732161146591,
+  "test_balanced_accuracy": 0.2229878025148442,
+  "test_macro_f1": 0.21750103513997213,
+  "test_accuracy": 0.5750537634408602,
+  "test_loss": 1.928757582633726,
+  "epsilon_max": 159.82468088210348,
+  "epsilon_mean": 94.20216852224047,
   "delta": 1e-05
 }
