@@ -1,4 +1,4 @@
-timestamp_utc: '2026-07-22T07:55:48.823586+00:00'
+timestamp_utc: '2026-07-22T08:32:45.245161+00:00'
 tier: dev
 git_commit: 7ec2cdc346bd4953b17a2860a196b9722b7129f5
 git_dirty: true
@@ -12,7 +12,7 @@ hardware:
   gpu: NVIDIA GeForce RTX 2070
   gpu_count: 1
 config:
-  seed: 0
+  seed: 1
   seeds:
   - 0
   - 1
@@ -28,9 +28,10 @@ config:
     num_workers: 2
     root: /home/<user>/fl_data/fed_isic2019/raw
   optimizer:
-    name: adam
-    lr: 0.001
+    name: sgd
+    lr: 0.05
     weight_decay: 0.0001
+    momentum: 0.0
   loss:
     class_weights: balanced
   training:
@@ -40,14 +41,17 @@ config:
     rounds: 15
     local_epochs: 1
     max_batches: 60
-  experiment: local_only
-  task: local_only
+  experiment: scaffold
+  task: federated
+  strategy:
+    name: scaffold
+    server_lr: 1.0
   _meta:
     tier: dev
     base_file: configs/_base.yaml
-    experiment_file: configs/local_only.yaml
+    experiment_file: configs/scaffold.yaml
     overrides:
     - data.root=/home/<user>/fl_data/fed_isic2019/raw
-    - seed=0
+    - seed=1
 extra:
   device: cuda

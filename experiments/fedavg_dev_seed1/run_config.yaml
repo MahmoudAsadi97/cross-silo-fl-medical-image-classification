@@ -1,4 +1,4 @@
-timestamp_utc: '2026-07-22T07:55:48.823586+00:00'
+timestamp_utc: '2026-07-22T08:24:29.153336+00:00'
 tier: dev
 git_commit: 7ec2cdc346bd4953b17a2860a196b9722b7129f5
 git_dirty: true
@@ -12,7 +12,7 @@ hardware:
   gpu: NVIDIA GeForce RTX 2070
   gpu_count: 1
 config:
-  seed: 0
+  seed: 1
   seeds:
   - 0
   - 1
@@ -40,14 +40,16 @@ config:
     rounds: 15
     local_epochs: 1
     max_batches: 60
-  experiment: local_only
-  task: local_only
+  experiment: fedavg
+  task: federated
+  strategy:
+    name: fedavg
   _meta:
     tier: dev
     base_file: configs/_base.yaml
-    experiment_file: configs/local_only.yaml
+    experiment_file: configs/fedavg.yaml
     overrides:
     - data.root=/home/<user>/fl_data/fed_isic2019/raw
-    - seed=0
+    - seed=1
 extra:
   device: cuda

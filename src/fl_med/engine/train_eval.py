@@ -4,10 +4,10 @@ The single training loop honours the strategy hooks (FedProx's ``extra_loss`` an
 SCAFFOLD's ``after_backward`` gradient correction), so all methods share exactly
 the same optimization code -- part of the fair-comparison protocol.
 
-A generous gradient-norm clip (``GRAD_CLIP_NORM``) is applied after the strategy's
-gradient edit as a numerical safety net: it never triggers for normal training
-(grad norms are O(1-10)) but prevents a runaway (e.g. mis-tuned SCAFFOLD control
-variates) from reaching nan and corrupting a run.
+``grad_clip`` applies a gradient-norm clip after the strategy's gradient edit as a
+numerical safety net (never triggers for normal training; prevents runaway control
+variates from reaching nan). It MUST be disabled (None) under DP-SGD, where Opacus
+performs its own per-sample clipping + noising inside ``optimizer.step``.
 """
 from __future__ import annotations
 
@@ -32,6 +32,7 @@ def train_one_epoch(
     client_state: Optional[Dict[str, Any]] = None,
     num_classes: int = 8,
     max_batches: Optional[int] = None,
+    grad_clip: Optional[float] = GRAD_CLIP_NORM,
 ) -> Dict[str, Any]:
     import torch
     import torch.nn as nn
@@ -57,11 +58,13 @@ def train_one_epoch(
         loss.backward()
         if strategy is not None:
             strategy.after_backward(model, client_state)
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=GRAD_CLIP_NORM)
+        if grad_clip is not None:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=grad_clip)
         optimizer.step()
 
-        running_loss += float(loss.item()) * images.size(0)
-        seen += images.size(0)
+        bs = images.size(0)
+        running_loss += float(loss.item()) * bs
+        seen += bs
         y_true.extend(labels.detach().cpu().tolist())
         y_pred.extend(torch.argmax(outputs, dim=1).detach().cpu().tolist())
 
