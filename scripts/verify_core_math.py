@@ -124,6 +124,24 @@ def _():
     assert cfg["model"]["name"] == "small_cnn" and cfg["federated"]["rounds"] == 7
 
 
+@check("DP accountant: q=1 analytic anchor eps ~ 4.75")
+def _():
+    from fl_med.privacy.accounting import compute_epsilon
+    e = compute_epsilon(sample_rate=1.0, noise_multiplier=1.0, steps=1, delta=1e-5)
+    assert abs(e - 4.75) < 0.15
+
+
+@check("DP accountant: subsampling + more noise reduce epsilon; steps raise it")
+def _():
+    from fl_med.privacy.accounting import compute_epsilon
+    full = compute_epsilon(sample_rate=1.0, noise_multiplier=1.0, steps=1, delta=1e-5)
+    sub = compute_epsilon(sample_rate=0.01, noise_multiplier=1.0, steps=1, delta=1e-5)
+    lo = compute_epsilon(sample_rate=0.01, noise_multiplier=1.0, steps=1000, delta=1e-5)
+    hi_noise = compute_epsilon(sample_rate=0.01, noise_multiplier=4.0, steps=1000, delta=1e-5)
+    fewer = compute_epsilon(sample_rate=0.01, noise_multiplier=1.0, steps=100, delta=1e-5)
+    assert sub < full and hi_noise < lo and fewer < lo
+
+
 def main() -> int:
     width = max(len(n) for n, _ in CHECKS)
     failures = 0
