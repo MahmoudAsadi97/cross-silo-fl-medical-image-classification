@@ -1,0 +1,65 @@
+timestamp_utc: '2026-07-24T10:48:40.785959+00:00'
+tier: dev
+git_commit: bb8ef199fbd727d0c914c04b4f5deb161b786492
+git_dirty: false
+hardware:
+  python: 3.10.19
+  platform: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+  processor: x86_64
+  cpu_count: 12
+  torch: 2.5.1+cu121
+  cuda_available: true
+  gpu: NVIDIA GeForce RTX 2070
+  gpu_count: 1
+config:
+  seed: 0
+  seeds:
+  - 0
+  - 1
+  - 2
+  model:
+    name: resnet18
+    num_classes: 8
+    pretrained: true
+    norm: group
+  data:
+    image_size: 64
+    batch_size: 128
+    num_workers: 2
+    root: /home/<user>/fl_data/fed_isic2019/raw
+  optimizer:
+    name: adam
+    lr: 0.001
+    weight_decay: 0.0001
+  loss:
+    class_weights: balanced
+  training:
+    epochs: 15
+    max_batches: 60
+  federated:
+    rounds: 20
+    local_epochs: 1
+    max_batches: null
+  experiment: dp_fedavg
+  task: federated
+  strategy:
+    name: fedavg
+  privacy:
+    enabled: false
+    noise_multiplier: 1.0
+    max_grad_norm: 1.0
+    target_delta: 1.0e-05
+  _meta:
+    tier: dev
+    base_file: configs/_base.yaml
+    experiment_file: configs/dp_fedavg.yaml
+    overrides:
+    - data.root=/home/<user>/fl_data/fed_isic2019/raw
+    - data.batch_size=128
+    - federated.rounds=20
+    - federated.max_batches=null
+    - data.num_workers=2
+    - privacy.enabled=false
+    - seed=0
+extra:
+  device: cuda
