@@ -95,13 +95,17 @@ def main(argv=None) -> int:
     p.add_argument("--device", default="cuda")
     p.add_argument("--rounds", type=int, default=10)
     p.add_argument("--sigma", type=float, default=1.0, help="DP noise multiplier")
+    p.add_argument("--local-epochs", type=int, default=4, help="local epochs/round (overfit)")
     p.add_argument("--data-root", default=None)
     p.add_argument("--seed", type=int, default=0)
     args = p.parse_args(argv)
 
     data_root = args.data_root or os.environ.get("DATA_ROOT")
-    base = [f"seed={args.seed}", "data.batch_size=128", f"federated.rounds={args.rounds}",
-            "federated.max_batches=null", "data.num_workers=2"]
+    # Overfit the target so a membership signal exists: no augmentation + several
+    # local epochs/round. Batch 32 (smaller -> memorises faster; DP OOM-safe via BMM).
+    base = [f"seed={args.seed}", "data.batch_size=32", f"federated.rounds={args.rounds}",
+            "federated.max_batches=null", "data.num_workers=2", "data.augment=false",
+            f"federated.local_epochs={args.local_epochs}"]
     if data_root:
         base.append(f"data.root={data_root}")
 

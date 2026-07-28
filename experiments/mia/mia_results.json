@@ -1,0 +1,20 @@
+{
+  "non_private": {
+    "attack_auc": 0.5551193932618028,
+    "n_member": 14888,
+    "n_nonmember": 4650,
+    "member_loss_mean": 1.2341794935617956,
+    "nonmember_loss_mean": 1.5519137976186677,
+    "test_balanced_accuracy": 0.4088356475641768,
+    "epsilon_max": null
+  },
+  "dp_sigma1.0": {
+    "attack_auc": 0.5030285197575589,
+    "n_member": 14888,
+    "n_nonmember": 4650,
+    "member_loss_mean": 2.242942453563541,
+    "nonmember_loss_mean": 2.2982297672425873,
+    "test_balanced_accuracy": 0.18275666678668445,
+    "epsilon_max": 19.647377885920903
+  }
+}
