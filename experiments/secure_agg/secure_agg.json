@@ -1,0 +1,38 @@
+{
+  "n_clients": 6,
+  "aggregate_max_abs_error_vs_plaintext": 2.90878432451791e-13,
+  "aggregate_exact": true,
+  "per_client": [
+    {
+      "client": 0,
+      "true_norm": 25.308306148305117,
+      "masked_deviation": 10687.389942771008
+    },
+    {
+      "client": 1,
+      "true_norm": 8.00426217930002,
+      "masked_deviation": 10700.669043803844
+    },
+    {
+      "client": 2,
+      "true_norm": 6.801559432792353,
+      "masked_deviation": 10285.37563299106
+    },
+    {
+      "client": 3,
+      "true_norm": 4.660823866780262,
+      "masked_deviation": 10635.582250386115
+    },
+    {
+      "client": 4,
+      "true_norm": 1.651780010408869,
+      "masked_deviation": 10737.95645840577
+    },
+    {
+      "client": 5,
+      "true_norm": 0.8833120910069602,
+      "masked_deviation": 10632.74566131318
+    }
+  ],
+  "mean_hidden_ratio": 4015.2462319009173
+}

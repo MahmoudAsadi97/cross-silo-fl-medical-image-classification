@@ -142,6 +142,22 @@ def _():
     assert sub < full and hi_noise < lo and fewer < lo
 
 
+@check("Secure aggregation: masked sum == plaintext FedAvg; individuals hidden")
+def _():
+    import numpy as np
+    from collections import OrderedDict
+    from fl_med.security.secure_agg import secure_weighted_average
+    from fl_med.strategies.aggregation import weighted_average
+    rng = np.random.default_rng(0)
+    ups = [OrderedDict(w=rng.normal(size=(4, 3))) for _ in range(6)]
+    ws = [7947, 2531, 2156, 1448, 525, 281]
+    plain = weighted_average(ups, ws)
+    out = secure_weighted_average(ups, ws, master_seed=1, scale=100.0)
+    assert np.allclose(out["aggregate"]["w"], plain["w"], atol=1e-8)
+    dev = np.linalg.norm(out["masked_updates"][0]["w"] - out["scaled_contributions"][0]["w"])
+    assert dev > 20 * np.linalg.norm(out["scaled_contributions"][0]["w"])
+
+
 def main() -> int:
     width = max(len(n) for n, _ in CHECKS)
     failures = 0
