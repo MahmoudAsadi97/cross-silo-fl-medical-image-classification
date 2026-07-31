@@ -1,0 +1,56 @@
+timestamp_utc: '2026-07-29T13:09:31.047514+00:00'
+tier: full
+git_commit: 42c03ba3ae63923fc7ba8d6b16b816655c4cd0d6
+git_dirty: true
+hardware:
+  python: 3.10.19
+  platform: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+  processor: x86_64
+  cpu_count: 12
+  torch: 2.5.1+cu121
+  cuda_available: true
+  gpu: NVIDIA GeForce RTX 2070
+  gpu_count: 1
+config:
+  seed: 0
+  seeds:
+  - 0
+  - 1
+  - 2
+  model:
+    name: resnet18
+    num_classes: 8
+    pretrained: true
+    norm: group
+  data:
+    image_size: 128
+    batch_size: 32
+    num_workers: 4
+    root: /home/<user>/fl_data/fed_isic2019/raw
+  optimizer:
+    name: adam
+    lr: 0.001
+    weight_decay: 0.0001
+  loss:
+    class_weights: balanced
+  training:
+    epochs: 30
+    max_batches: null
+  federated:
+    rounds: 30
+    local_epochs: 1
+    max_batches: null
+  experiment: centralized
+  task: centralized
+  _meta:
+    tier: full
+    base_file: configs/_base.yaml
+    experiment_file: configs/centralized.yaml
+    overrides:
+    - data.root=/home/<user>/fl_data/fed_isic2019/raw
+    - data.image_size=128
+    - federated.rounds=30
+    - training.epochs=30
+    - seed=0
+extra:
+  device: cuda

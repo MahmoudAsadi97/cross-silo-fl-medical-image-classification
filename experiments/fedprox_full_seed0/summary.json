@@ -1,0 +1,9 @@
+{
+  "round": 30,
+  "client_drift": 1.5955443072669817,
+  "global_weight_norm": 96.19193677851528,
+  "test_balanced_accuracy": 0.2388192912129167,
+  "test_macro_f1": 0.1517398648894393,
+  "test_accuracy": 0.3501075268817204,
+  "test_loss": 1.794540382149399
+}
