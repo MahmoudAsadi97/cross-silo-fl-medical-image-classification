@@ -1,0 +1,229 @@
+{
+  "history": [
+    {
+      "round": 0,
+      "bal_acc": 0.19733886764439842,
+      "macro_f1": 0.0996801341722253,
+      "accuracy": 0.4120430107526882,
+      "loss": 1.563189432544093
+    },
+    {
+      "round": 1,
+      "bal_acc": 0.2062288862880594,
+      "macro_f1": 0.18073083904814463,
+      "accuracy": 0.40236559139784944,
+      "loss": 1.5750406110927624
+    },
+    {
+      "round": 2,
+      "bal_acc": 0.20484402799674034,
+      "macro_f1": 0.08796593718681868,
+      "accuracy": 0.16752688172043012,
+      "loss": 1.8822876042704428
+    },
+    {
+      "round": 3,
+      "bal_acc": 0.20486844593286346,
+      "macro_f1": 0.15866515962048422,
+      "accuracy": 0.5294623655913978,
+      "loss": 1.5135966216876942
+    },
+    {
+      "round": 4,
+      "bal_acc": 0.19906603313528948,
+      "macro_f1": 0.11585955953064497,
+      "accuracy": 0.24903225806451612,
+      "loss": 1.6847703039517967
+    },
+    {
+      "round": 5,
+      "bal_acc": 0.2057224978814925,
+      "macro_f1": 0.15580786194646887,
+      "accuracy": 0.5230107526881721,
+      "loss": 1.475891364312941
+    },
+    {
+      "round": 6,
+      "bal_acc": 0.21321969067487664,
+      "macro_f1": 0.18074604137621927,
+      "accuracy": 0.4593548387096774,
+      "loss": 1.581484649053184
+    },
+    {
+      "round": 7,
+      "bal_acc": 0.1919361816854298,
+      "macro_f1": 0.10097316535206248,
+      "accuracy": 0.21118279569892473,
+      "loss": 1.5438661508149998
+    },
+    {
+      "round": 8,
+      "bal_acc": 0.2061966276468472,
+      "macro_f1": 0.14417010946174696,
+      "accuracy": 0.38064516129032255,
+      "loss": 1.5747924140191847
+    }
+  ],
+  "timings": [
+    {
+      "train_bal_acc": 0.22794486215538845,
+      "n": 128,
+      "tag": "pi5",
+      "fit_seconds": 8.670446416999766,
+      "train_loss": 1.3632720112800598,
+      "host": "raspberrypi",
+      "device": "cpu",
+      "round": 1
+    },
+    {
+      "train_bal_acc": 0.1706232492997199,
+      "n": 128,
+      "tag": "laptop-c0",
+      "fit_seconds": 1.8339801549996082,
+      "train_loss": 1.6896334886550903,
+      "host": "DESKTOP-LHHJGJU",
+      "device": "cuda",
+      "round": 1
+    },
+    {
+      "train_bal_acc": 0.1545138888888889,
+      "n": 128,
+      "tag": "pi5",
+      "fit_seconds": 8.322129025999857,
+      "train_loss": 1.8978959619998932,
+      "host": "raspberrypi",
+      "device": "cpu",
+      "round": 2
+    },
+    {
+      "train_bal_acc": 0.19747885835095136,
+      "n": 128,
+      "tag": "laptop-c0",
+      "fit_seconds": 0.4801202899998316,
+      "train_loss": 2.0665971487760544,
+      "host": "DESKTOP-LHHJGJU",
+      "device": "cuda",
+      "round": 2
+    },
+    {
+      "train_bal_acc": 0.1727303602303602,
+      "n": 128,
+      "tag": "laptop-c0",
+      "fit_seconds": 0.5134173249998639,
+      "train_loss": 1.8805377632379532,
+      "host": "DESKTOP-LHHJGJU",
+      "device": "cuda",
+      "round": 3
+    },
+    {
+      "train_bal_acc": 0.3201238390092879,
+      "n": 128,
+      "tag": "pi5",
+      "fit_seconds": 8.262624117999621,
+      "train_loss": 1.3396977931261063,
+      "host": "raspberrypi",
+      "device": "cpu",
+      "round": 3
+    },
+    {
+      "train_bal_acc": 0.26144688644688646,
+      "n": 128,
+      "tag": "pi5",
+      "fit_seconds": 8.300059908000549,
+      "train_loss": 1.5871733278036118,
+      "host": "raspberrypi",
+      "device": "cpu",
+      "round": 4
+    },
+    {
+      "train_bal_acc": 0.24732142857142858,
+      "n": 128,
+      "tag": "laptop-c0",
+      "fit_seconds": 0.5322064260003572,
+      "train_loss": 2.0551028549671173,
+      "host": "DESKTOP-LHHJGJU",
+      "device": "cuda",
+      "round": 4
+    },
+    {
+      "train_bal_acc": 0.2253821163809142,
+      "n": 128,
+      "tag": "laptop-c0",
+      "fit_seconds": 0.6039442350001991,
+      "train_loss": 1.9120538830757141,
+      "host": "DESKTOP-LHHJGJU",
+      "device": "cuda",
+      "round": 5
+    },
+    {
+      "train_bal_acc": 0.3689542483660131,
+      "n": 128,
+      "tag": "pi5",
+      "fit_seconds": 8.315317278000293,
+      "train_loss": 2.2317938581109047,
+      "host": "raspberrypi",
+      "device": "cpu",
+      "round": 5
+    },
+    {
+      "train_bal_acc": 0.325003928964325,
+      "n": 128,
+      "tag": "pi5",
+      "fit_seconds": 8.31310368800041,
+      "train_loss": 1.933904767036438,
+      "host": "raspberrypi",
+      "device": "cpu",
+      "round": 6
+    },
+    {
+      "train_bal_acc": 0.13800349825087457,
+      "n": 128,
+      "tag": "laptop-c0",
+      "fit_seconds": 0.6223413230000006,
+      "train_loss": 2.05486062169075,
+      "host": "DESKTOP-LHHJGJU",
+      "device": "cuda",
+      "round": 6
+    },
+    {
+      "train_bal_acc": 0.1546883000512033,
+      "n": 128,
+      "tag": "laptop-c0",
+      "fit_seconds": 0.5192068190003738,
+      "train_loss": 2.0275384187698364,
+      "host": "DESKTOP-LHHJGJU",
+      "device": "cuda",
+      "round": 7
+    },
+    {
+      "train_bal_acc": 0.11931818181818182,
+      "n": 128,
+      "tag": "pi5",
+      "fit_seconds": 8.276608728999236,
+      "train_loss": 2.1960269808769226,
+      "host": "raspberrypi",
+      "device": "cpu",
+      "round": 7
+    },
+    {
+      "train_bal_acc": 0.12681502525252525,
+      "n": 128,
+      "tag": "laptop-c0",
+      "fit_seconds": 0.46922081399998206,
+      "train_loss": 2.0992743223905563,
+      "host": "DESKTOP-LHHJGJU",
+      "device": "cuda",
+      "round": 8
+    },
+    {
+      "train_bal_acc": 0.4037878787878788,
+      "n": 128,
+      "tag": "pi5",
+      "fit_seconds": 8.242347290999533,
+      "train_loss": 1.8347958028316498,
+      "host": "raspberrypi",
+      "device": "cpu",
+      "round": 8
+    }
+  ]
+}

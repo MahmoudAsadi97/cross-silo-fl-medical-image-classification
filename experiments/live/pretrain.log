@@ -1,0 +1,15 @@
+2026-08-02 15:53:47,716 | INFO    | pretrain | round 1 | bal_acc=0.1250 macro_f1=0.0813 drift=19.1785 loss=1.6922
+2026-08-02 15:54:07,425 | INFO    | pretrain | round 2 | bal_acc=0.1250 macro_f1=0.0813 drift=15.8879 loss=1.7075
+2026-08-02 15:54:25,760 | INFO    | pretrain | round 3 | bal_acc=0.1554 macro_f1=0.1130 drift=13.1917 loss=1.5815
+2026-08-02 15:54:44,802 | INFO    | pretrain | round 4 | bal_acc=0.1833 macro_f1=0.1159 drift=11.5804 loss=1.5789
+2026-08-02 15:55:04,011 | INFO    | pretrain | round 5 | bal_acc=0.1858 macro_f1=0.1102 drift=10.6418 loss=1.5674
+2026-08-02 15:55:22,657 | INFO    | pretrain | round 6 | bal_acc=0.1938 macro_f1=0.1172 drift=10.7251 loss=1.5723
+2026-08-02 15:55:41,276 | INFO    | pretrain | round 7 | bal_acc=0.1870 macro_f1=0.1022 drift=9.9775 loss=1.5539
+2026-08-02 15:55:59,704 | INFO    | pretrain | round 8 | bal_acc=0.1934 macro_f1=0.1058 drift=9.1010 loss=1.5903
+2026-08-02 15:56:18,025 | INFO    | pretrain | round 9 | bal_acc=0.2023 macro_f1=0.1034 drift=9.0806 loss=1.6382
+2026-08-02 15:56:36,572 | INFO    | pretrain | round 10 | bal_acc=0.2039 macro_f1=0.0999 drift=9.3865 loss=1.5986
+2026-08-02 15:56:54,974 | INFO    | pretrain | round 11 | bal_acc=0.2022 macro_f1=0.0995 drift=9.0882 loss=1.6048
+2026-08-02 15:57:13,464 | INFO    | pretrain | round 12 | bal_acc=0.1881 macro_f1=0.0997 drift=9.2777 loss=1.5380
+2026-08-02 15:57:32,109 | INFO    | pretrain | round 13 | bal_acc=0.2002 macro_f1=0.0982 drift=8.4939 loss=1.6261
+2026-08-02 15:57:51,369 | INFO    | pretrain | round 14 | bal_acc=0.1911 macro_f1=0.0990 drift=9.1952 loss=1.5523
+2026-08-02 15:58:13,239 | INFO    | pretrain | round 15 | bal_acc=0.1973 macro_f1=0.0997 drift=8.0794 loss=1.5632

@@ -19,7 +19,7 @@ function img(file, width = 520) {
   // most figures are ~ 4:3 or wider; keep aspect via known ratios (height auto ~0.62*w for our plots)
   const heights = { "phase23_comparison_full.png": 0.41, "dp_privacy_utility_full.png": 0.69,
     "mia_auc.png": 0.82, "secure_agg.png": 0.60, "client_class_distribution.png": 0.62,
-    "js_distance_to_global.png": 0.67 };
+    "js_distance_to_global.png": 0.67, "live_accuracy.png": 0.66, "live_straggler.png": 0.66 };
   const ratio = heights[file] || 0.62;
   return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120, after: 60 },
     children: [new ImageRun({ type: "png", data: fs.readFileSync(p),
@@ -74,7 +74,7 @@ children.push(p([
   r("This project designs, implements and rigorously evaluates a "), r("cross-silo federated learning (FL)", { b: true }),
   r(" system in which several simulated hospitals collaboratively train a skin-lesion classifier on the Fed-ISIC2019 benchmark "),
   r("without ever exchanging raw patient images", { b: true }),
-  r(". We quantify the trade-offs between model performance, data heterogeneity and privacy. Three aggregation strategies (FedAvg, FedProx, SCAFFOLD) are compared under an identical protocol; local Differential Privacy (DP-SGD) is added with an independently-verified (ε, δ) accountant and a privacy–utility curve; a membership-inference attack demonstrates the privacy protection empirically; and an additive-mask secure-aggregation scheme is simulated and proven correct. The main findings: federation substantially outperforms isolated local training and recovers a large share of the centralized-training accuracy without any data sharing (FedAvg 0.32 balanced accuracy vs 0.46 centralized and 0.21 local-only); the drift-control methods FedProx and SCAFFOLD cut client drift by 5–9× exactly as theory predicts, yet on this benchmark they do not improve balanced accuracy over plain FedAvg — a concrete, reproducible negative result; and differential privacy trades accuracy for privacy along a clean monotonic curve while measurably reducing membership-inference leakage."),
+  r(". We quantify the trade-offs between model performance, data heterogeneity and privacy. Three aggregation strategies (FedAvg, FedProx, SCAFFOLD) are compared under an identical protocol; local Differential Privacy (DP-SGD) is added with an independently-verified (ε, δ) accountant and a privacy–utility curve; a membership-inference attack demonstrates the privacy protection empirically; and an additive-mask secure-aggregation scheme is simulated and proven correct. The main findings: federation substantially outperforms isolated local training and recovers a large share of the centralized-training accuracy without any data sharing (FedAvg 0.32 balanced accuracy vs 0.46 centralized and 0.21 local-only); the drift-control methods FedProx and SCAFFOLD cut client drift by 5–9× exactly as theory predicts, yet on this benchmark they do not improve balanced accuracy over plain FedAvg — a concrete, reproducible negative result; and differential privacy trades accuracy for privacy along a clean monotonic curve while measurably reducing membership-inference leakage. Beyond the simulation, we also demonstrate the system running genuinely distributed on a laptop plus a Raspberry Pi 5 edge device, quantifying the cross-device straggler effect."),
 ], { justify: true }));
 
 // 1 Introduction
@@ -197,6 +197,30 @@ children.push(p([
 children.push(img("secure_agg.png", 460));
 children.push(caption("Fig. 6 — Secure aggregation: individual updates are hidden (tall bars) yet the aggregate error is ~0 (flat line)."));
 
+children.push(h2("3.6  Real distributed FL on edge hardware — Raspberry Pi (bonus)"));
+children.push(p([
+  r("The results above come from an in-process "), r("simulation", { i: true }),
+  r(" (clients trained sequentially on one GPU). To prove the system is "),
+  r("genuinely distributed", { b: true }),
+  r(", we deployed it across two physical machines using the "), r("Flower", { b: true }),
+  r(" framework over gRPC: a laptop runs the coordinating server plus one client on its GPU, while a "),
+  r("Raspberry Pi 5", { b: true }),
+  r(" acts as a real edge hospital — training on its own local silo (the smallest client, 281 images) and exchanging "),
+  r("only model weights", { b: true }),
+  r(" over the network; raw images never leave the Pi. The Pi runs the exact same engine (model, loop, metrics) as the simulation, warm-started from the pre-trained global model so a short live run shows real accuracy."),
+], { justify: true }));
+children.push(img("live_accuracy.png", 400));
+children.push(caption("Fig. 7 — Real distributed FedAvg over the network (laptop server + GPU client + Raspberry Pi client): the global model sustains balanced accuracy ≈ 0.20, well above the majority floor."));
+children.push(img("live_straggler.png", 400));
+children.push(caption("Fig. 8 — The straggler effect: the Pi's CPU needs ≈ 8.2 s per round vs the laptop GPU's ≈ 0.5 s (≈ 17×). Synchronous FedAvg gates each round on the slowest device."));
+children.push(p([
+  r("Two findings the simulation cannot show. "), r("(i) Edge feasibility:", { b: true }),
+  r(" a sub-€100 device meaningfully participates in training a clinical model without its data ever leaving it — the core FL value proposition, on real hardware. "),
+  r("(ii) The straggler problem:", { b: true }),
+  r(" the Pi is ≈ 17× slower per round than the laptop GPU, and because FedAvg is synchronous the entire round waits for it (the 8-round run took ≈ 6.8 min, dominated by the Pi). In a real cross-device deployment this is the concrete argument for "),
+  r("client sampling, asynchronous aggregation, or on-device model compression", { b: true }), r("."),
+], { justify: true }));
+
 // 4 Validation
 children.push(h1("4  Validation and verification"));
 children.push(p([r("Correctness is treated as an acceptance requirement, not an afterthought. Evidence:")], { justify: true }));
@@ -225,7 +249,7 @@ children.push(p([r("For a hospital consortium starting FL: begin with a well-tun
 // 6 Conclusion
 children.push(h1("6  Conclusion"));
 children.push(p([
-  r("We built and validated a complete cross-silo FL system for skin-lesion classification and answered all eight research sub-questions with reproducible evidence. Federation substantially outperforms isolated local training and recovers much of the gap to centralized accuracy without sharing raw images; FedProx and SCAFFOLD reduce client drift as theory predicts but, on this benchmark, do not improve balanced accuracy over plain FedAvg — a concrete, honestly-reported finding; differential privacy imposes a measured, monotonic accuracy cost while demonstrably reducing membership-inference leakage; and secure aggregation provably hides individual updates while recovering the exact aggregate. The pipeline is fully reproducible from configuration, with every reported number traceable to a generated artefact."),
+  r("We built and validated a complete cross-silo FL system for skin-lesion classification and answered all eight research sub-questions with reproducible evidence. Federation substantially outperforms isolated local training and recovers much of the gap to centralized accuracy without sharing raw images; FedProx and SCAFFOLD reduce client drift as theory predicts but, on this benchmark, do not improve balanced accuracy over plain FedAvg — a concrete, honestly-reported finding; differential privacy imposes a measured, monotonic accuracy cost while demonstrably reducing membership-inference leakage; and secure aggregation provably hides individual updates while recovering the exact aggregate. The pipeline is fully reproducible from configuration, with every reported number traceable to a generated artefact. Beyond the simulation, the system was demonstrated running genuinely distributed across a laptop and a Raspberry Pi 5 edge hospital (Flower/gRPC) — raw data never leaving the device — with the cross-device straggler effect (the Pi ≈ 17× slower per round) measured directly."),
 ], { justify: true }));
 
 // References

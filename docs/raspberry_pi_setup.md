@@ -1,0 +1,161 @@
+# Raspberry Pi 5 as a real federated client
+
+This turns the project from a *simulated* federation (all clients in one Python
+loop) into a **genuinely distributed** one: the Raspberry Pi acts as an "edge
+hospital" that trains on its own local data and sends **only model updates** over
+the network to the coordinating server on your laptop. Raw images never leave the
+Pi — the privacy claim made physical.
+
+We use [Flower](https://flower.ai) (`flwr`) for the transport. The model, data
+loaders, training loop and metrics are the *same* code as the simulation
+(`src/fl_med/federated_live/` just wraps them), so the run is directly comparable.
+
+> **Design for speed.** The Pi trains the **smallest silo** (client 5, ~281
+> images) for **1 local epoch**, capped with `--max-batches`, for a **short** run
+> (~8 rounds). The rigorous 3-seed numbers stay in the simulation; this run is the
+> *proof it works on real distributed hardware* — plus a **straggler** measurement.
+
+---
+
+## 0. Prerequisites
+
+- Raspberry Pi 5 with **64-bit Raspberry Pi OS** (Bookworm). 64-bit is required
+  for the PyTorch aarch64 wheels.
+- Pi and laptop on the **same LAN** (same Wi-Fi/router or Ethernet).
+- The repo cloned on **both** machines.
+
+---
+
+## 1. Install the software on the Pi
+
+```bash
+# on the Pi
+sudo apt update && sudo apt install -y python3-venv libopenblas0 git
+git clone https://github.com/MahmoudAsadi97/cross-silo-fl-medical-image-classification.git
+cd cross-silo-fl-medical-image-classification
+
+python3 -m venv .venv && source .venv/bin/activate
+pip install --upgrade pip
+
+# CPU PyTorch for aarch64 (no CUDA on the Pi) + the pinned Flower version
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+pip install 'flwr==1.11.1' numpy pyyaml pillow
+
+pip install -e . --no-deps        # register the fl_med package
+python -c "import torch, flwr, fl_med; print('pi ready:', torch.__version__, flwr.__version__)"
+```
+
+## 2. Copy the Pi's local data shard
+
+The Pi only needs **client 5's** images (small). From the laptop:
+
+```bash
+# from the laptop (adjust paths); creates the same layout on the Pi
+PI=pi@raspberrypi.local
+rsync -av data/fed_isic2019/raw/train/client_5  $PI:~/fl_data/fed_isic2019/raw/train/
+rsync -av data/fed_isic2019/raw/test/client_5   $PI:~/fl_data/fed_isic2019/raw/test/
+```
+
+On the Pi, `DATA_ROOT` is then `~/fl_data/fed_isic2019/raw`.
+
+---
+
+## 3. Networking: let the Pi reach the server in WSL
+
+Your server runs in **WSL2**, which by default has its own NAT'd network the Pi
+can't reach. Pick **one** fix:
+
+**Option A — mirrored networking (Windows 11, easiest).** Edit
+`C:\Users\<you>\.wslconfig`:
+
+```ini
+[wsl2]
+networkingMode=mirrored
+```
+
+Then in PowerShell: `wsl --shutdown`, reopen WSL. WSL now shares the laptop's LAN
+IP, so the Pi connects straight to it.
+
+**Option B — port forward (fallback).** In WSL: `hostname -I` (note the WSL IP).
+Then in an **admin** PowerShell:
+
+```powershell
+netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=<WSL_IP>
+netsh advfirewall firewall add rule name="flower8080" dir=in action=allow protocol=TCP localport=8080
+```
+
+**Find the laptop's LAN IP** (the address the Pi dials): `ipconfig` on Windows →
+the IPv4 of your Wi-Fi/Ethernet adapter, e.g. `192.168.1.50`.
+
+---
+
+## 4. Run it
+
+**First, on the laptop, pre-train a global model once** (single process — no GPU
+contention) so the live run shows real accuracy from round 0:
+
+```bash
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw \
+    python scripts/live/pretrain_and_save.py --rounds 15 --device cuda
+# -> experiments/live/pretrained.pt  (~0.20 balanced accuracy)
+```
+
+**Laptop (server + one local client for comparison)** — two terminals in WSL:
+
+```bash
+# terminal 1 — the coordinator, warm-started, waits for 2 clients (laptop + Pi)
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw \
+    python scripts/live/server.py --rounds 8 --min-clients 2 --host 0.0.0.0:8080 \
+        --device cuda --init-model experiments/live/pretrained.pt
+
+# terminal 2 — a laptop hospital (silo 0), fast (GPU): the straggler baseline
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw \
+    python scripts/live/client.py --server 127.0.0.1:8080 --client-id 0 --label laptop-c0 --device cuda
+```
+
+**Raspberry Pi (the edge hospital, silo 5):**
+
+```bash
+source .venv/bin/activate
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw \
+    python scripts/live/client.py --server 192.168.1.50:8080 \
+        --client-id 5 --label pi5 --device cpu --max-batches 8
+```
+
+(Replace `192.168.1.50` with your laptop's LAN IP.) When all 8 rounds finish the
+server writes `experiments/live/history.json`. Make the figures on the laptop:
+
+```bash
+python scripts/live/plot_live.py
+# -> reports/figures/live_accuracy.png  (accuracy vs round)
+# -> reports/figures/live_straggler.png (per-client time/round: Pi vs laptop)
+```
+
+> **Verify locally first (no Pi needed):**
+> `DATA_ROOT=$HOME/fl_data/fed_isic2019/raw bash scripts/live/run_local_demo.sh`
+> runs the server + 2 clients on the laptop to confirm the whole path works.
+
+---
+
+## 5. Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `connection refused` / client hangs | Wrong laptop IP, firewall, or WSL networking not mirrored/forwarded (§3). Confirm `ping <laptop-ip>` from the Pi. |
+| Flower API errors | Server and Pi must use the **same** `flwr` version (`pip install 'flwr==1.11.1'` on both). |
+| Shape/parameter mismatch | Server and all clients must use the **same** `--config`/`--tier`/`--image-size` so the model architecture matches. |
+| Pi round is slow | Lower `--max-batches` (e.g. 4), keep `--image-size 64`. The slowness is expected — it's the finding (straggler). |
+| `torch` install fails on Pi | Ensure **64-bit** OS; install inside a venv; `sudo apt install libopenblas0`; use the CPU `--index-url` above. |
+| Pi runs out of memory | Smaller `--batch-size` (e.g. 8) and `--image-size 64`. |
+
+## 6. What to report
+
+- **It's real FL:** two machines, only weight tensors on the wire, raw images
+  stayed on each device.
+- **Straggler finding:** the Pi's fit time per round vs the laptop's
+  (`live_straggler.png`) — FedAvg is synchronous, so the round is gated by the
+  slowest device. This motivates client sampling / asynchronous FL and is a
+  genuine cross-device systems result, not a limitation to hide.
+- **Edge feasibility:** a $80 device meaningfully participates in training a
+  clinical model without its data ever leaving — the core FL value proposition,
+  demonstrated on hardware.
