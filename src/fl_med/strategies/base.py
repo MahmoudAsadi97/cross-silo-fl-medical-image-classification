@@ -45,8 +45,13 @@ class Strategy:
         self,
         client_states: Sequence[Mapping[str, Any]],
         weights: Sequence[float],
+        global_state: Mapping[str, Any] | None = None,
     ):
-        """Combine client parameter dicts into a new global dict."""
+        """Combine client parameter dicts into a new global dict.
+
+        ``global_state`` (the pre-round global) is passed for server-optimizer strategies
+        such as FedAdam, which need it to form a pseudo-gradient; the default mean ignores it.
+        """
         return weighted_average(client_states, weights)
 
     def __repr__(self) -> str:  # pragma: no cover - cosmetic

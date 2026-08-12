@@ -19,7 +19,8 @@ function img(file, width = 520) {
   // most figures are ~ 4:3 or wider; keep aspect via known ratios (height auto ~0.62*w for our plots)
   const heights = { "phase23_comparison_full.png": 0.41, "dp_privacy_utility_full.png": 0.69,
     "mia_auc.png": 0.82, "secure_agg.png": 0.60, "client_class_distribution.png": 0.62,
-    "js_distance_to_global.png": 0.67, "live_accuracy.png": 0.66, "live_straggler.png": 0.66 };
+    "js_distance_to_global.png": 0.67, "live_accuracy.png": 0.66, "live_straggler.png": 0.66,
+    "robustness.png": 0.64, "comms.png": 0.39 };
   const ratio = heights[file] || 0.62;
   return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 120, after: 60 },
     children: [new ImageRun({ type: "png", data: fs.readFileSync(p),
@@ -164,7 +165,7 @@ children.push(caption("Fig. 3 — Left: balanced accuracy by method vs the major
 children.push(p([
   r("Federation works", { b: true }), r(": FedAvg (0.320) sits clearly between the centralized upper bound (0.456) and isolated local-only training (0.209), recovering about 45% of the accuracy gap between training alone and pooling all data — a large gain bought without any raw image leaving a silo (Q2). "),
   r("Drift is textbook", { b: true }), r(": FedAvg 8.56 ≫ FedProx 1.55 ≫ SCAFFOLD 0.92, consistent across all three seeds — precisely the ordering each method's theory predicts (Q3, Q4). "),
-  r("But drift control does not buy accuracy here", { b: true }), r(": despite cutting drift 5–9×, FedProx (0.224) and SCAFFOLD (0.217) land only marginally above local-only and well below FedAvg. FedAvg beats FedProx by 0.096 balanced accuracy, a large and consistent per-seed gap (n = 3, too few for a significant Wilcoxon). The reading is that FedProx's proximal term and SCAFFOLD's control variates keep each client tied to the global model, suppressing the local adaptation that plain FedAvg exploits on this moderately heterogeneous data; SCAFFOLD's plain-SGD inner loop also converges more slowly. This is an honest negative result for the drift-control methods on Fed-ISIC2019: they deliver stability, not accuracy."),
+  r("But drift control does not buy accuracy here", { b: true }), r(": despite cutting drift 5–9×, FedProx (0.224) and SCAFFOLD (0.217) land only marginally above local-only and well below FedAvg. FedAvg beats FedProx by 0.096 balanced accuracy, a large and consistent per-seed gap (n = 3, too few for a significant Wilcoxon). The reading is that FedProx's proximal term and SCAFFOLD's control variates keep each client tied to the global model, suppressing the local adaptation that plain FedAvg exploits on this moderately heterogeneous data; SCAFFOLD's plain-SGD inner loop also converges more slowly. This is an honest negative result for the drift-control methods on Fed-ISIC2019: they deliver stability, not accuracy. We additionally implemented FedAdam (an adaptive-server FedOpt method reported strong on Fed-ISIC2019); on this compute-constrained setup it was highly tuning-sensitive and did not surpass well-tuned FedAvg, reinforcing the same conclusion."),
 ], { justify: true }));
 
 children.push(h2("3.3  Differential privacy: the privacy–utility trade-off (Q5–Q6)"));
@@ -221,6 +222,50 @@ children.push(p([
   r("client sampling, asynchronous aggregation, or on-device model compression", { b: true }), r("."),
 ], { justify: true }));
 
+children.push(h2("3.7  Byzantine robustness: model poisoning vs robust aggregation (bonus)"));
+children.push(p([
+  r("The privacy work above protects "), r("confidentiality", { i: true }),
+  r("; a complementary threat is "), r("integrity", { i: true }),
+  r(" — a malicious or compromised hospital sending poisoned updates to corrupt the shared model. Plain FedAvg is a mean, whose breakdown point is zero: a single crafted update can move it arbitrarily. We simulate 2 of 6 clients running a sign-flip model-poisoning attack (amplifying their update in the wrong direction) and compare aggregators."),
+], { justify: true }));
+children.push(table(
+  ["Aggregator (under attack)", "Balanced accuracy", "Outcome"],
+  [["Clean FedAvg (no attack, ref.)", "0.173", "baseline"],
+   ["FedAvg — under attack", "0.125", "collapses to majority floor"],
+   ["Coordinate-median (robust)", "0.191", "defended"],
+   ["Krum (robust)", "0.179", "defended"],
+   ["Trimmed-mean (robust)", "0.172", "defended"]],
+  [3000, 2200, 2400]));
+children.push(spacer());
+children.push(img("robustness.png", 460));
+children.push(caption("Fig. 9 — Under a 2-of-6 poisoning attack, plain FedAvg is pinned at the random floor (red); coordinate-median, trimmed-mean and Krum recover to the clean baseline."));
+children.push(p([
+  r("Two malicious clients collapse plain FedAvg to the majority floor (0.125 = random on 8 classes), whereas the three "),
+  r("robust aggregators", { b: true }),
+  r(" — bounding each client's influence via a coordinate-wise median, trimming the extremes, or selecting the update most consistent with the honest majority (Krum) — retain full accuracy. This closes the security analysis with the "),
+  r("integrity", { b: true }),
+  r(" dimension (attack and defence), alongside the confidentiality results of §3.4–3.6. The aggregators and the attack are covered by the torch-free correctness suite."),
+], { justify: true }));
+
+children.push(h2("3.8  Communication efficiency: top-k sparsification (bonus)"));
+children.push(p([
+  r("FL's practical bottleneck is communication — acute for an edge device like the Pi of §3.6. Top-k sparsification uploads only each client's largest-magnitude update coordinates (value + index) and drops the rest. Warm-starting from a converged model isolates the pure compression effect from the warm-up delay, and sparsification is applied layer-wise so the small classifier head is never starved."),
+], { justify: true }));
+children.push(table(
+  ["Update sent", "Upload / round / client", "Compression", "Balanced accuracy"],
+  [["Full model (100%)", "44.7 MB", "1×", "0.205"],
+   ["Top 10% of values", "8.9 MB", "5×", "0.197"],
+   ["Top 1% of values", "0.89 MB", "50×", "0.202"]],
+  [2500, 2500, 1500, 1500]));
+children.push(spacer());
+children.push(img("comms.png", 500));
+children.push(caption("Fig. 10 — Balanced accuracy stays ≈ 0.20 across the whole range: uploads can shrink 50× for essentially no accuracy cost."));
+children.push(p([
+  r("Sending only the top "), r("1%", { b: true }),
+  r(" of coordinates shrinks each upload "), r("50×", { b: true }),
+  r(" (44.7 MB → 0.89 MB) while balanced accuracy is essentially unchanged (0.202 vs 0.205). This makes federation practical for bandwidth-limited participants and pairs directly with the straggler finding: the slowest, weakest device is also the one that gains most from sending far less."),
+], { justify: true }));
+
 // 4 Validation
 children.push(h1("4  Validation and verification"));
 children.push(p([r("Correctness is treated as an acceptance requirement, not an afterthought. Evidence:")], { justify: true }));
@@ -243,13 +288,15 @@ children.push(bullet("The strategy comparison uses full-tier settings (128 px, 3
 children.push(bullet("SCAFFOLD uses a plain-SGD inner loop and converges more slowly than FedAvg; even at 30 rounds it trails FedAvg, consistent with its far lower drift but weaker local adaptation."));
 children.push(bullet("DP is sample-level, not client-level; the strongest guarantee would combine central DP-FedAvg (server-side noise) with the secure-aggregation scheme built here."));
 children.push(bullet("A single natural dataset and one backbone (ResNet-18) limit external validity."));
+children.push(bullet("Explainability (Grad-CAM) on the compute-limited model showed diffuse attention that sometimes falls on image borders/artefacts rather than the lesion — a documented dermoscopy shortcut, reported honestly as a signal that a production model would need stronger, verified attention before clinical use."));
+children.push(bullet("The robustness and communication-efficiency studies were run at dev tier (single seed) to establish the mechanism; the effects are large and clear, but full-tier multi-seed confirmation is future work."));
 children.push(h2("5.3  Advice for the professional field"));
 children.push(p([r("For a hospital consortium starting FL: begin with a well-tuned FedAvg — on this benchmark it was the strongest strategy, so treat FedProx and SCAFFOLD as tools for stability (drift control) rather than assumed accuracy gains, and verify on your own metric before adopting them; budget for the smallest silo dominating the privacy cost; treat DP's ε as a product decision (our curve makes the accuracy cost explicit); and combine DP with secure aggregation so no single update is ever exposed to the coordinator. Report balanced accuracy, not raw accuracy, on imbalanced clinical data.")], { justify: true }));
 
 // 6 Conclusion
 children.push(h1("6  Conclusion"));
 children.push(p([
-  r("We built and validated a complete cross-silo FL system for skin-lesion classification and answered all eight research sub-questions with reproducible evidence. Federation substantially outperforms isolated local training and recovers much of the gap to centralized accuracy without sharing raw images; FedProx and SCAFFOLD reduce client drift as theory predicts but, on this benchmark, do not improve balanced accuracy over plain FedAvg — a concrete, honestly-reported finding; differential privacy imposes a measured, monotonic accuracy cost while demonstrably reducing membership-inference leakage; and secure aggregation provably hides individual updates while recovering the exact aggregate. The pipeline is fully reproducible from configuration, with every reported number traceable to a generated artefact. Beyond the simulation, the system was demonstrated running genuinely distributed across a laptop and a Raspberry Pi 5 edge hospital (Flower/gRPC) — raw data never leaving the device — with the cross-device straggler effect (the Pi ≈ 17× slower per round) measured directly."),
+  r("We built and validated a complete cross-silo FL system for skin-lesion classification and answered all eight research sub-questions with reproducible evidence. Federation substantially outperforms isolated local training and recovers much of the gap to centralized accuracy without sharing raw images; FedProx and SCAFFOLD reduce client drift as theory predicts but, on this benchmark, do not improve balanced accuracy over plain FedAvg — a concrete, honestly-reported finding; differential privacy imposes a measured, monotonic accuracy cost while demonstrably reducing membership-inference leakage; and secure aggregation provably hides individual updates while recovering the exact aggregate. The pipeline is fully reproducible from configuration, with every reported number traceable to a generated artefact. Beyond the simulation, the system was demonstrated running genuinely distributed across a laptop and a Raspberry Pi 5 edge hospital (Flower/gRPC) — raw data never leaving the device — with the cross-device straggler effect (the Pi ≈ 17× slower per round) measured directly. Bonus studies add the integrity half of security — robust aggregation (median / trimmed-mean / Krum) defeats a 2-of-6 poisoning attack that collapses plain FedAvg to random — and a 50× communication saving at no accuracy cost."),
 ], { justify: true }));
 
 // References
@@ -264,6 +311,10 @@ const refs = [
   "R. Shokri, M. Stronati, C. Song, V. Shmatikov, “Membership Inference Attacks Against Machine Learning Models,” in Proc. IEEE S&P, 2017.",
   "J. O. du Terrail et al., “FLamby: Datasets and Benchmarks for Cross-Silo Federated Learning in Realistic Healthcare Settings,” in Proc. NeurIPS Datasets & Benchmarks, 2022.",
   "A. Yousefpour et al., “Opacus: User-Friendly Differential Privacy Library in PyTorch,” arXiv:2109.12298, 2021.",
+  "P. Blanchard, E. M. El Mhamdi, R. Guerraoui, J. Stainer, “Machine Learning with Adversaries: Byzantine Tolerant Gradient Descent (Krum),” in Proc. NeurIPS, 2017.",
+  "D. Yin, Y. Chen, K. Ramchandran, P. Bartlett, “Byzantine-Robust Distributed Learning: Towards Optimal Statistical Rates (median / trimmed-mean),” in Proc. ICML, 2018.",
+  "S. J. Reddi et al., “Adaptive Federated Optimization (FedAdam),” in Proc. ICLR, 2021.",
+  "R. R. Selvaraju et al., “Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization,” in Proc. IEEE ICCV, 2017, pp. 618–626.",
 ];
 refs.forEach((ref, i) => children.push(new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: `[${i + 1}] `, bold: true, size: 19 }), new TextRun({ text: ref, size: 19 })] })));
 

@@ -1,0 +1,15 @@
+# FedAdam (Reddi et al., 2021): adaptive SERVER optimizer on the aggregated pseudo-gradient.
+# Per the FedOpt recipe, FedAdam pairs an SGD client optimizer with the Adam server step
+# (that pairing IS the method). server_lr / tau may need light tuning per dataset.
+experiment: fedadam
+task: federated
+strategy:
+  name: fedadam
+  server_lr: 0.01      # per-coordinate server step; 0.1 overshot (loss exploded)
+  beta1: 0.9
+  beta2: 0.99
+  tau: 0.001
+optimizer:
+  name: sgd
+  lr: 0.1              # SGD clients + momentum -> meaningful pseudo-gradient
+  momentum: 0.9

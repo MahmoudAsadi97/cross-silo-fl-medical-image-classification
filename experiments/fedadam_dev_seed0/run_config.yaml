@@ -1,0 +1,59 @@
+timestamp_utc: '2026-08-12T11:52:43.970082+00:00'
+tier: dev
+git_commit: b08d75f98b03d5a65d8e49e998c46a5782d6aac9
+git_dirty: true
+hardware:
+  python: 3.10.19
+  platform: Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.35
+  processor: x86_64
+  cpu_count: 12
+  torch: 2.5.1+cu121
+  cuda_available: true
+  gpu: NVIDIA GeForce RTX 2070
+  gpu_count: 1
+config:
+  seed: 0
+  seeds:
+  - 0
+  - 1
+  - 2
+  model:
+    name: resnet18
+    num_classes: 8
+    pretrained: true
+    norm: group
+  data:
+    image_size: 64
+    batch_size: 16
+    num_workers: 2
+  optimizer:
+    name: sgd
+    lr: 0.1
+    weight_decay: 0.0001
+    momentum: 0.9
+  loss:
+    class_weights: balanced
+  training:
+    epochs: 15
+    max_batches: 60
+  federated:
+    rounds: 8
+    local_epochs: 1
+    max_batches: 60
+  experiment: fedadam
+  task: federated
+  strategy:
+    name: fedadam
+    server_lr: 0.01
+    beta1: 0.9
+    beta2: 0.99
+    tau: 0.001
+  _meta:
+    tier: dev
+    base_file: configs/_base.yaml
+    experiment_file: configs/fedadam.yaml
+    overrides:
+    - federated.rounds=8
+    - seed=0
+extra:
+  device: cpu

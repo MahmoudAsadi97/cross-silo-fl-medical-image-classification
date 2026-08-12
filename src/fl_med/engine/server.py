@@ -113,7 +113,8 @@ def run_federated(
             for u in updates:
                 c_locals[u["client_id"]] = u["c_local"]
         else:
-            global_state = strategy.aggregate([u["state_dict"] for u in updates], weights)
+            global_state = strategy.aggregate(
+                [u["state_dict"] for u in updates], weights, global_state=global_state)
 
         global_model.load_state_dict(global_state)
         test_metrics = evaluate(global_model, test_loader, device, num_classes=num_classes)

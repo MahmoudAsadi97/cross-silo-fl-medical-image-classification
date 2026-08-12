@@ -15,6 +15,7 @@ from .aggregation import (
     weighted_average,
 )
 from .base import Strategy
+from .fedadam import FedAdam
 from .fedavg import FedAvg
 from .fedprox import FedProx
 from .scaffold import Scaffold
@@ -23,6 +24,7 @@ REGISTRY = {
     FedAvg.name: FedAvg,
     FedProx.name: FedProx,
     Scaffold.name: Scaffold,
+    FedAdam.name: FedAdam,
 }
 
 
@@ -47,6 +49,7 @@ __all__ = [
     "FedAvg",
     "FedProx",
     "Scaffold",
+    "FedAdam",
     "REGISTRY",
     "build_strategy",
     "weighted_average",

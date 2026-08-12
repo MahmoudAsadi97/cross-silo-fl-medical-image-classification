@@ -158,6 +158,58 @@ def _():
     assert dev > 20 * np.linalg.norm(out["scaled_contributions"][0]["w"])
 
 
+@check("Robust agg: coordinate_median == elementwise median")
+def _():
+    from fl_med.security.robust_agg import coordinate_median
+    s = [{"w": np.array([1.0, 10.0])}, {"w": np.array([2.0, 20.0])}, {"w": np.array([3.0, 30.0])}]
+    assert np.allclose(coordinate_median(s)["w"], [2.0, 20.0])
+
+
+@check("Robust agg: trimmed_mean drops the extremes per coordinate")
+def _():
+    from fl_med.security.robust_agg import trimmed_mean
+    s = [{"w": np.array([0.0])}, {"w": np.array([1.0])}, {"w": np.array([2.0])},
+         {"w": np.array([3.0])}, {"w": np.array([100.0])}]
+    assert np.allclose(trimmed_mean(s, trim=1)["w"], [2.0])   # drop 0 & 100 -> mean(1,2,3)
+
+
+@check("Robust agg: Krum selects an honest-majority update, ignores the outlier")
+def _():
+    from fl_med.security.robust_agg import krum
+    honest = [{"w": np.array([0.0, 0.0])}, {"w": np.array([0.1, 0.0])},
+              {"w": np.array([0.0, 0.1])}, {"w": np.array([0.1, 0.1])}]
+    mal = {"w": np.array([50.0, 50.0])}
+    assert np.linalg.norm(krum(honest + [mal], num_malicious=1)["w"]) < 1.0
+
+
+@check("Robust agg resists a poisoned client where the plain mean fails")
+def _():
+    from fl_med.security.robust_agg import coordinate_median, poison_sign_flip
+    from fl_med.strategies.aggregation import weighted_average
+    g = {"w": np.array([0.0, 0.0])}
+    honest = [{"w": np.array([1.0, 1.0])}, {"w": np.array([1.1, 0.9])}, {"w": np.array([0.9, 1.1])}]
+    mal = poison_sign_flip({"w": np.array([1.0, 1.0])}, g, scale=20.0)
+    ups = honest + [mal]
+    honest_mean = np.asarray(weighted_average(honest, [1, 1, 1])["w"])
+    mean_err = np.linalg.norm(np.asarray(weighted_average(ups, [1, 1, 1, 1])["w"]) - honest_mean)
+    med_err = np.linalg.norm(np.asarray(coordinate_median(ups)["w"]) - honest_mean)
+    assert med_err < mean_err   # median stays near honest mean; plain mean is dragged off
+
+
+@check("poison_sign_flip points opposite the honest update")
+def _():
+    from fl_med.security.robust_agg import poison_sign_flip
+    p = poison_sign_flip({"w": np.array([2.0])}, {"w": np.array([0.0])}, scale=3.0)
+    assert np.allclose(p["w"], [-6.0])   # 0 - 3*(2 - 0) = -6
+
+
+@check("FedAdam with no server state falls back to FedAvg")
+def _():
+    from fl_med.strategies.fedadam import FedAdam
+    out = FedAdam().aggregate([{"w": np.array([0.0, 10.0])}, {"w": np.array([2.0, 20.0])}], [30, 10])
+    assert np.allclose(out["w"], [0.5, 12.5])
+
+
 def main() -> int:
     width = max(len(n) for n, _ in CHECKS)
     failures = 0
