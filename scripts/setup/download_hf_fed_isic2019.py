@@ -7,7 +7,7 @@ from datasets import load_dataset
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.data.paths import FED_ISIC2019_ROOT, RAW_DIR, REPORTS_DIR, ensure_data_directories
+from src.data.paths import FED_ISIC2019_ROOT, RAW_DIR, REPORTS_DIR, ensure_data_directories  # noqa: E402
 
 
 def main() -> None:

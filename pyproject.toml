@@ -42,6 +42,13 @@ line-length = 100
 target-version = "py310"
 exclude = ["archive", "notebooks", "data", "experiments", "results"]
 
+# Pin the lint surface explicitly (the classic ruff default set). Newer ruff
+# releases keep expanding their defaults (isort, pyupgrade, pylint, ...), which
+# breaks CI on style-modernization rules this codebase never adopted; an explicit
+# select keeps the lint gate deterministic across ruff versions.
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
