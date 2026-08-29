@@ -18,7 +18,7 @@ change server behaviour override it.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Mapping, Sequence
+from typing import Any, Dict, Mapping, Sequence
 
 from .aggregation import weighted_average
 

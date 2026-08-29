@@ -205,7 +205,7 @@ def main(argv=None) -> int:
         r = results[str(frac)]
         print(f"  keep {frac:6.1%}  best bal_acc={r['best']:.4f}  "
               f"{r['compression']:.0f}x smaller upload  ({r['bytes_per_client_round']/1e6:.2f} MB/round/client)")
-    print(f"\nfigure -> reports/figures/comms.png")
+    print("\nfigure -> reports/figures/comms.png")
     return 0
 
 

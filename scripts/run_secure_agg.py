@@ -62,7 +62,7 @@ def main() -> int:
     print("=== Secure aggregation (pairwise masks) ===")
     print(f"  aggregate max abs error vs plaintext FedAvg: {agg_err:.2e}  (exact: {agg_err < 1e-6})")
     print(f"  mean per-client hiding ratio: {summary['mean_hidden_ratio']:.0f}x")
-    print(f"  -> server recovers the exact average; no individual update is exposed.")
+    print("  -> server recovers the exact average; no individual update is exposed.")
     return 0
 
 
