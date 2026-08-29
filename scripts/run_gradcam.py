@@ -89,7 +89,8 @@ def main(argv=None) -> int:
         item = ds[idx]
         x = item["image"].unsqueeze(0).to(device)
         true = int(item["label"])
-        acts.clear(); grads.clear()
+        acts.clear()
+        grads.clear()
         logits = model(x)
         pred = int(logits.argmax(1))
         model.zero_grad()

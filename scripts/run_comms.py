@@ -129,8 +129,10 @@ def _plot(results, path):
         ax1.plot(range(1, len(c) + 1), c, marker="o", ms=3,
                  label=f"keep {float(k):.0%}  ({results[k]['compression']:.0f}× smaller)")
     ax1.axhline(1 / 8, ls=":", color="gray", lw=1, label="majority floor")
-    ax1.set_xlabel("Federated round"); ax1.set_ylabel("Balanced accuracy")
-    ax1.set_title("Accuracy vs round, per compression level"); ax1.legend(fontsize=8)
+    ax1.set_xlabel("Federated round")
+    ax1.set_ylabel("Balanced accuracy")
+    ax1.set_title("Accuracy vs round, per compression level")
+    ax1.legend(fontsize=8)
 
     comps = [results[k]["compression"] for k in levels]
     bests = [results[k]["best"] for k in levels]
@@ -138,7 +140,8 @@ def _plot(results, path):
     for k in levels:
         ax2.annotate(f"keep {float(k):.0%}", (results[k]["compression"], results[k]["best"]),
                      fontsize=8, xytext=(4, 4), textcoords="offset points")
-    ax2.set_xscale("log"); ax2.set_xlabel("Compression ratio (× smaller upload)")
+    ax2.set_xscale("log")
+    ax2.set_xlabel("Compression ratio (× smaller upload)")
     ax2.set_ylabel("Best balanced accuracy")
     ax2.set_title("Communication–accuracy trade-off")
     fig.tight_layout()

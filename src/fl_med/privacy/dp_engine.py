@@ -29,8 +29,11 @@ def _disable_inplace(model):
 
 def _basicblock_forward(self, x):
     identity = x
-    out = self.conv1(x); out = self.bn1(out); out = self.relu(out)
-    out = self.conv2(out); out = self.bn2(out)
+    out = self.conv1(x)
+    out = self.bn1(out)
+    out = self.relu(out)
+    out = self.conv2(out)
+    out = self.bn2(out)
     if self.downsample is not None:
         identity = self.downsample(x)
     out = out + identity            # non-in-place (was: out += identity)
@@ -39,9 +42,14 @@ def _basicblock_forward(self, x):
 
 def _bottleneck_forward(self, x):
     identity = x
-    out = self.conv1(x); out = self.bn1(out); out = self.relu(out)
-    out = self.conv2(out); out = self.bn2(out); out = self.relu(out)
-    out = self.conv3(out); out = self.bn3(out)
+    out = self.conv1(x)
+    out = self.bn1(out)
+    out = self.relu(out)
+    out = self.conv2(out)
+    out = self.bn2(out)
+    out = self.relu(out)
+    out = self.conv3(out)
+    out = self.bn3(out)
     if self.downsample is not None:
         identity = self.downsample(x)
     out = out + identity
