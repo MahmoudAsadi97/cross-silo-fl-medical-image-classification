@@ -5,6 +5,7 @@ runs as its own process/machine (e.g. a Raspberry Pi acting as a hospital) and
 only model updates cross the network. Same model/data/metrics as ``fl_med.engine``.
 """
 from .task import (
+    apply_freeze_backbone,
     build_model,
     evaluate_model,
     get_ndarrays,
@@ -14,6 +15,7 @@ from .task import (
 )
 
 __all__ = [
+    "apply_freeze_backbone",
     "build_model",
     "evaluate_model",
     "get_ndarrays",

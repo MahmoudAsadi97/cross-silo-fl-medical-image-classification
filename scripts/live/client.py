@@ -47,6 +47,9 @@ def main(argv=None) -> int:
     p.add_argument("--local-epochs", type=int, default=1)
     p.add_argument("--max-batches", type=int, default=None,
                    help="cap batches/epoch (keeps a slow device responsive)")
+    p.add_argument("--freeze-backbone", action="store_true",
+                   help="train only the classifier head (partial-model FL): large speedup "
+                        "on weak devices (Pi); architecture unchanged so FedAvg still works")
     p.add_argument("--image-size", type=int, default=None)
     p.add_argument("--batch-size", type=int, default=None)
     p.add_argument("--num-workers", type=int, default=0,
@@ -84,7 +87,8 @@ def main(argv=None) -> int:
             set_ndarrays(model, parameters)
             t0 = time.perf_counter()
             hist = local_fit(model, train_loader, config, local_epochs=args.local_epochs,
-                             device=device, max_batches=args.max_batches)
+                             device=device, max_batches=args.max_batches,
+                             freeze_backbone=args.freeze_backbone)
             dt = time.perf_counter() - t0
             last = hist[-1]
             metrics = {
@@ -92,6 +96,7 @@ def main(argv=None) -> int:
                 "fit_seconds": float(dt), "n": int(n_examples),
                 "train_loss": float(last["loss"]),
                 "train_bal_acc": float(last["balanced_accuracy"]),
+                "freeze_backbone": bool(args.freeze_backbone),
             }
             print(f"[{tag}] fit done: {dt:.1f}s  n={n_examples}  "
                   f"loss={last['loss']:.3f}", flush=True)

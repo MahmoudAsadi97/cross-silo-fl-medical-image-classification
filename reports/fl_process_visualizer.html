@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Federated Learning — Live Process View</title>
+<style>
+  :root{
+    --bg:#0b2129; --panel:#0f2c34; --line:#1d4650; --hub:#17b3bb; --hubglow:#5eead4;
+    --node:#2f5d67; --nodeedge:#4a838f; --pkt:#f4b942; --acc:#34d399; --ink:#e6f2f3;
+    --muted:#8fb8bc; --accent:#e4572e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:radial-gradient(1200px 700px at 40% 20%,#123540,#0b2129);
+    color:var(--ink);font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 20px 26px}
+  h1{margin:0;font-size:23px;font-weight:700}
+  .sub{margin:3px 0 0;color:var(--muted);font-size:13.5px}
+  .stage{display:flex;gap:16px;margin-top:14px;flex-wrap:wrap}
+  .svgbox{flex:1 1 560px;min-width:520px;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden}
+  .side{flex:1 1 320px;min-width:300px;display:flex;flex-direction:column;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .kpi{display:flex;justify-content:space-between;align-items:baseline}
+  .kpi .big{font-size:40px;font-weight:800;color:var(--acc);line-height:1;font-variant-numeric:tabular-nums}
+  .kpi .lbl{color:var(--muted);font-size:12px;text-align:right}
+  .row2{display:flex;gap:12px;margin-top:10px}
+  .mini{flex:1;background:#0c2530;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+  .mini b{display:block;font-size:20px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .mini span{font-size:11px;color:var(--muted)}
+  .phase{font-size:12.5px;color:var(--hubglow);font-weight:600;letter-spacing:.02em;margin-top:2px;height:16px}
+  .legend{font-size:12px;color:var(--muted);line-height:1.9}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:6px}
+  .controls{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  button{background:var(--hub);color:#032; border:none;border-radius:9px;padding:9px 16px;
+    font-weight:700;font-size:14px;cursor:pointer}
+  button.ghost{background:transparent;color:var(--ink);border:1px solid var(--nodeedge)}
+  button.ghost.on{background:var(--nodeedge);color:#eafcff}
+  input[type=range]{flex:1;min-width:160px;accent-color:var(--hub)}
+  .cap{color:var(--muted);font-size:12px}
+  .note{color:var(--muted);font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Federated Learning — Live Process View</h1>
+  <p class="sub">Six hospitals train locally, then send only their model updates to the global model, which
+    aggregates them each round. Replay of the <b>real 30-round FedAvg run</b> — accuracy, drift and the
+    Raspberry-Pi straggler are the actual measured values.</p>
+
+  <div class="stage">
+    <div class="svgbox">
+      <svg id="viz" viewBox="0 0 640 520" width="100%" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div class="side">
+      <div class="card">
+        <div class="kpi"><div class="big" id="acc">0.14</div>
+          <div class="lbl">global balanced<br>accuracy<br><span class="cap">(random = 0.125)</span></div></div>
+        <div class="phase" id="phase">ready</div>
+        <div class="row2">
+          <div class="mini"><b id="round">0 / 30</b><span>federated round</span></div>
+          <div class="mini"><b id="drift">20.8</b><span>client drift (↓ = agree)</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="cap" style="margin-bottom:6px">Global accuracy over rounds</div>
+        <svg id="chart" viewBox="0 0 300 150" width="100%"></svg>
+      </div>
+      <div class="card legend">
+        <div><span class="dot" style="background:var(--hub)"></span><b>Global model</b> — the shared model everyone improves</div>
+        <div><span class="dot" style="background:var(--node);border:1px solid var(--nodeedge)"></span><b>Hospital</b> — circle size = how much data it has</div>
+        <div><span class="dot" style="background:var(--pkt)"></span><b>Update packet</b> — model weights flowing in (no images!)</div>
+        <div><span class="dot" style="background:var(--accent)"></span><b>Raspberry Pi</b> — the smallest hospital, ~17× slower (the straggler)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="play">⏸ Pause</button>
+    <button class="ghost" data-s="0.5">0.5×</button>
+    <button class="ghost on" data-s="1">1×</button>
+    <button class="ghost" data-s="2">2×</button>
+    <button class="ghost" data-s="4">4×</button>
+    <input id="scrub" type="range" min="0" max="29" value="0">
+    <span class="cap" id="scrublbl">round 1</span>
+    <button class="ghost" id="reset">↺ Reset</button>
+  </div>
+  <p class="note">Tip: press Pause and drag the slider to step through rounds. Watch the update packets stream
+    into the centre, the global accuracy climb, and the drift shrink as the hospitals come into agreement.</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ---- real measured data (30-round full-tier FedAvg, seed 0) --------------
+  var ACC = [0.1372,0.1683,0.1917,0.1996,0.2101,0.2087,0.2239,0.2217,0.2250,0.2286,
+             0.2358,0.2502,0.2640,0.2443,0.2376,0.2622,0.2739,0.2727,0.2674,0.2741,
+             0.2748,0.2777,0.2754,0.2919,0.2844,0.3002,0.2705,0.2911,0.2955,0.2924];
+  var DRIFT=[20.82,17.98,13.49,11.27,11.10,12.19,11.03,11.29,10.54,9.96,
+             9.80,9.24,9.02,8.58,9.00,9.01,8.78,8.78,8.52,8.58,
+             8.47,8.88,8.48,8.52,8.34,8.48,8.45,8.60,8.67,8.62];
+  var NR = ACC.length;
+  var HOSP = [{id:"H1",n:7947},{id:"H2",n:2531},{id:"H3",n:2156},
+              {id:"H4",n:1448},{id:"H5",n:525},{id:"H6",n:281,pi:true}];
+  var CX=320, CY=250, RING=170, HUBR=46;
+  var SVGNS="http://www.w3.org/2000/svg";
+
+  // layout hospital positions around the hub
+  HOSP.forEach(function(h,i){
+    var a = (-90 + i*(360/HOSP.length)) * Math.PI/180;
+    h.x = CX + RING*Math.cos(a);
+    h.y = CY + RING*Math.sin(a);
+    h.r = 15 + 34*Math.sqrt(h.n/7947);
+    h.speed = h.pi ? 0.62 : (0.9 + 0.1*Math.random()); // straggler is slower
+  });
+
+  var svg = document.getElementById("viz");
+  function el(tag,attrs){var e=document.createElementNS(SVGNS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+
+  // links
+  HOSP.forEach(function(h){ svg.appendChild(el("line",{x1:h.x,y1:h.y,x2:CX,y2:CY,
+    stroke:"#1d4650","stroke-width":2})); });
+  // hub
+  var hubGlow = el("circle",{cx:CX,cy:CY,r:HUBR+10,fill:"#17b3bb","opacity":0});
+  svg.appendChild(hubGlow);
+  var hub = el("circle",{cx:CX,cy:CY,r:HUBR,fill:"#0e2c34",stroke:"#17b3bb","stroke-width":3});
+  svg.appendChild(hub);
+  svg.appendChild(el("text",{x:CX,y:CY-4,fill:"#5eead4","text-anchor":"middle","font-size":13,"font-weight":700},"GLOBAL"));
+  var hubTxt = el("text",{x:CX,y:CY+14,fill:"#e6f2f3","text-anchor":"middle","font-size":15,"font-weight":800});
+  hubTxt.textContent="0.14"; svg.appendChild(hubTxt);
+  // add text helper (SVG text needs textContent)
+  function T(x,y,s,o){var t=el("text",{x:x,y:y});for(var k in o)t.setAttribute(k,o[k]);t.textContent=s;svg.appendChild(t);return t;}
+
+  // hospitals
+  var nodes=[], pkts=[];
+  HOSP.forEach(function(h){
+    var glow=el("circle",{cx:h.x,cy:h.y,r:h.r+7,fill: h.pi?"#e4572e":"#5eead4","opacity":0});
+    svg.appendChild(glow);
+    var c=el("circle",{cx:h.x,cy:h.y,r:h.r,fill:"#2f5d67",stroke:h.pi?"#e4572e":"#4a838f","stroke-width":h.pi?3:2});
+    svg.appendChild(c);
+    T(h.x,h.y-2,h.id,{fill:"#e6f2f3","text-anchor":"middle","font-size":12,"font-weight":700});
+    T(h.x,h.y+12,h.n.toLocaleString(),{fill:"#8fb8bc","text-anchor":"middle","font-size":9.5});
+    if(h.pi) T(h.x,h.y+h.r+13,"Raspberry Pi",{fill:"#e4572e","text-anchor":"middle","font-size":9.5,"font-weight":700});
+    h._glow=glow;
+    var p=el("circle",{cx:h.x,cy:h.y,r:6,fill:"#f4b942","opacity":0}); svg.appendChild(p); h._pkt=p;
+  });
+
+  // ---- accuracy chart -------------------------------------------------------
+  var chart=document.getElementById("chart"), CW=300, CH=150, PAD=26, TOP=10;
+  function cx(i){ return PAD + (CW-PAD-8) * (i/(NR-1)); }
+  function cy(v){ var lo=0.10, hi=0.32; return TOP + (CH-TOP-20) * (1-(v-lo)/(hi-lo)); }
+  chart.appendChild(el("line",{x1:PAD,y1:CH-20,x2:CW-4,y2:CH-20,stroke:"#1d4650"}));
+  chart.appendChild(el("line",{x1:PAD,y1:TOP,x2:PAD,y2:CH-20,stroke:"#1d4650"}));
+  // floor line 0.125
+  chart.appendChild(el("line",{x1:PAD,y1:cy(0.125),x2:CW-4,y2:cy(0.125),stroke:"#4a838f","stroke-dasharray":"3 3","stroke-width":1}));
+  var cft=el("text",{x:CW-6,y:cy(0.125)-3,fill:"#8fb8bc","text-anchor":"end","font-size":8}); cft.textContent="random 0.125"; chart.appendChild(cft);
+  [0.15,0.20,0.25,0.30].forEach(function(v){var t=el("text",{x:PAD-4,y:cy(v)+3,fill:"#8fb8bc","text-anchor":"end","font-size":8});t.textContent=v.toFixed(2);chart.appendChild(t);});
+  var poly=el("polyline",{fill:"none",stroke:"#34d399","stroke-width":2.4,points:""}); chart.appendChild(poly);
+  var head=el("circle",{r:3.5,fill:"#34d399","opacity":0}); chart.appendChild(head);
+
+  // ---- displays -------------------------------------------------------------
+  var accEl=document.getElementById("acc"), roundEl=document.getElementById("round"),
+      driftEl=document.getElementById("drift"), phaseEl=document.getElementById("phase"),
+      scrub=document.getElementById("scrub"), scrublbl=document.getElementById("scrublbl");
+
+  function commit(r){ // set all displays to the state AFTER round r completes (r is 0-based)
+    var a=ACC[r]; accEl.textContent=a.toFixed(3); hubTxt.textContent=a.toFixed(3);
+    driftEl.textContent=DRIFT[r].toFixed(1); roundEl.textContent=(r+1)+" / "+NR;
+    var pts=""; for(var i=0;i<=r;i++){ pts += cx(i)+","+cy(ACC[i])+" "; }
+    poly.setAttribute("points",pts.trim());
+    head.setAttribute("cx",cx(r)); head.setAttribute("cy",cy(ACC[r])); head.setAttribute("opacity",1);
+    scrub.value=r; scrublbl.textContent="round "+(r+1);
+  }
+
+  // ---- animation clock ------------------------------------------------------
+  var ROUND_MS=2200, vtime=0, playing=true, speed=1, last=null;
+  function frame(now){
+    if(last==null) last=now; var dt=now-last; last=now;
+    if(playing){ vtime += dt*speed; }
+    var total=NR*ROUND_MS;
+    if(vtime>=total){ vtime=total-1; playing=false; setPlayBtn(); }
+    var r=Math.floor(vtime/ROUND_MS); if(r>NR-1)r=NR-1;
+    var ph=(vtime - r*ROUND_MS)/ROUND_MS; // 0..1 within the round
+    render(r,ph);
+    requestAnimationFrame(frame);
+  }
+
+  function easeInOut(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+
+  function render(r,ph){
+    // phases: train 0-.22, send .22-.85, aggregate .85-1
+    var label;
+    // reset visuals
+    HOSP.forEach(function(h){ h._glow.setAttribute("opacity",0); h._pkt.setAttribute("opacity",0); });
+    hubGlow.setAttribute("opacity",0); hub.setAttribute("r",HUBR);
+
+    if(ph<0.22){ // local training
+      label="① hospitals training locally";
+      var g=(ph/0.22);
+      HOSP.forEach(function(h){ h._glow.setAttribute("opacity",0.10+0.25*Math.sin(g*Math.PI)); });
+    } else if(ph<0.85){ // sending updates
+      label="② sending model updates → global";
+      var sp=(ph-0.22)/0.63;
+      HOSP.forEach(function(h){
+        var t=Math.min(1, sp/h.speed); var e=easeInOut(t);
+        var x=h.x+(CX-h.x)*e, y=h.y+(CY-h.y)*e;
+        h._pkt.setAttribute("cx",x); h._pkt.setAttribute("cy",y);
+        h._pkt.setAttribute("opacity", t>=1?0:0.95);
+        if(t>=1) h._glow.setAttribute("opacity",0);
+      });
+      if(sp>0.9){ label="③ waiting for the slowest (Raspberry Pi)…"; }
+    } else { // aggregate
+      label="④ global model aggregates the updates";
+      var a=(ph-0.85)/0.15;
+      hubGlow.setAttribute("opacity",0.35*Math.sin(a*Math.PI));
+      hub.setAttribute("r",HUBR+4*Math.sin(a*Math.PI));
+    }
+    phaseEl.textContent=label + "  ·  round "+(r+1);
+    // displays reflect the round currently being aggregated (its measured result)
+    commit(r);
+  }
+
+  function setPlayBtn(){ document.getElementById("play").textContent = playing ? "⏸ Pause" : "▶ Play"; }
+
+  document.getElementById("play").onclick=function(){
+    if(vtime>=NR*ROUND_MS-1){ vtime=0; } playing=!playing; setPlayBtn(); };
+  document.getElementById("reset").onclick=function(){ vtime=0; playing=true; setPlayBtn(); };
+  Array.prototype.forEach.call(document.querySelectorAll("button.ghost[data-s]"),function(b){
+    b.onclick=function(){ speed=parseFloat(b.dataset.s);
+      document.querySelectorAll("button.ghost[data-s]").forEach(function(x){x.classList.remove("on");});
+      b.classList.add("on"); };
+  });
+  scrub.oninput=function(){ playing=false; setPlayBtn(); vtime=(parseInt(scrub.value,10))*ROUND_MS + ROUND_MS*0.9; };
+
+  commit(0);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

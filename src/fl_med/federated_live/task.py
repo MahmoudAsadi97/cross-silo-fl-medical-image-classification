@@ -73,16 +73,66 @@ def _make_criterion(config: Dict[str, Any], train_loader, device):
 
 
 # ---- local training / central evaluation (reuse the simulation's engine) ------
+def _classifier_head(model):
+    """The model's final classification layer (resnet: ``fc``; mobilenet/effnet:
+    ``classifier``). Raises if neither exists so misuse fails loudly."""
+    head = getattr(model, "fc", None)
+    if head is None:
+        head = getattr(model, "classifier", None)
+    if head is None:
+        raise AttributeError("model has neither .fc nor .classifier — cannot freeze backbone")
+    return head
+
+
+def apply_freeze_backbone(model):
+    """Freeze every parameter except the classifier head (partial-model FL).
+
+    Why: on a weak device (Raspberry Pi) the expensive part of a training step is
+    backpropagation through the deep backbone. Freezing it means autograd only
+    tracks the tiny head, so the backward pass all but disappears — a large
+    speedup — while the ARCHITECTURE is unchanged, so FedAvg can still average
+    this client's weights with everyone else's. The frozen backbone weights are
+    returned unchanged (equal to the incoming global), i.e. the client simply
+    abstains on the backbone and votes on the head. Returns (n_trainable, n_total).
+    """
+    head = _classifier_head(model)
+    for p in model.parameters():
+        p.requires_grad = False
+    for p in head.parameters():
+        p.requires_grad = True
+    n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    n_total = sum(p.numel() for p in model.parameters())
+    return n_train, n_total
+
+
 def local_fit(model, train_loader, config: Dict[str, Any], *, local_epochs: int,
-              device: str, max_batches=None) -> List[Dict[str, Any]]:
+              device: str, max_batches=None, freeze_backbone: bool = False) -> List[Dict[str, Any]]:
     """Train ``model`` on this client's local data with the SAME loop the
     simulation uses. ``max_batches`` caps steps/epoch so a slow device (the Pi)
-    stays responsive. Returns the per-epoch metric history."""
+    stays responsive; ``freeze_backbone`` trains only the classifier head
+    (partial-model FL — big speedup on weak devices, architecture unchanged).
+    Returns the per-epoch metric history."""
     from ..engine.client import _build_optimizer
     from ..engine.train_eval import GRAD_CLIP_NORM, train_one_epoch
 
     model.to(device)
-    optimizer = _build_optimizer(model, config.get("optimizer", {"name": "adam", "lr": 1e-3}))
+    if freeze_backbone:
+        apply_freeze_backbone(model)
+        # optimizer over the trainable (head) parameters only
+        opt_cfg = config.get("optimizer", {"name": "adam", "lr": 1e-3})
+        import torch
+
+        name = str(opt_cfg.get("name", "adam")).lower()
+        lr = float(opt_cfg.get("lr", 1e-3))
+        wd = float(opt_cfg.get("weight_decay", 0.0))
+        params = [p for p in model.parameters() if p.requires_grad]
+        if name == "sgd":
+            optimizer = torch.optim.SGD(params, lr=lr,
+                                        momentum=opt_cfg.get("momentum", 0.0), weight_decay=wd)
+        else:
+            optimizer = torch.optim.Adam(params, lr=lr, weight_decay=wd)
+    else:
+        optimizer = _build_optimizer(model, config.get("optimizer", {"name": "adam", "lr": 1e-3}))
     criterion = _make_criterion(config, train_loader, device)
     num_classes = int(config.get("model", {}).get("num_classes", 8))
 

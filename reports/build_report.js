@@ -221,6 +221,12 @@ children.push(p([
   r(" the Pi is ≈ 17× slower per round than the laptop GPU, and because FedAvg is synchronous the entire round waits for it (the 8-round run took ≈ 6.8 min, dominated by the Pi). In a real cross-device deployment this is the concrete argument for "),
   r("client sampling, asynchronous aggregation, or on-device model compression", { b: true }), r("."),
 ], { justify: true }));
+children.push(p([
+  r("We then mitigated the straggler directly with "), r("partial-model federated learning", { b: true }),
+  r(" (freeze-backbone): the Pi trains only the 4,104-parameter classifier head (0.04% of the 11.18 M-parameter model), eliminating the backward pass through the backbone while leaving the architecture — and therefore FedAvg aggregation — unchanged; the client simply abstains on the backbone and votes on the head. A self-validating on-device benchmark first proves correctness (frozen backbone bit-identical after training; the head learns; state-dict keys unchanged), then measures the effect: the Pi's round time falls from "),
+  r("8.28 s to 0.92 s — an 8.99× speedup", { b: true }),
+  r(" — shrinking the measured straggler gap from ≈17× to under 2×. The straggler problem is thus measured, mitigated, and verified on the same hardware."),
+], { justify: true }));
 
 children.push(h2("3.7  Byzantine robustness: model poisoning vs robust aggregation (bonus)"));
 children.push(p([

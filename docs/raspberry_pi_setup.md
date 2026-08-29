@@ -137,6 +137,49 @@ python scripts/live/plot_live.py
 
 ---
 
+## 4b. Faster Pi rounds — freeze-backbone (partial-model FL)
+
+Quantization/pruning speed up *inference*, not training (training needs float
+gradients, and structured pruning would change the architecture and break
+FedAvg averaging). The correct **training** speedup for a weak device is
+**freeze-backbone**: the Pi updates only the small classifier head, so the
+expensive backward pass through the deep backbone disappears — while the
+architecture (and therefore FedAvg aggregation) is unchanged. The Pi simply
+"abstains" on the backbone and "votes" on the head.
+
+**First, verify + measure on the Pi** (self-validating — prints PASS/FAIL for
+correctness, then the measured speedup):
+
+```bash
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw python scripts/live/bench_pi.py \
+    --client-id 5 --max-batches 8 --repeats 3
+```
+
+**MEASURED RESULT (Raspberry Pi 5, 2026-08-29, 3+3 rounds, warm-started model):**
+all 4 correctness checks PASS (backbone bit-identical; head learns; state-dict
+FedAvg-aggregatable). Full model **8.28 s/round** → frozen backbone **0.92 s/round**
+= **8.99× speedup** (head = 4,104 of 11.18 M params, 0.04%). This shrinks the
+measured straggler gap (Pi vs laptop GPU) from **~17× to <2×**. Laptop control:
+2.48 s → 0.57 s (4.35×), same 4× PASS. Raw data: `experiments/live/bench_pi.json`.
+
+**Then run the live client with the speedup:**
+
+```bash
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw python scripts/live/client.py \
+    --server <LAN_IP>:8080 --client-id 5 --label pi5 --device cpu \
+    --max-batches 8 --freeze-backbone
+```
+
+For the snappiest possible demo also lower the per-round work: `--max-batches 4`.
+
+**Bonus (deployment story): quantized INFERENCE benchmark** — where int8 *does*
+belong. Measures ms/image, model size, and accuracy for fp32 / TorchScript /
+dynamic-int8 / static-int8 on the Pi:
+
+```bash
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw python scripts/edge_infer_bench.py --client-id 5
+```
+
 ## 5. Troubleshooting
 
 | Symptom | Fix |

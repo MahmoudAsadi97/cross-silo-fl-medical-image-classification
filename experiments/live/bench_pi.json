@@ -1,0 +1,33 @@
+{
+  "config": {
+    "client_id": 5,
+    "max_batches": 8,
+    "tier": "dev",
+    "device": "cpu",
+    "warm_start": true
+  },
+  "params": {
+    "total": 11180616,
+    "head": 4104,
+    "head_fraction": 0.000367
+  },
+  "timing": {
+    "full_s": [
+      2.5,
+      2.45
+    ],
+    "frozen_s": [
+      0.6,
+      0.54
+    ],
+    "median_full_s": 2.48,
+    "median_frozen_s": 0.57,
+    "speedup": 4.35
+  },
+  "checks": {
+    "freeze: backbone bit-identical after training": true,
+    "freeze: classifier head changed (it learns)": true,
+    "full: backbone changed (control)": true,
+    "state-dict keys identical -> FedAvg-aggregatable": true
+  }
+}

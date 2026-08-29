@@ -80,6 +80,19 @@ def main(argv=None) -> int:
     outdir.mkdir(parents=True, exist_ok=True)
     history: list = []   # per-round central metrics
     timings: list = []   # per-client, per-round fit timing
+    latest_clients: list = []   # most recent round's per-client timing (for the live dashboard)
+    live_path = outdir / "live_status.json"
+
+    def write_live(status):
+        """Write a tiny status snapshot each round so a web dashboard can poll it live."""
+        rnd = history[-1]["round"] if history else 0
+        live_path.write_text(json.dumps({
+            "status": status, "round": rnd, "total_rounds": args.rounds,
+            "history": [{"round": h["round"], "bal_acc": h["bal_acc"], "loss": h["loss"]} for h in history],
+            "clients": latest_clients,
+        }))
+
+    write_live("waiting")
 
     def evaluate_fn(server_round, parameters, cfg):
         set_ndarrays(eval_model, parameters)
@@ -89,20 +102,24 @@ def main(argv=None) -> int:
                         "loss": m["loss"]})
         print(f"[server] round {server_round}: central bal_acc={m['balanced_accuracy']:.4f} "
               f"loss={m['loss']:.3f}", flush=True)
+        write_live("training")
         return float(m["loss"]), {"bal_acc": m["balanced_accuracy"], "macro_f1": m["macro_f1"]}
 
     class TimedFedAvg(fl.server.strategy.FedAvg):
         """FedAvg that records each client's reported fit timing per round."""
 
         def aggregate_fit(self, server_round, results, failures):
+            round_clients = []
             for _, fit_res in results:
                 rec = dict(fit_res.metrics or {})
                 rec["round"] = server_round
                 rec.setdefault("n", fit_res.num_examples)
                 timings.append(rec)
+                round_clients.append({k: rec.get(k) for k in ("tag", "host", "fit_seconds", "n")})
                 print(f"[server] round {server_round} client '{rec.get('tag', '?')}' "
                       f"({rec.get('host', '?')}): {float(rec.get('fit_seconds', float('nan'))):.1f}s "
                       f"n={rec.get('n')}", flush=True)
+            latest_clients[:] = round_clients   # newest round's per-client timing (live dashboard)
             return super().aggregate_fit(server_round, results, failures)
 
     if args.init_model and Path(args.init_model).exists():
@@ -123,6 +140,7 @@ def main(argv=None) -> int:
         strategy=strategy,
     )
 
+    write_live("done")
     (outdir / "history.json").write_text(
         json.dumps({"history": history, "timings": timings}, indent=2))
     print(f"[server] wrote {outdir / 'history.json'} "
