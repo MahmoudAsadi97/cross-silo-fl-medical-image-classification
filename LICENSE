@@ -1,21 +1,39 @@
-MIT License
+Copyright (c) 2026 Mahmoud Asadi Heris. All rights reserved.
 
-Copyright (c) 2026 Mahmoud
+PERMISSION-REQUIRED LICENSE
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This repository (source code, documentation, reports, figures, and all other
+materials, the "Work") is made publicly visible for transparency and academic
+evaluation, but it is NOT open-source software.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Viewing and evaluation. Anyone may view and read the Work on its hosting
+   platform. Examiners, supervisors, and academic staff may additionally run
+   the Work for the purpose of assessing the author's project.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. All other use requires prior written permission. Except as stated in
+   Section 1, no person may use, copy, modify, merge, publish, distribute,
+   sublicense, sell, train machine-learning models on, or create derivative
+   works from the Work, in whole or in part, without the author's prior
+   written permission.
+
+3. Requesting permission. Permission requests should be sent to:
+   asadiherism@gmail.com. Describe who you are, which parts of the Work you
+   want to use, and for what purpose. Permission, if granted, applies only to
+   the use described and may carry conditions (e.g., attribution).
+
+4. Attribution. Any permitted use must credit the author and link back to
+   this repository, unless the written permission states otherwise.
+
+5. Third-party components. The Work builds on third-party datasets and
+   libraries (e.g., Fed-ISIC2019/FLamby, PyTorch, Opacus, Flower), which
+   remain governed by their own licenses. This license covers only the
+   author's original work.
+
+6. No warranty. THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY ARISING FROM THE WORK OR ITS USE.
+
+7. Termination. Any use outside the scope of this license or of a granted
+   permission automatically terminates the rights described here.

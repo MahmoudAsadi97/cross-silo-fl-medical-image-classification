@@ -1,66 +1,94 @@
-# Cross-Silo Federated Learning for Medical Image Classification
+# Cross-Silo Federated Learning for Privacy-Preserving Medical Image Classification
 
-Engineering and rigorously evaluating a **cross-silo federated learning (FL)**
-system for skin-lesion classification, where several simulated hospitals train a
-shared model **without exchanging raw patient images**. The project quantifies the
-trade-offs between model performance, data heterogeneity (non-IID), privacy
-(differential privacy), and edge-deployment feasibility on a Raspberry Pi 5.
+Six simulated hospitals train one skin-lesion classifier **without ever exchanging raw
+patient images**, and every trade-off is measured: accuracy vs centralized training,
+data heterogeneity (non-IID), differential privacy, attack resistance (confidentiality
+*and* integrity), communication cost, and real edge deployment on a **Raspberry Pi 5**.
 
-> **Research question.** How can cross-silo Federated Learning be engineered to
-> train clinically-inspired image-classification models without sharing raw data,
-> while quantifying the trade-offs between model performance, data heterogeneity,
-> privacy guarantees, and edge-deployment feasibility?
+> **Research question.** How can cross-silo Federated Learning be engineered to train
+> clinically relevant image-classification models without sharing raw data, while
+> quantifying the trade-offs between model performance, data heterogeneity, and
+> privacy guarantees?
 
-**Dataset:** [Fed-ISIC2019](https://github.com/owkin/FLamby) — ~23,247 dermoscopy
-images, 8 diagnostic classes, split across **6 natural cross-silo clients** (4
-hospitals; one contributes 3 clients via 3 imaging technologies). Severe class
-imbalance and non-IID label distributions. Official metric: **balanced accuracy**.
+**Dataset:** [Fed-ISIC2019](https://github.com/owkin/FLamby) — ~23,247 dermoscopy images,
+8 diagnostic classes, **6 natural cross-silo clients** (sizes 281–7,947; severe class
+imbalance and non-IID label mixes). Official metric: **balanced accuracy** (random = 0.125).
 
-## Status
-Phase 0 complete: a clean, tested, reproducible pipeline. Baselines and federated
-strategies are code-complete and unit-tested; full training numbers are produced on
-GPU. See `CHANGELOG.md` for the live state.
+## Status: COMPLETE
+All 8 research sub-questions answered with reproducible, artifact-backed evidence.
+New here? **Read `docs/design.md` first** — the single-file map of the whole project.
+The chronological build log is `CHANGELOG.md`.
 
-## What's implemented
-- **Strategies:** FedAvg, FedProx, SCAFFOLD (corrected option-II control variates).
-- **Baselines:** centralized (upper bound) and local-only (lower reference).
-- **Privacy:** GroupNorm models wired for Opacus DP-SGD; per-client (ε, δ) accounting *(in progress)*.
-- **Heterogeneity:** per-client entropy, KL / Jensen-Shannon / Hellinger to the global
-  pool, 1-D EMD, missing-class counts — with figures.
-- **Reproducibility:** tiered configs (`smoke`/`dev`/`full`), global seeding, per-run
-  manifests (git hash + hardware), multi-seed aggregation, paired Wilcoxon tests.
-- **Rigor:** unit tests for aggregation, SCAFFOLD equations, and metrics; a torch-free
-  correctness runner; GitHub Actions CI.
+## Headline results (full tier: ResNet-18+GroupNorm, 128 px, 30 rounds, 3 seeds)
+
+| Method | Balanced accuracy | Client drift |
+|---|---|---|
+| Centralized (upper bound) | **0.456 ± 0.004** | – |
+| **FedAvg (federated)** | **0.320 ± 0.030** | 8.56 |
+| FedProx | 0.224 ± 0.024 | 1.55 |
+| SCAFFOLD | 0.217 ± 0.003 | 0.92 |
+| Local-only (lower ref.) | 0.209 ± 0.008 | – |
+
+- **Federation works:** FedAvg recovers ~45% of the isolated→pooled accuracy gap with no
+  image leaving a silo. **Honest finding:** FedProx/SCAFFOLD (and FedAdam) cut drift 5–9×
+  but do **not** beat well-tuned FedAvg here — drift control buys stability, not accuracy.
+- **Privacy, layered & verified:** DP-SGD with an independently-built Rényi-DP accountant
+  (clean monotonic privacy–utility curve, 0.336 → 0.151); a **membership-inference attack**
+  drops from AUC 0.555 → 0.503 (chance) under DP; **secure aggregation** recovers the exact
+  average (err ≈ 3×10⁻¹³) while hiding every individual update.
+- **Integrity:** a 2-of-6 **model-poisoning attack** collapses plain FedAvg to random
+  (0.125); robust aggregators (coordinate-median / trimmed-mean / Krum) defend (~0.19).
+- **Efficiency:** layer-wise top-k sparsification → **50× smaller uploads** (44.7 → 0.89 MB)
+  at essentially no accuracy cost.
+- **Real hardware:** genuinely distributed run (Flower/gRPC) — laptop server + **Raspberry
+  Pi 5** as a real edge hospital. Measured **17× straggler**, then **mitigated it**:
+  freeze-backbone partial-model FL gives a **verified 8.99× speedup** on the Pi
+  (8.28 → 0.92 s/round; 4/4 on-device correctness checks; gap shrinks to <2×).
+
+## Deliverables
+- `reports/technical_report.docx` — 11-page technical report (all figures, 13 IEEE refs)
+- `reports/dashboard.html` — self-explanatory results dashboard (single file, open in a browser)
+- `reports/fl_process_visualizer.html` — animated replay of the real 30-round federated run
+- `reports/live_dashboard.html` — real-time view of a running federation (polls the live server)
+- `reports/presentation.pptx` — defense slide deck (speaker notes included)
+- `docs/installation_manual.md` · `docs/user_manual.md` · `docs/raspberry_pi_setup.md`
 
 ## Quickstart
 ```bash
 git clone <repo> && cd cross-silo-fl-medical-image-classification
 python -m pip install -e ".[torch,dev]"        # core-only: pip install -e .
 
-python scripts/verify_core_math.py             # torch-free correctness checks
-python scripts/analyze_heterogeneity.py        # non-IID analysis (needs the real data)
-make smoke                                      # end-to-end FedAvg on the tiny fixture
-make test                                       # unit + integration tests
+python scripts/verify_core_math.py             # 21 torch-free correctness checks
+make smoke                                     # end-to-end FedAvg on the tiny fixture
+make test                                      # unit + integration tests
 ```
-See `docs/installation_manual.md` and `docs/user_manual.md` for details, and
-`data/README.md` to obtain Fed-ISIC2019.
+Real-data runs (see manuals for details):
+```bash
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw bash scripts/run_comparison.sh dev cuda 0 1 2
+DATA_ROOT=$HOME/fl_data/fed_isic2019/raw IMG=128 ROUNDS=30 bash scripts/run_full.sh cuda "0 1 2"
+```
 
-## Tiers
-Everything is config-driven; a `--tier` flag selects scale:
-`smoke` (synthetic fixture, seconds, CI) · `dev` (small real subset, CPU) ·
-`full` (all data, all seeds, GPU — the report numbers).
+## Rigor & reproducibility
+One identical training loop for every strategy (fair-comparison protocol); tiered configs
+(`smoke`/`dev`/`full`) switched by a flag; global seeding + per-run manifests (git commit,
+tier, hardware); ≥3 seeds for headline numbers; **21/21 pure-numpy correctness checks**
+(aggregation, SCAFFOLD equations, metrics, DP accountant, secure aggregation, robust
+aggregators) runnable without a GPU; pytest + GitHub Actions CI. Negative results
+(FedAdam, Grad-CAM shortcut) are reported openly.
 
 ## Repository layout
 ```
-src/fl_med/     package: data, models, strategies, engine, privacy, security, edge
-configs/        one tiered YAML per experiment
-scripts/        run_experiment, analyze_heterogeneity, aggregate_results, make_figures
-experiments/    per-run outputs (metrics.csv, run_config.yaml, figures)
-tests/          unit + integration
-docs/           installation & user manuals
-dashboard/      Streamlit app (reads experiments/)
-reports/        technical report + figures
+src/fl_med/       package: data, models, strategies, engine, privacy, security, federated_live
+configs/          one tiered YAML per experiment (fedavg/fedprox/scaffold/fedadam/dp/live...)
+scripts/          run_experiment, run_full, robustness/comms/gradcam/MIA benches, build_* tools
+scripts/live/     REAL networked FL (Flower): server, client, Pi benchmark, demo launchers
+experiments/      per-run outputs (metrics.csv, run_config.yaml, summary.json, figures)
+tests/            unit + integration
+docs/             installation, user & Raspberry-Pi manuals
+reports/          technical report, dashboards, presentation, figures
 ```
 
 ## License
-MIT — see `LICENSE`.
+**Permission-required** — the repository is public for viewing and academic evaluation,
+but any use, copying, modification, or redistribution requires the author's prior
+written permission (asadiherism@gmail.com). See `LICENSE` for the full terms.
