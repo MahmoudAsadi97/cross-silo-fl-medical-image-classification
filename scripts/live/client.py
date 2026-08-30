@@ -71,6 +71,10 @@ def main(argv=None) -> int:
     if args.batch_size:
         overrides.append(f"data.batch_size={args.batch_size}")
     overrides.append(f"data.num_workers={args.num_workers}")
+    # Flower supplies the server's global parameters before local training, so
+    # client-side ImageNet weights would immediately be overwritten. Avoiding
+    # that download keeps the Raspberry Pi demo fully offline-capable.
+    overrides.append("model.pretrained=false")
     config = resolve_config(Path(args.config), tier=args.tier, overrides=overrides)
 
     device = args.device if (args.device != "cuda" or torch.cuda.is_available()) else "cpu"

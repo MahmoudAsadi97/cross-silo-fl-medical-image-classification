@@ -15,6 +15,59 @@ loaders, training loop and metrics are the *same* code as the simulation
 > (~8 rounds). The rigorous 3-seed numbers stay in the simulation; this run is the
 > *proof it works on real distributed hardware* — plus a **straggler** measurement.
 
+## Presentation day: one command (recommended)
+
+The presentation launcher replaces the manual server/dashboard/client terminals.
+It checks the checkpoint, every laptop data shard, CUDA, Flower/NumPy versions,
+ports, passwordless Pi SSH, the Pi virtual environment, client-5 data, matching
+client code, and a free tunnel port **before** starting anything. A failed check
+therefore stops in seconds instead of failing halfway through the demonstration.
+
+It uses an SSH reverse tunnel:
+
+```text
+Pi client -> Pi 127.0.0.1:18080 -> encrypted SSH tunnel
+          -> laptop WSL 127.0.0.1:8080 -> Flower coordinator
+```
+
+This avoids Windows 10 `portproxy`, Administrator access, firewall changes, and
+changing laptop/WSL IP addresses. The Pi still performs genuine local training
+on a second physical machine; SSH only carries the Flower connection.
+
+**Configure and test once before the presentation:**
+
+```bash
+bash scripts/live/presentation_demo.sh --configure
+bash scripts/live/presentation_demo.sh --check-only
+```
+
+Use the Pi's current IPv4 address in the SSH target (for example
+`<pi-user>@192.168.1.50`). The defaults use two rounds, four local batches, and a
+frozen Pi backbone. The real run normally takes about 1.5–2 minutes; the startup
+checks take seconds.
+
+If the SSH check reports that a password or unknown host key is required, set it
+up once from WSL:
+
+```bash
+ssh <pi-user>@<PI_IP>
+ssh-keygen -t ed25519 -f ~/.ssh/fl_demo_pi_ed25519
+ssh-copy-id -i ~/.ssh/fl_demo_pi_ed25519.pub <pi-user>@<PI_IP>
+```
+
+Update the Pi repository to the same revision as the laptop before running the
+check. The launcher deliberately refuses to mix different `client.py` versions.
+
+**On presentation day:** double-click `START_PRESENTATION_DEMO.cmd` in the
+repository root. It enters the `flamby_isic` conda environment, runs preflight,
+starts the dashboard/coordinator/laptop client/Pi client, opens the browser,
+validates that both physical clients completed both rounds, and archives logs in
+`experiments/live/presentation_runs/`.
+
+The launcher also disables unnecessary ImageNet-weight downloads: the server
+loads `pretrained.pt`, and each client immediately receives the global Flower
+parameters. The live run therefore has no internet dependency.
+
 ---
 
 ## 0. Prerequisites

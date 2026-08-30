@@ -33,6 +33,7 @@ experiments/**/checkpoints/
 experiments/**/*.pt
 experiments/**/*.pth
 experiments/**/run.log
+experiments/live/presentation_runs/
 
 # Legacy results tree (pre-restructure)
 results/checkpoints/*

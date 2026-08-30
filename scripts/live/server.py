@@ -69,6 +69,11 @@ def main(argv=None) -> int:
     if args.batch_size:
         overrides.append(f"data.batch_size={args.batch_size}")
     overrides.append(f"data.num_workers={args.num_workers}")
+    # A warm-start checkpoint replaces every model tensor, so downloading
+    # ImageNet weights here would add a needless presentation-day network
+    # dependency. The architecture is identical with pretrained=False.
+    if args.init_model:
+        overrides.append("model.pretrained=false")
     config = resolve_config(Path(args.config), tier=args.tier, overrides=overrides)
 
     device = args.device if (args.device != "cuda" or torch.cuda.is_available()) else "cpu"
@@ -122,9 +127,15 @@ def main(argv=None) -> int:
             latest_clients[:] = round_clients   # newest round's per-client timing (live dashboard)
             return super().aggregate_fit(server_round, results, failures)
 
-    if args.init_model and Path(args.init_model).exists():
-        eval_model.load_state_dict(torch.load(args.init_model, map_location=device))
-        print(f"[server] warm-started global model from {args.init_model}", flush=True)
+    if args.init_model:
+        init_path = Path(args.init_model).expanduser()
+        if not init_path.is_file():
+            raise FileNotFoundError(
+                f"Warm-start checkpoint does not exist: {init_path}. "
+                "Refusing to silently start the live demo from random weights."
+            )
+        eval_model.load_state_dict(torch.load(init_path, map_location=device))
+        print(f"[server] warm-started global model from {init_path}", flush=True)
     init = ndarrays_to_parameters(get_ndarrays(eval_model))
     strategy = TimedFedAvg(
         fraction_fit=1.0, fraction_evaluate=0.0,
