@@ -41,18 +41,28 @@ bash scripts/live/presentation_demo.sh --configure
 bash scripts/live/presentation_demo.sh --check-only
 ```
 
-Use the Pi's current IPv4 address in the SSH target (for example
-`<pi-user>@192.168.1.50`). The defaults use two rounds, four local batches, and a
-frozen Pi backbone. The real run normally takes about 1.5–2 minutes; the startup
-checks take seconds.
+Use the stable Pi name in the SSH target (normally `<pi-user>@raspberrypi.local`). At
+every start, the launcher resolves that name through WSL's explicit IPv4 lookup
+and gives SSH the resulting numeric address. A router/hotspot DHCP change after a
+restart therefore needs no reconfiguration. The Pi host key remains pinned to
+the stable name after the first successful preflight enrolls it, so an unexpected
+changed device is then rejected. Run the check once on a trusted network before
+presentation day. Use a literal target such as `<pi-user>@192.168.1.50` only if
+`.local` lookup is unavailable.
+
+The defaults use three rounds, four local batches, and a frozen Pi backbone. The
+real run normally takes about 2–3 minutes; the startup checks take seconds. It
+also waits briefly if the Pi is still finishing its boot.
 
 If the SSH check reports that a password or unknown host key is required, set it
 up once from WSL:
 
 ```bash
-ssh <pi-user>@<PI_IP>
+PI_IP="$(getent ahostsv4 raspberrypi.local | awk '$2 == "STREAM" {print $1; exit}')"
+ssh -4 -o HostKeyAlias=raspberrypi.local -o CheckHostIP=no "<pi-user>@$PI_IP"
 ssh-keygen -t ed25519 -f ~/.ssh/fl_demo_pi_ed25519
-ssh-copy-id -i ~/.ssh/fl_demo_pi_ed25519.pub <pi-user>@<PI_IP>
+ssh-copy-id -i ~/.ssh/fl_demo_pi_ed25519.pub \
+    -o HostKeyAlias=raspberrypi.local -o CheckHostIP=no "<pi-user>@$PI_IP"
 ```
 
 Update the Pi repository to the same revision as the laptop before running the
@@ -61,8 +71,13 @@ check. The launcher deliberately refuses to mix different `client.py` versions.
 **On presentation day:** double-click `START_PRESENTATION_DEMO.cmd` in the
 repository root. It enters the `flamby_isic` conda environment, runs preflight,
 starts the dashboard/coordinator/laptop client/Pi client, opens the browser,
-validates that both physical clients completed both rounds, and archives logs in
-`experiments/live/presentation_runs/`.
+validates that both physical clients completed every configured round, and
+archives logs in `experiments/live/presentation_runs/`.
+
+If name lookup ever fails, verify `getent ahostsv4 raspberrypi.local` in WSL or
+`ping -4 raspberrypi.local` in Windows, then run `--configure` with the displayed
+IPv4 as the last-resort fallback. Changes to the laptop LAN or WSL address do not
+matter because the Flower connection uses the outbound SSH reverse tunnel.
 
 The launcher also disables unnecessary ImageNet-weight downloads: the server
 loads `pretrained.pt`, and each client immediately receives the global Flower
@@ -104,7 +119,8 @@ The Pi only needs **client 5's** images (small). From the laptop:
 
 ```bash
 # from the laptop (adjust paths); creates the same layout on the Pi
-PI=pi@raspberrypi.local
+PI_IP="$(getent ahostsv4 raspberrypi.local | awk '$2 == "STREAM" {print $1; exit}')"
+PI="<pi-user>@$PI_IP"
 rsync -av data/fed_isic2019/raw/train/client_5  $PI:~/fl_data/fed_isic2019/raw/train/
 rsync -av data/fed_isic2019/raw/test/client_5   $PI:~/fl_data/fed_isic2019/raw/test/
 ```

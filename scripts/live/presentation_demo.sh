@@ -69,21 +69,41 @@ die() {
 
 configure() {
     local pi_target pi_repo pi_data laptop_data identity answer default_identity=""
+    local PI_SSH_TARGET="" PI_REPO="" PI_DATA_ROOT="" LAPTOP_DATA_ROOT=""
+    local PI_IDENTITY_FILE="" PI_BOOT_WAIT=""
+
+    if [[ -f "$CONFIG_FILE" ]]; then
+        # shellcheck disable=SC1090
+        source "$CONFIG_FILE"
+    fi
+    if [[ -n "$PI_IDENTITY_FILE" && -f "$PI_IDENTITY_FILE" ]]; then
+        default_identity="$PI_IDENTITY_FILE"
+    fi
     for identity in "$HOME/.ssh/fl_demo_pi_ed25519" "$HOME/.ssh/id_ed25519"; do
-        if [[ -f "$identity" ]]; then default_identity="$identity"; break; fi
+        if [[ -z "$default_identity" && -f "$identity" ]]; then
+            default_identity="$identity"
+            break
+        fi
     done
 
+    PI_SSH_TARGET="${PI_SSH_TARGET:-<pi-user>@raspberrypi.local}"
+    PI_REPO="${PI_REPO:-/home/<pi-user>/cross-silo-fl-medical-image-classification}"
+    PI_DATA_ROOT="${PI_DATA_ROOT:-/home/<pi-user>/fl_data/fed_isic2019/raw}"
+    LAPTOP_DATA_ROOT="${LAPTOP_DATA_ROOT:-$HOME/fl_data/fed_isic2019/raw}"
+    PI_BOOT_WAIT="${PI_BOOT_WAIT:-30}"
+
     printf '\nOne-time presentation configuration\n'
-    printf 'Use the Pi IPv4 address, not raspberrypi.local, if WSL cannot resolve it.\n\n'
-    read -r -p "Pi SSH target, for example <pi-user>@192.168.1.50: " pi_target
+    printf 'Use the stable Pi name when available; its IPv4 address is resolved at every start.\n\n'
+    read -r -p "Pi SSH target [$PI_SSH_TARGET]: " pi_target
+    pi_target="${pi_target:-$PI_SSH_TARGET}"
     [[ -n "$pi_target" ]] || die 20 "The Pi SSH target cannot be empty."
 
-    read -r -p "Pi repository path [/home/<pi-user>/cross-silo-fl-medical-image-classification]: " pi_repo
-    pi_repo="${pi_repo:-/home/<pi-user>/cross-silo-fl-medical-image-classification}"
-    read -r -p "Pi data path [/home/<pi-user>/fl_data/fed_isic2019/raw]: " pi_data
-    pi_data="${pi_data:-/home/<pi-user>/fl_data/fed_isic2019/raw}"
-    read -r -p "Laptop data path [$HOME/fl_data/fed_isic2019/raw]: " laptop_data
-    laptop_data="${laptop_data:-$HOME/fl_data/fed_isic2019/raw}"
+    read -r -p "Pi repository path [$PI_REPO]: " pi_repo
+    pi_repo="${pi_repo:-$PI_REPO}"
+    read -r -p "Pi data path [$PI_DATA_ROOT]: " pi_data
+    pi_data="${pi_data:-$PI_DATA_ROOT}"
+    read -r -p "Laptop data path [$LAPTOP_DATA_ROOT]: " laptop_data
+    laptop_data="${laptop_data:-$LAPTOP_DATA_ROOT}"
     read -r -p "SSH private key [${default_identity:-use SSH default}]: " identity
     identity="${identity:-$default_identity}"
 
@@ -96,8 +116,9 @@ configure() {
         printf 'LAPTOP_DATA_ROOT=%q\n' "$laptop_data"
         printf 'PI_IDENTITY_FILE=%q\n' "$identity"
         printf 'CONDA_ENV=%q\n' "flamby_isic"
-        printf 'ROUNDS=%q\n' "2"
+        printf 'ROUNDS=%q\n' "3"
         printf 'MAX_BATCHES=%q\n' "4"
+        printf 'PI_BOOT_WAIT=%q\n' "$PI_BOOT_WAIT"
     } >"$CONFIG_FILE"
     chmod 600 "$CONFIG_FILE" 2>/dev/null || true
     ok "Saved $CONFIG_FILE"
@@ -137,7 +158,7 @@ PI_DATA_ROOT="${PI_DATA_ROOT:-/home/<pi-user>/fl_data/fed_isic2019/raw}"
 PI_IDENTITY_FILE="${PI_IDENTITY_FILE:-}"
 LAPTOP_DATA_ROOT="${LAPTOP_DATA_ROOT:-$HOME/fl_data/fed_isic2019/raw}"
 CHECKPOINT="${CHECKPOINT:-$REPO/experiments/live/pretrained.pt}"
-ROUNDS="${ROUNDS:-2}"
+ROUNDS="${ROUNDS:-3}"
 MAX_BATCHES="${MAX_BATCHES:-4}"
 FLOWER_PORT="${FLOWER_PORT:-8080}"
 DASHBOARD_PORT="${DASHBOARD_PORT:-8000}"
@@ -146,6 +167,7 @@ ROUND_TIMEOUT="${ROUND_TIMEOUT:-120}"
 STARTUP_TIMEOUT="${STARTUP_TIMEOUT:-45}"
 DEMO_TIMEOUT="${DEMO_TIMEOUT:-240}"
 REMOTE_CLIENT_TIMEOUT="${REMOTE_CLIENT_TIMEOUT:-300}"
+PI_BOOT_WAIT="${PI_BOOT_WAIT:-30}"
 EXPECTED_FLOWER="${EXPECTED_FLOWER:-1.11.1}"
 PYTHON_BIN="${PYTHON_BIN:-python}"
 LAPTOP_LABEL="${LAPTOP_LABEL:-laptop-GPU}"
@@ -156,6 +178,7 @@ PI_LABEL="${PI_LABEL:-pi5-CPU}"
 [[ "$MAX_BATCHES" =~ ^[1-9][0-9]*$ ]] || die 22 "MAX_BATCHES must be a positive integer."
 [[ "$REMOTE_CLIENT_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || \
     die 22 "REMOTE_CLIENT_TIMEOUT must be a positive integer."
+[[ "$PI_BOOT_WAIT" =~ ^[1-9][0-9]*$ ]] || die 22 "PI_BOOT_WAIT must be a positive integer."
 [[ "$DEMO_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || die 22 "DEMO_TIMEOUT must be a positive integer."
 [[ "$PI_REPO" == /* && "$PI_DATA_ROOT" == /* ]] || \
     die 22 "PI_REPO and PI_DATA_ROOT must be absolute Linux paths."
@@ -216,10 +239,95 @@ show_port_owner() {
     command -v ss >/dev/null 2>&1 && ss -ltnp "sport = :$port" 2>/dev/null || true
 }
 
+PI_SSH_TARGET_CONFIGURED="$PI_SSH_TARGET"
+PI_SSH_TARGET_EFFECTIVE="$PI_SSH_TARGET"
+PI_SSH_HOST="$PI_SSH_TARGET"
+SSH_TARGET_OPTS=()
+
+resolve_pi_ssh_target() {
+    local target="$PI_SSH_TARGET_CONFIGURED" user_prefix="" user="" host resolved="" deadline
+
+    if [[ "$target" == *@* ]]; then
+        user="${target%@*}"
+        [[ "$user" =~ ^[A-Za-z0-9._-]+$ ]] || \
+            die 26 "Invalid Pi SSH user in target: $target"
+        user_prefix="${user}@"
+        host="${target##*@}"
+    else
+        host="$target"
+    fi
+    [[ -n "$host" && "$host" =~ ^[A-Za-z0-9._-]+$ ]] || \
+        die 26 "Invalid Pi SSH target: $target (expected user@hostname or user@IPv4)."
+    PI_SSH_HOST="$host"
+
+    # A literal IPv4 address needs no name lookup. Hostnames are resolved here
+    # because WSL's `getent ahostsv4` can resolve mDNS names even when OpenSSH's
+    # own getaddrinfo lookup cannot.
+    if is_valid_ipv4 "$host"; then
+        return 0
+    fi
+
+    deadline=$((SECONDS + PI_BOOT_WAIT))
+    while ((SECONDS < deadline)); do
+        if command -v getent >/dev/null 2>&1; then
+            resolved="$(timeout 4 getent ahostsv4 "$host" 2>/dev/null | awk 'NR == 1 { print $1; exit }' || true)"
+        fi
+        if [[ -z "$resolved" ]] && command -v powershell.exe >/dev/null 2>&1; then
+            resolved="$(timeout 6 powershell.exe -NoProfile -NonInteractive -Command \
+                "[System.Net.Dns]::GetHostAddresses('$host') | Where-Object { \$_.AddressFamily -eq [System.Net.Sockets.AddressFamily]::InterNetwork } | ForEach-Object { \$_.IPAddressToString } | Select-Object -First 1" \
+                2>/dev/null | tr -d '\r' | head -n 1 || true)"
+        fi
+        if [[ -n "$resolved" ]] && is_valid_ipv4 "$resolved"; then break; fi
+        resolved=""
+        sleep 2
+    done
+
+    if [[ -z "$resolved" ]]; then
+        cat >&2 <<EOF
+
+Could not find the Raspberry Pi's IPv4 address for: $host
+Check that the Pi and laptop are on the same router, then try in WSL:
+  getent ahostsv4 $host
+Or in Windows Command Prompt:
+  ping -4 $host
+
+As a last fallback, run --configure and enter <pi-user>@<CURRENT_PI_IP>.
+EOF
+        die 26 "Raspberry Pi name resolution failed after ${PI_BOOT_WAIT}s."
+    fi
+
+    PI_SSH_TARGET_EFFECTIVE="${user_prefix}${resolved}"
+    # Store/check the Pi key under its stable hostname, not its changing DHCP
+    # address. accept-new enrolls this alias once but still rejects a changed key.
+    SSH_TARGET_OPTS+=( -o "HostKeyAlias=$host" -o CheckHostIP=no )
+    ok "Raspberry Pi address: $host -> $resolved"
+}
+
+is_valid_ipv4() {
+    local ip="$1" part
+    local -a octets
+    [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || return 1
+    IFS=. read -r -a octets <<<"$ip"
+    ((${#octets[@]} == 4)) || return 1
+    for part in "${octets[@]}"; do
+        ((10#$part <= 255)) || return 1
+    done
+}
+
+SSH_BIN="${SSH_BIN:-}"
+if [[ -z "$SSH_BIN" ]]; then
+    if [[ -x /usr/bin/ssh ]]; then
+        SSH_BIN=/usr/bin/ssh
+    else
+        SSH_BIN="$(command -v ssh || true)"
+    fi
+fi
+
 SSH_OPTS=(
+    -4
     -T
     -o BatchMode=yes
-    -o StrictHostKeyChecking=yes
+    -o StrictHostKeyChecking=accept-new
     -o ConnectTimeout=6
     -o ConnectionAttempts=1
     -o ServerAliveInterval=5
@@ -238,9 +346,10 @@ for required in \
     [[ -f "$required" ]] || die 24 "Required project file is missing: $required"
 done
 command -v "$PYTHON_BIN" >/dev/null 2>&1 || die 24 "Python is not available."
-command -v ssh >/dev/null 2>&1 || die 24 "The ssh command is not installed."
+[[ -x "$SSH_BIN" ]] || die 24 "The Linux ssh command is not installed."
 command -v git >/dev/null 2>&1 || die 24 "Git is not installed."
 command -v timeout >/dev/null 2>&1 || die 24 "The timeout command is not installed."
+resolve_pi_ssh_target
 [[ -s "$CHECKPOINT" ]] || die 24 "Warm-start checkpoint is missing: $CHECKPOINT"
 checkpoint_bytes="$(wc -c <"$CHECKPOINT")"
 ((checkpoint_bytes > 1000000)) || die 24 "Checkpoint appears incomplete: $CHECKPOINT"
@@ -275,16 +384,40 @@ done
 ok "Checkpoint, all laptop shards, CUDA, dependencies, and ports are ready."
 
 step "Raspberry Pi preflight"
-if ! ssh "${SSH_OPTS[@]}" "$PI_SSH_TARGET" true; then
+pi_ssh_error=""
+pi_ssh_ok=0
+pi_ssh_deadline=$((SECONDS + PI_BOOT_WAIT))
+while :; do
+    set +e
+    pi_ssh_error="$("$SSH_BIN" "${SSH_OPTS[@]}" "${SSH_TARGET_OPTS[@]}" \
+        "$PI_SSH_TARGET_EFFECTIVE" true 2>&1)"
+    pi_ssh_rc=$?
+    set -e
+    if ((pi_ssh_rc == 0)); then
+        pi_ssh_ok=1
+        break
+    fi
+    if [[ "$pi_ssh_error" == *"REMOTE HOST IDENTIFICATION HAS CHANGED"* ||
+          "$pi_ssh_error" == *"Host key verification failed"* ||
+          "$pi_ssh_error" == *"Permission denied"* ||
+          "$pi_ssh_error" == *"no such identity"* ||
+          "$pi_ssh_error" == *"Bad owner or permissions"* ]]; then
+        break
+    fi
+    ((SECONDS < pi_ssh_deadline)) || break
+    sleep 2
+done
+if ((pi_ssh_ok == 0)); then
+    printf '%s\n' "$pi_ssh_error" >&2
     cat >&2 <<EOF
 
 The Pi did not accept non-interactive SSH. Before presentation day, run once:
-  ssh $PI_SSH_TARGET
+  ssh -4 -o HostKeyAlias=$PI_SSH_HOST $PI_SSH_TARGET_EFFECTIVE
   ssh-keygen -t ed25519 -f ~/.ssh/fl_demo_pi_ed25519
-  ssh-copy-id -i ~/.ssh/fl_demo_pi_ed25519.pub $PI_SSH_TARGET
+  ssh-copy-id -i ~/.ssh/fl_demo_pi_ed25519.pub $PI_SSH_TARGET_EFFECTIVE
 Then run --configure again and select ~/.ssh/fl_demo_pi_ed25519.
 
-If .local does not resolve in WSL, run --configure and use the Pi's IPv4 address.
+The launcher resolves .local names itself; use the current IPv4 only as a fallback.
 EOF
     die 26 "Raspberry Pi SSH preflight failed."
 fi
@@ -296,7 +429,8 @@ fi
 local_commit="$(git rev-parse HEAD)"
 printf -v remote_preflight_cmd 'bash -s -- %q %q %q %q %q' \
     "$PI_REPO" "$PI_DATA_ROOT" "$EXPECTED_FLOWER" "$PI_TUNNEL_PORT" "$local_commit"
-if ! ssh "${SSH_OPTS[@]}" "$PI_SSH_TARGET" "$remote_preflight_cmd" <<'REMOTE'
+if ! "$SSH_BIN" "${SSH_OPTS[@]}" "${SSH_TARGET_OPTS[@]}" \
+    "$PI_SSH_TARGET_EFFECTIVE" "$remote_preflight_cmd" <<'REMOTE'
 set -Eeuo pipefail
 repo="$1"; data_root="$2"; expected_flower="$3"; tunnel_port="$4"; expected_commit="$5"
 py="$repo/.venv/bin/python"
@@ -341,10 +475,11 @@ then
 fi
 
 set +e
-tunnel_probe_output="$(timeout 4 ssh "${SSH_OPTS[@]}" \
+tunnel_probe_output="$(timeout 4 "$SSH_BIN" "${SSH_OPTS[@]}" \
+    "${SSH_TARGET_OPTS[@]}" \
     -N -o ExitOnForwardFailure=yes \
     -R "127.0.0.1:$PI_TUNNEL_PORT:127.0.0.1:$FLOWER_PORT" \
-    "$PI_SSH_TARGET" 2>&1)"
+    "$PI_SSH_TARGET_EFFECTIVE" 2>&1)"
 tunnel_probe_rc=$?
 set -e
 if ((tunnel_probe_rc != 124)); then
@@ -460,10 +595,10 @@ printf -v remote_client_cmd \
     'cd %q && export DATA_ROOT=%q && exec timeout --foreground --signal=INT --kill-after=5s %qs %q scripts/live/client.py --server %q --client-id 5 --label %q --device cpu --max-batches %q --freeze-backbone --num-workers 0' \
     "$PI_REPO" "$PI_DATA_ROOT" "$REMOTE_CLIENT_TIMEOUT" "$PI_REPO/.venv/bin/python" \
     "127.0.0.1:$PI_TUNNEL_PORT" "$PI_LABEL" "$MAX_BATCHES"
-ssh "${SSH_OPTS[@]}" \
+"$SSH_BIN" "${SSH_OPTS[@]}" "${SSH_TARGET_OPTS[@]}" \
     -o ExitOnForwardFailure=yes \
     -R "127.0.0.1:$PI_TUNNEL_PORT:127.0.0.1:$FLOWER_PORT" \
-    "$PI_SSH_TARGET" "$remote_client_cmd" \
+    "$PI_SSH_TARGET_EFFECTIVE" "$remote_client_cmd" \
     >"$RUN_DIR/pi-client.log" 2>&1 &
 pi_pid=$!; add_process pi-client "$pi_pid"
 
