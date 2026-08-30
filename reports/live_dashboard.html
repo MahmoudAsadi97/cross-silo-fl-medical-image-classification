@@ -3,195 +3,139 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Federated Learning — LIVE</title>
+<title>Federated Learning — Live Dashboard</title>
 <style>
-  :root{--bg:#0b2129;--panel:#0f2c34;--line:#1d4650;--hub:#17b3bb;--hubglow:#5eead4;
-    --node:#2f5d67;--nodeedge:#4a838f;--pkt:#f4b942;--acc:#34d399;--ink:#e6f2f3;--muted:#8fb8bc;--accent:#e4572e;}
-  *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 700px at 40% 20%,#123540,#0b2129);color:var(--ink);
-    font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-  .wrap{max-width:1180px;margin:0 auto;padding:18px 20px}
-  .top{display:flex;align-items:center;gap:14px}
-  h1{margin:0;font-size:22px}
-  .live{display:inline-flex;align-items:center;gap:7px;background:#3a1512;color:#ffb4a3;border:1px solid #7a2c22;
-    border-radius:20px;padding:4px 12px;font-size:12px;font-weight:800;letter-spacing:.06em}
-  .live.on{background:#0e3a2a;color:#7ef0c2;border-color:#1c6b4d}
-  .live .blip{width:9px;height:9px;border-radius:50%;background:#ff6b57}
-  .live.on .blip{background:#34d399;animation:pulse 1.1s infinite}
-  @keyframes pulse{0%{opacity:.35}50%{opacity:1}100%{opacity:.35}}
-  .status{color:var(--muted);font-size:14px;margin:6px 0 0}
-  .stage{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
-  .svgbox{flex:1 1 560px;min-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
-  .side{flex:1 1 320px;min-width:300px;display:flex;flex-direction:column;gap:12px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-  .kpi{display:flex;justify-content:space-between;align-items:baseline}
-  .kpi .big{font-size:40px;font-weight:800;color:var(--acc);line-height:1;font-variant-numeric:tabular-nums}
-  .kpi .lbl{color:var(--muted);font-size:12px;text-align:right}
-  .cap{color:var(--muted);font-size:12px}
-  .barrow{display:flex;align-items:center;gap:8px;margin:7px 0}
-  .barrow .nm{width:88px;font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .bar{flex:1;height:14px;background:#0c2530;border-radius:7px;overflow:hidden}
-  .bar > i{display:block;height:100%;background:var(--hub);border-radius:7px;transition:width .4s}
-  .barrow.slow .bar > i{background:var(--accent)}
-  .barrow .tm{width:52px;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted)}
-  .warn{background:#3a2a12;border:1px solid #7a5c22;color:#ffd9a3;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:12px}
-  code{background:#0c2530;padding:1px 6px;border-radius:5px;color:#bfe9ec}
+  :root {
+    color-scheme:light; --white:#fff; --surface:#f8fbfd; --surface-blue:#edf7fa;
+    --surface-lilac:#f3f1fb; --ink:#17324d; --muted:#60758a; --faint:#8ba0b2;
+    --border:#dce7ee; --grid:#e9f0f4; --blue:#287d98; --blue-strong:#176782;
+    --teal:#168777; --teal-soft:#dff4ef; --lilac:#7b73b8; --amber:#b96b20;
+    --amber-soft:#fff3e7; --coral:#b4454d; --coral-soft:#fdeef0;
+    --shadow:0 12px 34px rgba(31,64,89,.09);
+  }
+  *{box-sizing:border-box} html,body{background:#fff}
+  body{margin:0;color:var(--ink);font:15px/1.5 "Segoe UI Variable","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1280px;margin:0 auto;padding:28px 28px 20px}
+  .hero{position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:25px 28px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(120deg,#f8fcfd 0%,#f3fafb 58%,#f7f5fc 100%);box-shadow:var(--shadow)}
+  .hero::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--blue),#43b9b0 52%,var(--lilac))}
+  .eyebrow{margin:0 0 5px;color:var(--blue-strong);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+  h1{margin:0;font-size:clamp(25px,3vw,34px);line-height:1.14;letter-spacing:-.025em}
+  .subtitle{max-width:760px;margin:8px 0 0;color:var(--muted);font-size:14px}
+  .live{flex:none;display:inline-flex;align-items:center;gap:8px;margin-top:4px;padding:7px 12px;border:1px solid #e2c9cb;border-radius:999px;background:var(--coral-soft);color:var(--coral);font-size:11px;font-weight:800;letter-spacing:.07em}
+  .live .blip{width:9px;height:9px;border-radius:50%;background:currentColor}
+  .live.on{background:var(--teal-soft);border-color:#b8ded4;color:#116b5d}.live.on .blip{animation:pulse 1.2s ease-in-out infinite}
+  .live.waiting{background:var(--surface-lilac);border-color:#d9d4ef;color:#655ca1}.live.done{background:var(--surface-blue);border-color:#c8e2e9;color:var(--blue-strong)}
+  @keyframes pulse{0%,100%{opacity:.32;transform:scale(.82)}50%{opacity:1;transform:scale(1.08)}}
+  .summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+  .summary-card{min-width:0;padding:17px 19px;border:1px solid var(--border);border-radius:16px;background:#fff;box-shadow:0 7px 22px rgba(31,64,89,.06)}
+  .metric-label{display:block;color:var(--muted);font-size:12px;font-weight:700}.metric-row{display:flex;align-items:baseline;gap:8px;margin-top:2px}
+  .metric-value{color:var(--blue-strong);font-size:34px;font-weight:800;line-height:1.16;letter-spacing:-.025em;font-variant-numeric:tabular-nums}.metric-unit{color:var(--faint);font-size:12px}.metric-note{margin:4px 0 0;color:var(--muted);font-size:11px}
+  .progress-track{height:7px;margin-top:10px;overflow:hidden;border-radius:999px;background:#e8eff3}.progress-track>i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),#43b9b0);transition:width .45s ease}
+  .status-line{display:flex;align-items:center;gap:9px;margin:14px 2px 0;color:var(--muted);font-size:13px}.status-line::before{content:"";width:7px;height:7px;flex:none;border-radius:50%;background:var(--blue)}
+  .dashboard-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,.85fr);gap:16px;margin-top:16px}
+  .panel{min-width:0;border:1px solid var(--border);border-radius:18px;background:#fff;box-shadow:var(--shadow)}
+  .panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:19px 21px 0}.panel-kicker{margin:0 0 3px;color:var(--blue-strong);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+  h2{margin:0;font-size:17px;line-height:1.3;letter-spacing:-.01em}.panel-subtitle{margin:4px 0 0;color:var(--muted);font-size:11px}
+  .legend{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}.legend-chip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:4px 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--muted);font-size:10px;font-weight:700}
+  .legend-dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}.legend-dot.teal{background:var(--teal)}.legend-dot.lilac{background:var(--lilac)}
+  .svgbox{padding:8px 14px 12px}svg{display:block;width:100%;height:auto;overflow:visible}#viz{max-height:440px}
+  .privacy-note{display:flex;gap:9px;align-items:flex-start;margin:0 20px 20px;padding:11px 13px;border-radius:12px;background:var(--surface-blue);color:#386176;font-size:11px}.privacy-mark{flex:none;width:19px;height:19px;display:grid;place-items:center;border-radius:50%;background:#d7edf2;color:var(--blue-strong);font-size:12px;font-weight:900}
+  .performance{display:flex;flex-direction:column}.chart-wrap{flex:1;padding:5px 13px 14px}#chart{min-height:250px}.chart-note{margin:0 21px 18px;color:var(--muted);font-size:11px}
+  .compute{grid-column:1/-1}.compute-body{padding:15px 20px 20px}#bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}
+  .barrow{display:grid;grid-template-columns:minmax(92px,1fr) minmax(120px,2.5fr) 62px auto;align-items:center;gap:10px;min-width:0;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+  .barrow .nm{min-width:0;overflow:hidden;color:var(--ink);font-size:12px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.bar{height:10px;overflow:hidden;border-radius:999px;background:#e5edf1}.bar>i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),#43b9b0);transition:width .4s ease}
+  .barrow.slow{border-color:#edcdd0;background:#fffafb}.barrow.slow .bar>i{background:linear-gradient(90deg,#d66b72,var(--coral))}.tm{color:var(--muted);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}.slow-chip{padding:2px 7px;border-radius:999px;background:var(--coral-soft);color:var(--coral);font-size:9px;font-weight:800;letter-spacing:.04em}
+  .empty{grid-column:1/-1;padding:18px;border:1px dashed #cddde5;border-radius:12px;background:var(--surface);color:var(--muted);font-size:12px;text-align:center}
+  .warn{display:none;margin-top:16px;padding:13px 15px;border:1px solid #efd5b9;border-radius:13px;background:var(--amber-soft);color:#7f4d1e;font-size:13px}
+  code{padding:1px 5px;border-radius:5px;background:#eef4f7;color:#31566a;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em}.foot{display:flex;justify-content:space-between;gap:18px;margin:12px 2px 0;color:var(--faint);font-size:10px}.foot p{margin:0}.tabular{font-variant-numeric:tabular-nums}
+  @media(max-width:900px){.dashboard-grid{grid-template-columns:1fr}.compute{grid-column:auto}#bars{grid-template-columns:1fr}}
+  @media(max-width:620px){.wrap{padding:16px 14px}.hero{flex-direction:column;padding:22px 20px}.live{margin-top:0}.summary-grid{grid-template-columns:1fr}.panel-head{flex-direction:column;padding:17px 17px 0}.legend{justify-content:flex-start}.svgbox{padding:8px 4px 10px}.privacy-note,.chart-note{margin-left:16px;margin-right:16px}.compute-body{padding:13px 14px 16px}.barrow{grid-template-columns:minmax(76px,1fr) minmax(90px,2fr) 54px}.slow-chip{grid-column:1/-1;justify-self:start}.foot{flex-direction:column;gap:3px}}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <h1>Federated Learning — Live</h1>
-    <span class="live" id="live"><span class="blip"></span><span id="livetxt">CONNECTING</span></span>
-  </div>
-  <p class="status" id="status">Waiting for the server…</p>
-
-  <div class="stage">
-    <div class="svgbox"><svg id="viz" viewBox="0 0 640 480" width="100%" preserveAspectRatio="xMidYMid meet"></svg></div>
-    <div class="side">
-      <div class="card">
-        <div class="kpi"><div class="big" id="acc">—</div>
-          <div class="lbl">global balanced<br>accuracy<br><span class="cap">(random = 0.125)</span></div></div>
-        <div class="cap" id="round" style="margin-top:6px">round — / —</div>
-      </div>
-      <div class="card">
-        <div class="cap" style="margin-bottom:6px">Global accuracy over rounds</div>
-        <svg id="chart" viewBox="0 0 300 140" width="100%"></svg>
-      </div>
-      <div class="card">
-        <div class="cap" style="margin-bottom:4px">Per-hospital compute this round (longest = straggler)</div>
-        <div id="bars"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="warn" id="filewarn" style="display:none">
-    ⚠ This page must be opened over <b>http</b>, not by double-clicking (browsers block a file from reading a local JSON).
-    In the repo folder run <code>python3 -m http.server 8000</code>, then open
-    <code>http://localhost:8000/reports/live_dashboard.html</code>.
-  </div>
-  <p class="cap" style="margin-top:10px">Polls <code>experiments/live/live_status.json</code>, which the Flower
-    server writes after every round. Start the server + clients and this updates itself in real time.</p>
+  <header class="hero">
+    <div><p class="eyebrow">Cross-silo medical image classification</p><h1>Federated Learning — Live</h1><p class="subtitle">A laptop GPU and Raspberry Pi CPU train one shared model while each hospital keeps its medical images private.</p></div>
+    <span class="live" id="live" role="status" aria-live="polite"><span class="blip" aria-hidden="true"></span><span id="livetxt">CONNECTING</span></span>
+  </header>
+  <section class="summary-grid" aria-label="Live run summary">
+    <article class="summary-card"><span class="metric-label">Central test balanced accuracy</span><div class="metric-row"><strong class="metric-value" id="acc">—</strong></div><p class="metric-note">Chance baseline: <span class="tabular">0.125</span></p></article>
+    <article class="summary-card"><span class="metric-label">Latest completed evaluation</span><div class="metric-row"><strong class="metric-value" id="round">— / —</strong><span class="metric-unit">round</span></div><div class="progress-track" role="progressbar" id="roundprogress" aria-label="Completed federated rounds" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><i id="progressfill"></i></div></article>
+    <article class="summary-card"><span class="metric-label">Participating compute silos</span><div class="metric-row"><strong class="metric-value" id="clientcount">—</strong><span class="metric-unit">connected</span></div><p class="metric-note">Physical laptop + Raspberry Pi</p></article>
+  </section>
+  <p class="status-line" id="status" aria-live="polite">Waiting for the coordinator…</p>
+  <main class="dashboard-grid">
+    <section class="panel topology" aria-labelledby="topology-title">
+      <div class="panel-head"><div><p class="panel-kicker">System topology</p><h2 id="topology-title">Private clients, shared global model</h2><p class="panel-subtitle">Animated particles represent model updates—not patient images.</p></div><div class="legend" aria-label="Topology legend"><span class="legend-chip"><i class="legend-dot"></i>Coordinator</span><span class="legend-chip"><i class="legend-dot teal"></i>Client</span><span class="legend-chip"><i class="legend-dot lilac"></i>Slowest</span></div></div>
+      <div class="svgbox"><svg id="viz" viewBox="0 0 640 430" role="img" aria-labelledby="viz-title viz-desc" preserveAspectRatio="xMidYMid meet"><title id="viz-title">Federated learning network</title><desc id="viz-desc">Physical compute clients send model updates to a central coordinator while data remains local.</desc></svg></div>
+      <p class="privacy-note"><span class="privacy-mark" aria-hidden="true">✓</span><span><strong>Privacy by design:</strong> raw images remain inside each silo. Only learned model parameters travel to the coordinator.</span></p>
+    </section>
+    <section class="panel performance" aria-labelledby="chart-title">
+      <div class="panel-head"><div><p class="panel-kicker">Model performance</p><h2 id="chart-title">Global model balanced accuracy</h2><p class="panel-subtitle">Central held-out test set</p></div></div>
+      <div class="chart-wrap"><svg id="chart" viewBox="0 0 480 278" role="img" aria-labelledby="chart-svg-title chart-svg-desc"><title id="chart-svg-title">Balanced accuracy by federated round</title><desc id="chart-svg-desc">The horizontal axis is federated round and the vertical axis is balanced accuracy.</desc></svg></div>
+      <p class="chart-note">Round 0 is the warm-start checkpoint; rounds 1–N are live federated training and central evaluation.</p>
+    </section>
+    <section class="panel compute" aria-labelledby="compute-title"><div class="panel-head"><div><p class="panel-kicker">Heterogeneous hardware</p><h2 id="compute-title">Latest completed round — local fit time</h2><p class="panel-subtitle">The slowest participating client determines the round duration.</p></div></div><div class="compute-body"><div id="bars"><div class="empty">Client timings appear after the first completed federated round.</div></div></div></section>
+  </main>
+  <aside class="warn" id="filewarn"><strong>Open this dashboard through HTTP.</strong> Browsers block a local file from reading the live JSON. In the repository run <code>python3 -m http.server 8000</code>, then open <code>http://localhost:8000/reports/live_dashboard.html</code>.</aside>
+  <footer class="foot"><p>Live snapshot: <code>experiments/live/live_status.json</code></p><p>Balanced accuracy treats every diagnostic class equally.</p></footer>
 </div>
-
 <script>
 (function(){
   "use strict";
-  var SVGNS="http://www.w3.org/2000/svg";
-  var svg=document.getElementById("viz"), CX=320, CY=230, RING=150, HUBR=44;
-  if(location.protocol==="file:") document.getElementById("filewarn").style.display="block";
-
-  function el(t,a){var e=document.createElementNS(SVGNS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
-  function T(x,y,s,o){var t=el("text",{x:x,y:y});for(var k in o)t.setAttribute(k,o[k]);t.textContent=s;svg.appendChild(t);return t;}
-
-  // hub (built once)
-  var hubGlow=el("circle",{cx:CX,cy:CY,r:HUBR+10,fill:"#17b3bb",opacity:0}); svg.appendChild(hubGlow);
-  var hub=el("circle",{cx:CX,cy:CY,r:HUBR,fill:"#0e2c34",stroke:"#17b3bb","stroke-width":3}); svg.appendChild(hub);
-  T(CX,CY-4,"GLOBAL",{fill:"#5eead4","text-anchor":"middle","font-size":13,"font-weight":700});
-  var hubTxt=T(CX,CY+14,"—",{fill:"#e6f2f3","text-anchor":"middle","font-size":15,"font-weight":800});
-
-  var linksG=el("g",{}); svg.insertBefore(linksG, hubGlow);
-  var nodesG=el("g",{}); svg.appendChild(nodesG);
-  var nodes={};      // tag -> {x,y,r,slow,glow,pkt}
-  var curTags="";
-
-  function rebuild(clients){
-    linksG.innerHTML=""; nodesG.innerHTML=""; nodes={};
-    var N=clients.length||1;
-    var maxt=0; clients.forEach(function(c){ maxt=Math.max(maxt, c.fit_seconds||0); });
-    clients.forEach(function(c,i){
-      var a=(-90 + i*(360/N))*Math.PI/180;
-      var x=CX+RING*Math.cos(a), y=CY+RING*Math.sin(a);
-      var slow = (c.fit_seconds||0) >= maxt && N>1 && maxt>0;
-      var rr = 22 + 16*Math.min(1,(c.n||128)/500);
-      linksG.appendChild(el("line",{x1:x,y1:y,x2:CX,y2:CY,stroke:"#1d4650","stroke-width":2}));
-      var glow=el("circle",{cx:x,cy:y,r:rr+7,fill:slow?"#e4572e":"#5eead4",opacity:0}); nodesG.appendChild(glow);
-      nodesG.appendChild(el("circle",{cx:x,cy:y,r:rr,fill:"#2f5d67",stroke:slow?"#e4572e":"#4a838f","stroke-width":slow?3:2}));
-      var t1=el("text",{x:x,y:y-1,fill:"#e6f2f3","text-anchor":"middle","font-size":11,"font-weight":700}); t1.textContent=(c.tag||"client"); nodesG.appendChild(t1);
-      var t2=el("text",{x:x,y:y+12,fill:"#8fb8bc","text-anchor":"middle","font-size":9}); t2.textContent=(c.fit_seconds!=null?c.fit_seconds.toFixed(1)+"s":""); nodesG.appendChild(t2);
-      if(slow){var t3=el("text",{x:x,y:y+rr+13,fill:"#e4572e","text-anchor":"middle","font-size":9,"font-weight":700});t3.textContent="straggler";nodesG.appendChild(t3);}
-      var pkt=el("circle",{cx:x,cy:y,r:5.5,fill:"#f4b942",opacity:0}); nodesG.appendChild(pkt);
-      nodes[c.tag]={x:x,y:y,glow:glow,pkt:pkt,dur:1200+2600*((c.fit_seconds||1)/(maxt||1))};
-    });
+  var SVGNS="http://www.w3.org/2000/svg",CHANCE=0.125;
+  var svg=document.getElementById("viz"),CX=320,CY=215,RING=150,HUBR=47;
+  var chart=document.getElementById("chart"),CW=480,CH=278,M={l:68,r:21,t:26,b:58};
+  var accEl=document.getElementById("acc"),roundEl=document.getElementById("round"),statusEl=document.getElementById("status"),barsEl=document.getElementById("bars"),liveEl=document.getElementById("live"),liveTxt=document.getElementById("livetxt"),clientCountEl=document.getElementById("clientcount"),progressEl=document.getElementById("roundprogress"),progressFill=document.getElementById("progressfill");
+  var prefersReduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var state={status:"",round:0,total_rounds:0,history:[],clients:[]},nodes={},curClientSignature="",lastRound=-1,flash=0,failedPolls=0,yDomain={lo:.10,hi:.35};
+  if(location.protocol==="file:")document.getElementById("filewarn").style.display="block";
+  function finite(v){if(v===null||v===undefined||v==="")return null;v=Number(v);return Number.isFinite(v)?v:null} function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+  function el(t,a){var e=document.createElementNS(SVGNS,t),k;for(k in a)if(Object.prototype.hasOwnProperty.call(a,k))e.setAttribute(k,a[k]);return e}
+  function svgText(parent,x,y,s,a){var attrs={x:x,y:y},k;for(k in a)attrs[k]=a[k];var t=el("text",attrs);t.textContent=s;parent.appendChild(t);return t}
+  function prettyTag(tag){return String(tag||"client").replace(/[_-]+/g," ").replace(/\b\w/g,function(c){return c.toUpperCase()})}
+  function validHistory(history){return(Array.isArray(history)?history:[]).map(function(p){var r=finite(p&&p.round),a=finite(p&&p.bal_acc);return r!==null&&a!==null&&r>=0&&a>=0&&a<=1?{round:r,bal_acc:a}:null}).filter(Boolean).sort(function(a,b){return a.round-b.round})}
+  function resetRun(){lastRound=-1;flash=0;yDomain={lo:.10,hi:.35};accEl.textContent="—";roundEl.textContent="— / —";clientCountEl.textContent="—";curClientSignature="";nodes={}}
+  function buildTopology(clients,accuracy){
+    svg.textContent="";var title=el("title",{id:"viz-title"});title.textContent="Federated learning network";svg.appendChild(title);var desc=el("desc",{id:"viz-desc"});desc.textContent="Physical compute clients send model updates to a central coordinator while data remains local.";svg.appendChild(desc);
+    var defs=el("defs",{}),filter=el("filter",{id:"softShadow",x:"-30%",y:"-30%",width:"160%",height:"160%"});filter.appendChild(el("feDropShadow",{dx:"0",dy:"5",stdDeviation:"7","flood-color":"#315a70","flood-opacity":".14"}));defs.appendChild(filter);svg.appendChild(defs);
+    var linksG=el("g",{}),hubG=el("g",{}),nodesG=el("g",{});svg.appendChild(linksG);svg.appendChild(hubG);svg.appendChild(nodesG);
+    var hubGlow=el("circle",{cx:CX,cy:CY,r:HUBR+13,fill:"#d5f0ef",opacity:"0"});hubG.appendChild(hubGlow);var hub=el("circle",{cx:CX,cy:CY,r:HUBR,fill:"#fff",stroke:"#287d98","stroke-width":"3",filter:"url(#softShadow)"});hubG.appendChild(hub);
+    svgText(hubG,CX,CY-7,"GLOBAL",{fill:"#176782","text-anchor":"middle","font-size":"12","font-weight":"800","letter-spacing":"1"});var hubTxt=svgText(hubG,CX,CY+15,accuracy===null?"—":accuracy.toFixed(3),{fill:"#17324d","text-anchor":"middle","font-size":"17","font-weight":"800"});
+    var sorted=clients.slice().sort(function(a,b){return String(a.tag||"").localeCompare(String(b.tag||""))}),n=sorted.length,maxt=0;sorted.forEach(function(c){var t=finite(c.fit_seconds);maxt=Math.max(maxt,t===null?0:t)});
+    sorted.forEach(function(c,i){var angle=(n===2?(180+i*180):(-90+i*(360/Math.max(n,1))))*Math.PI/180,x=CX+RING*Math.cos(angle),y=CY+RING*Math.sin(angle),seconds=finite(c.fit_seconds),slow=n>1&&maxt>0&&seconds!==null&&seconds>=maxt,accent=slow?"#7b73b8":(i%2?"#287d98":"#168777");
+      linksG.appendChild(el("line",{x1:x,y1:y,x2:CX,y2:CY,stroke:"#d8e5eb","stroke-width":"3","stroke-linecap":"round"}));var glow=el("circle",{cx:x,cy:y,r:"53",fill:slow?"#eeebfa":"#dff4ef",opacity:"0"});nodesG.appendChild(glow);var circle=el("circle",{cx:x,cy:y,r:"43",fill:"#fff",stroke:accent,"stroke-width":slow?"3":"2",filter:"url(#softShadow)"}),tip=el("title",{});tip.textContent=prettyTag(c.tag)+(seconds===null?"":": "+seconds.toFixed(1)+" seconds");circle.appendChild(tip);nodesG.appendChild(circle);
+      svgText(nodesG,x,y-3,prettyTag(c.tag),{fill:"#17324d","text-anchor":"middle","font-size":"10.5","font-weight":"750"});svgText(nodesG,x,y+14,seconds===null?"ready":seconds.toFixed(1)+" s",{fill:"#60758a","text-anchor":"middle","font-size":"10"});
+      if(slow){nodesG.appendChild(el("rect",{x:x-31,y:y+51,width:"62",height:"18",rx:"9",fill:"#eeebfa",stroke:"#d4ceef"}));svgText(nodesG,x,y+64,"SLOWEST",{fill:"#655ca1","text-anchor":"middle","font-size":"8","font-weight":"800","letter-spacing":".8"})}
+      var pkt=el("circle",{cx:x,cy:y,r:"5.5",fill:"#e7a23d",stroke:"#fff","stroke-width":"2",opacity:"0"});nodesG.appendChild(pkt);nodes[String(c.tag||i)]={x:x,y:y,glow:glow,pkt:pkt,dur:1200+2600*((seconds||1)/(maxt||1))}
+    });nodes._hub={hub:hub,glow:hubGlow,text:hubTxt}
   }
-
-  // chart
-  var chart=document.getElementById("chart"),CW=300,CH=140,PAD=26,TOP=8;
-  function xx(i,n){return PAD+(CW-PAD-8)*(n<=1?0:i/(n-1));}
-  function yy(v){var lo=0.10,hi=0.32;return TOP+(CH-TOP-18)*(1-(v-lo)/(hi-lo));}
-  chart.appendChild(el("line",{x1:PAD,y1:CH-18,x2:CW-4,y2:CH-18,stroke:"#1d4650"}));
-  chart.appendChild(el("line",{x1:PAD,y1:TOP,x2:PAD,y2:CH-18,stroke:"#1d4650"}));
-  chart.appendChild(el("line",{x1:PAD,y1:yy(0.125),x2:CW-4,y2:yy(0.125),stroke:"#4a838f","stroke-dasharray":"3 3"}));
-  var poly=el("polyline",{fill:"none",stroke:"#34d399","stroke-width":2.4,points:""}); chart.appendChild(poly);
-
-  var accEl=document.getElementById("acc"),roundEl=document.getElementById("round"),
-      statusEl=document.getElementById("status"),barsEl=document.getElementById("bars"),
-      liveEl=document.getElementById("live"),liveTxt=document.getElementById("livetxt");
-
-  var state={status:"",round:0,total:0,history:[],clients:[]}, lastRound=-1, flash=0;
-
+  function updateDomain(points){var values=[CHANCE];points.forEach(function(p){values.push(p.bal_acc)});var min=Math.min.apply(null,values),max=Math.max.apply(null,values),low=Math.max(0,Math.floor((min-.025)/.05)*.05),high=Math.min(1,Math.ceil((max+.025)/.05)*.05);if(high-low<.10)high=Math.min(1,low+.10);yDomain.lo=Math.min(yDomain.lo,low);yDomain.hi=Math.max(yDomain.hi,high)}
+  function yStep(){var span=yDomain.hi-yDomain.lo;return span<=.35?.05:(span<=.7?.10:.20)}
+  function renderChart(history,total,status,message){
+    var points=validHistory(history);updateDomain(points);chart.textContent="";var title=el("title",{id:"chart-svg-title"});title.textContent="Balanced accuracy by federated round";chart.appendChild(title);var desc=el("desc",{id:"chart-svg-desc"});desc.textContent="The horizontal axis is federated round and the vertical axis is balanced accuracy.";chart.appendChild(desc);
+    var defs=el("defs",{}),grad=el("linearGradient",{id:"areaFill",x1:"0",y1:"0",x2:"0",y2:"1"});grad.appendChild(el("stop",{offset:"0%","stop-color":"#43b9b0","stop-opacity":".26"}));grad.appendChild(el("stop",{offset:"100%","stop-color":"#43b9b0","stop-opacity":".025"}));defs.appendChild(grad);chart.appendChild(defs);
+    var plotW=CW-M.l-M.r,plotH=CH-M.t-M.b,maxRound=Math.max(1,Math.round(finite(total)||0),points.length?Math.ceil(points[points.length-1].round):0);function xx(round){return M.l+plotW*clamp(round/maxRound,0,1)}function yy(value){return M.t+plotH*(1-clamp((value-yDomain.lo)/(yDomain.hi-yDomain.lo),0,1))}
+    var step=yStep(),tick=Math.ceil((yDomain.lo-1e-9)/step)*step;for(;tick<=yDomain.hi+1e-9;tick+=step){var y=yy(tick);chart.appendChild(el("line",{x1:M.l,y1:y,x2:CW-M.r,y2:y,stroke:"#e9f0f4","stroke-width":"1"}));svgText(chart,M.l-10,y+4,tick.toFixed(2),{fill:"#60758a","text-anchor":"end","font-size":"10"})}
+    var stride=Math.max(1,Math.ceil(maxRound/6)),xTicks=[];for(var r=0;r<=maxRound;r+=stride)xTicks.push(r);if(xTicks[xTicks.length-1]!==maxRound)xTicks.push(maxRound);xTicks.forEach(function(round){var x=xx(round);chart.appendChild(el("line",{x1:x,y1:M.t,x2:x,y2:CH-M.b,stroke:"#f0f4f7","stroke-width":"1"}));svgText(chart,x,CH-M.b+18,String(round),{fill:"#60758a","text-anchor":"middle","font-size":"10"})});
+    chart.appendChild(el("line",{x1:M.l,y1:CH-M.b,x2:CW-M.r,y2:CH-M.b,stroke:"#9fb3c1","stroke-width":"1.2"}));chart.appendChild(el("line",{x1:M.l,y1:M.t,x2:M.l,y2:CH-M.b,stroke:"#9fb3c1","stroke-width":"1.2"}));svgText(chart,M.l+plotW/2,CH-13,"Federated training round",{fill:"#31566a","text-anchor":"middle","font-size":"11","font-weight":"700"});var ylabel=svgText(chart,16,M.t+plotH/2,"Balanced accuracy",{fill:"#31566a","text-anchor":"middle","font-size":"11","font-weight":"700"});ylabel.setAttribute("transform","rotate(-90 16 "+(M.t+plotH/2)+")");
+    var baselineY=yy(CHANCE);chart.appendChild(el("line",{x1:M.l,y1:baselineY,x2:CW-M.r,y2:baselineY,stroke:"#b96b20","stroke-width":"1.2","stroke-dasharray":"5 5"}));svgText(chart,CW-M.r-2,baselineY-6,"Chance · 0.125",{fill:"#9b5a1e","text-anchor":"end","font-size":"9","font-weight":"700"});
+    if(points.length){var coords=points.map(function(p){return[xx(p.round),yy(p.bal_acc)]}),area="M "+coords[0][0]+" "+(CH-M.b)+" L "+coords.map(function(p){return p[0]+" "+p[1]}).join(" L ")+" L "+coords[coords.length-1][0]+" "+(CH-M.b)+" Z";chart.appendChild(el("path",{d:area,fill:"url(#areaFill)"}));chart.appendChild(el("polyline",{points:coords.map(function(p){return p[0]+","+p[1]}).join(" "),fill:"none",stroke:"#168777","stroke-width":"3","stroke-linecap":"round","stroke-linejoin":"round"}));points.forEach(function(p,i){var point=el("circle",{cx:coords[i][0],cy:coords[i][1],r:i===points.length-1?"5":"4",fill:"#fff",stroke:"#168777","stroke-width":"3"}),tip=el("title",{});tip.textContent="Round "+p.round+": "+p.bal_acc.toFixed(3);point.appendChild(tip);chart.appendChild(point)})}else svgText(chart,M.l+plotW/2,M.t+plotH/2,message||(status==="training"?"Evaluating the starting model…":"Waiting for the initial evaluation…"),{fill:"#60758a","text-anchor":"middle","font-size":"11","font-weight":"600"})
+  }
+  function renderBars(clients){
+    barsEl.textContent="";var list=Array.isArray(clients)?clients.slice():[];if(!list.length){var empty=document.createElement("div");empty.className="empty";empty.textContent="Client timings appear after the first completed federated round.";barsEl.appendChild(empty);return}list.sort(function(a,b){return String(a.tag||"").localeCompare(String(b.tag||""))});var maxt=0;list.forEach(function(c){var t=finite(c.fit_seconds);maxt=Math.max(maxt,t===null?0:t)});
+    list.forEach(function(c){var seconds=finite(c.fit_seconds),slow=list.length>1&&maxt>0&&seconds!==null&&seconds>=maxt,pct=maxt>0&&seconds!==null?Math.round(100*seconds/maxt):0,row=document.createElement("div");row.className="barrow"+(slow?" slow":"");var name=document.createElement("span");name.className="nm";name.textContent=prettyTag(c.tag);var bar=document.createElement("span");bar.className="bar";bar.setAttribute("role","progressbar");bar.setAttribute("aria-label",prettyTag(c.tag)+" local fit time");bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax",String(maxt));bar.setAttribute("aria-valuenow",String(seconds||0));bar.setAttribute("aria-valuetext",seconds===null?"not available":seconds.toFixed(1)+" seconds");var fill=document.createElement("i");fill.style.width=pct+"%";bar.appendChild(fill);var time=document.createElement("span");time.className="tm";time.textContent=seconds===null?"—":seconds.toFixed(1)+" s";row.appendChild(name);row.appendChild(bar);row.appendChild(time);if(slow){var chip=document.createElement("span");chip.className="slow-chip";chip.textContent="SLOWEST";row.appendChild(chip)}barsEl.appendChild(row)})
+  }
+  function setBadge(status){liveEl.className="live";if(status==="training")liveEl.classList.add("on");else if(status==="waiting"||status==="preparing")liveEl.classList.add("waiting");else if(status==="done")liveEl.classList.add("done");liveTxt.textContent=status==="training"?"LIVE":status==="done"?"COMPLETE":(status==="waiting"||status==="preparing")?"READY":"CONNECTING"}
   function reflect(d){
-    state=d;
-    // live badge
-    var online = d.status==="training" || d.status==="waiting" || d.status==="done";
-    liveEl.classList.toggle("on", d.status==="training");
-    liveTxt.textContent = d.status==="training"?"LIVE":(d.status==="done"?"FINISHED":(d.status==="waiting"?"WAITING":"CONNECTING"));
-    statusEl.textContent = d.status==="waiting" ? "Server up — waiting for clients to connect…"
-        : d.status==="training" ? ("Training in progress — round "+d.round+" of "+d.total_rounds)
-        : d.status==="done" ? ("Run complete — "+d.total_rounds+" rounds.")
-        : "Waiting for the server…";
-    // nodes
-    var tags=(d.clients||[]).map(function(c){return c.tag;}).join(",");
-    if(tags!==curTags){ curTags=tags; rebuild(d.clients||[]); }
-    // accuracy + round + chart
-    var h=d.history||[];
-    if(h.length){
-      var latest=h[h.length-1];
-      accEl.textContent=latest.bal_acc.toFixed(3); hubTxt.textContent=latest.bal_acc.toFixed(3);
-      roundEl.textContent="round "+d.round+" / "+d.total_rounds;
-      var pts=""; for(var i=0;i<h.length;i++){pts+=xx(i,h.length)+","+yy(h[i].bal_acc)+" ";}
-      poly.setAttribute("points",pts.trim());
-      if(d.round>lastRound){ lastRound=d.round; flash=1; }
-    } else { roundEl.textContent="round — / "+(d.total_rounds||"—"); }
-    // straggler bars
-    barsEl.innerHTML="";
-    var maxt=0;(d.clients||[]).forEach(function(c){maxt=Math.max(maxt,c.fit_seconds||0);});
-    (d.clients||[]).forEach(function(c){
-      var slow=(c.fit_seconds||0)>=maxt&&maxt>0&&(d.clients.length>1);
-      var w=maxt>0?Math.round(100*(c.fit_seconds||0)/maxt):0;
-      var row=document.createElement("div"); row.className="barrow"+(slow?" slow":"");
-      row.innerHTML='<span class="nm">'+c.tag+'</span><span class="bar"><i style="width:'+w+'%"></i></span>'+
-                    '<span class="tm">'+((c.fit_seconds!=null)?c.fit_seconds.toFixed(1)+"s":"—")+'</span>';
-      barsEl.appendChild(row);
-    });
+    if(!d||typeof d!=="object")return;var oldPoints=validHistory(state.history),newPoints=validHistory(d.history),incomingRound=finite(d.round)||0,previousRound=finite(state.round)||0;if((oldPoints.length&&newPoints.length===0)||incomingRound<previousRound)resetRun();state=d;failedPolls=0;setBadge(String(d.status||""));var total=Math.max(0,Math.round(finite(d.total_rounds)||0)),completed=Math.max(0,Math.round(incomingRound)),progress=total?clamp(100*completed/total,0,100):0;roundEl.textContent=(newPoints.length?completed:"—")+" / "+(total||"—");progressFill.style.width=progress+"%";progressEl.setAttribute("aria-valuemax",String(total||0));progressEl.setAttribute("aria-valuenow",String(completed));var clients=Array.isArray(d.clients)?d.clients:[];clientCountEl.textContent=clients.length?String(clients.length):"—";var latest=newPoints.length?newPoints[newPoints.length-1]:null;accEl.textContent=latest?latest.bal_acc.toFixed(3):"—";
+    statusEl.textContent=d.status==="waiting"||d.status==="preparing"?"Coordinator ready — waiting for client updates.":d.status==="training"?"Training and central evaluation are in progress. Latest completed evaluation: round "+completed+" of "+total+".":d.status==="done"?"Run complete — all "+total+" federated rounds were evaluated.":"Waiting for the coordinator…";
+    var signature=clients.slice().sort(function(a,b){return String(a.tag||"").localeCompare(String(b.tag||""))}).map(function(c){return[c.tag,finite(c.fit_seconds),finite(c.n)].join(":")}).join("|")+"@"+(latest?latest.bal_acc.toFixed(6):"none");if(signature!==curClientSignature){curClientSignature=signature;nodes={};buildTopology(clients,latest?latest.bal_acc:null)}renderChart(newPoints,total,String(d.status||""));renderBars(clients);if(completed>lastRound){lastRound=completed;flash=1}
   }
-
-  // continuous packet flow + hub flash
-  var t0=performance.now();
-  function anim(now){
-    var t=now-t0;
-    for(var tag in nodes){
-      var nd=nodes[tag]; var p=(t % nd.dur)/nd.dur; // 0..1 loop
-      var x=nd.x+(CX-nd.x)*p, y=nd.y+(CY-nd.y)*p;
-      var vis = state.status==="training" ? (0.9*Math.sin(p*Math.PI)) : 0;
-      nd.pkt.setAttribute("cx",x); nd.pkt.setAttribute("cy",y); nd.pkt.setAttribute("opacity",vis>0.05?vis:0);
-      nd.glow.setAttribute("opacity", state.status==="training"?0.12+0.12*Math.sin(t/500):0);
-    }
-    if(flash>0){ flash=Math.max(0,flash-0.02); hubGlow.setAttribute("opacity",0.4*flash); hub.setAttribute("r",HUBR+5*flash); }
-    else { hubGlow.setAttribute("opacity",0); hub.setAttribute("r",HUBR); }
-    requestAnimationFrame(anim);
-  }
-  requestAnimationFrame(anim);
-
-  // poll the status file
-  function poll(){
-    fetch("/experiments/live/live_status.json?_="+Date.now(),{cache:"no-store"})
-      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
-      .then(function(d){ reflect(d); })
-      .catch(function(){ liveEl.classList.remove("on"); liveTxt.textContent="OFFLINE";
-        if(!state.history.length) statusEl.textContent="Waiting for the server (no live_status.json yet)…"; });
-  }
-  poll(); setInterval(poll, 1000);
+  function animate(now){var t=now||0,hubNode=nodes._hub;Object.keys(nodes).forEach(function(tag){if(tag==="_hub")return;var nd=nodes[tag],p=(t%nd.dur)/nd.dur,moving=state.status==="training"&&!prefersReduced;nd.pkt.setAttribute("cx",nd.x+(CX-nd.x)*p);nd.pkt.setAttribute("cy",nd.y+(CY-nd.y)*p);nd.pkt.setAttribute("opacity",moving&&Math.sin(p*Math.PI)>.08?String(.88*Math.sin(p*Math.PI)):"0");nd.glow.setAttribute("opacity",moving?String(.09+.05*Math.sin(t/520)):"0")});if(hubNode){if(flash>0&&!prefersReduced){flash=Math.max(0,flash-.025);hubNode.glow.setAttribute("opacity",String(.45*flash));hubNode.hub.setAttribute("r",String(HUBR+5*flash))}else{hubNode.glow.setAttribute("opacity","0");hubNode.hub.setAttribute("r",String(HUBR))}}requestAnimationFrame(animate)}
+  function poll(){fetch("/experiments/live/live_status.json?_="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("status unavailable");return r.json()}).then(reflect).catch(function(){failedPolls+=1;if(failedPolls<3){liveTxt.textContent="RECONNECTING";return}liveEl.className="live";liveTxt.textContent="OFFLINE";statusEl.textContent=state.history&&state.history.length?"Live feed interrupted — retaining the latest completed result.":"Waiting for the coordinator (no live snapshot yet)…";if(!state.history||!state.history.length)renderChart([],finite(state.total_rounds)||0,"offline","Live metrics temporarily unavailable")})}
+  buildTopology([],null);renderChart([],3,"loading","Loading live metrics…");renderBars([]);requestAnimationFrame(animate);poll();setInterval(poll,1000);
 })();
 </script>
 </body>
