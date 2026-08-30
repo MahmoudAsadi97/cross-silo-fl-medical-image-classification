@@ -247,6 +247,9 @@ SSH_TARGET_OPTS=()
 resolve_pi_ssh_target() {
     local target="$PI_SSH_TARGET_CONFIGURED" user_prefix="" user="" host resolved="" deadline
 
+    PI_SSH_TARGET_EFFECTIVE="$PI_SSH_TARGET_CONFIGURED"
+    SSH_TARGET_OPTS=()
+
     if [[ "$target" == *@* ]]; then
         user="${target%@*}"
         [[ "$user" =~ ^[A-Za-z0-9._-]+$ ]] || \
@@ -333,6 +336,13 @@ SSH_OPTS=(
     -o ServerAliveInterval=5
     -o ServerAliveCountMax=3
     -o Compression=no
+)
+LIVE_SSH_OPTS=(
+    -o ConnectTimeout=5
+    -o ConnectionAttempts=4
+    -o ServerAliveInterval=5
+    -o ServerAliveCountMax=6
+    -o IPQoS=none
 )
 if [[ -n "$PI_IDENTITY_FILE" ]]; then
     [[ -f "$PI_IDENTITY_FILE" ]] || die 23 "SSH key not found: $PI_IDENTITY_FILE"
@@ -475,14 +485,15 @@ then
 fi
 
 set +e
-tunnel_probe_output="$(timeout 4 "$SSH_BIN" "${SSH_OPTS[@]}" \
+tunnel_probe_output="$(timeout 35 "$SSH_BIN" \
+    "${LIVE_SSH_OPTS[@]}" "${SSH_OPTS[@]}" \
     "${SSH_TARGET_OPTS[@]}" \
-    -N -o ExitOnForwardFailure=yes \
+    -o ExitOnForwardFailure=yes \
     -R "127.0.0.1:$PI_TUNNEL_PORT:127.0.0.1:$FLOWER_PORT" \
-    "$PI_SSH_TARGET_EFFECTIVE" 2>&1)"
+    "$PI_SSH_TARGET_EFFECTIVE" 'echo PI_TUNNEL_READY; sleep 2' 2>&1)"
 tunnel_probe_rc=$?
 set -e
-if ((tunnel_probe_rc != 124)); then
+if ((tunnel_probe_rc != 0)) || [[ "$tunnel_probe_output" != *"PI_TUNNEL_READY"* ]]; then
     [[ -n "$tunnel_probe_output" ]] && printf '%s\n' "$tunnel_probe_output" >&2
     die 28 "The Pi SSH server rejected the reverse tunnel (exit $tunnel_probe_rc)."
 fi
@@ -547,6 +558,20 @@ wait_for_process_port() {
     die 41 "$label did not become ready within ${timeout}s."
 }
 
+wait_for_log_marker() {
+    local pid="$1" log_file="$2" marker="$3" timeout="$4" elapsed=0
+    while ((elapsed < timeout)); do
+        if grep -Fq -- "$marker" "$log_file" 2>/dev/null; then return 0; fi
+        if ! kill -0 "$pid" 2>/dev/null; then
+            tail -n 30 "$log_file" >&2 || true
+            return 1
+        fi
+        sleep 1; ((elapsed+=1))
+    done
+    tail -n 30 "$log_file" >&2 || true
+    return 1
+}
+
 step "Starting the live dashboard"
 "$PYTHON_BIN" -m http.server "$DASHBOARD_PORT" --bind 127.0.0.1 \
     >"$RUN_DIR/dashboard.log" 2>&1 &
@@ -591,17 +616,23 @@ env DATA_ROOT="$LAPTOP_DATA_ROOT" "$PYTHON_BIN" scripts/live/client.py \
 laptop_pid=$!; add_process laptop-client "$laptop_pid"
 
 step "Starting the Raspberry Pi client through the encrypted SSH tunnel"
+# Refresh the hotspot address immediately before the long-lived training link.
+resolve_pi_ssh_target
 printf -v remote_client_cmd \
-    'cd %q && export DATA_ROOT=%q && exec timeout --foreground --signal=INT --kill-after=5s %qs %q scripts/live/client.py --server %q --client-id 5 --label %q --device cpu --max-batches %q --freeze-backbone --num-workers 0' \
+    'echo PI_REMOTE_STARTED && cd %q && export DATA_ROOT=%q && exec timeout --foreground --signal=INT --kill-after=5s %qs %q scripts/live/client.py --server %q --client-id 5 --label %q --device cpu --max-batches %q --freeze-backbone --num-workers 0' \
     "$PI_REPO" "$PI_DATA_ROOT" "$REMOTE_CLIENT_TIMEOUT" "$PI_REPO/.venv/bin/python" \
     "127.0.0.1:$PI_TUNNEL_PORT" "$PI_LABEL" "$MAX_BATCHES"
-"$SSH_BIN" "${SSH_OPTS[@]}" "${SSH_TARGET_OPTS[@]}" \
+"$SSH_BIN" "${LIVE_SSH_OPTS[@]}" "${SSH_OPTS[@]}" "${SSH_TARGET_OPTS[@]}" \
     -o ExitOnForwardFailure=yes \
     -R "127.0.0.1:$PI_TUNNEL_PORT:127.0.0.1:$FLOWER_PORT" \
     "$PI_SSH_TARGET_EFFECTIVE" "$remote_client_cmd" \
     >"$RUN_DIR/pi-client.log" 2>&1 &
 pi_pid=$!; add_process pi-client "$pi_pid"
 
+if ! wait_for_log_marker "$pi_pid" "$RUN_DIR/pi-client.log" \
+    "[$PI_LABEL] connecting to 127.0.0.1:$PI_TUNNEL_PORT" "$STARTUP_TIMEOUT"; then
+    die 43 "Pi client did not become ready within ${STARTUP_TIMEOUT}s."
+fi
 sleep 2
 if ! kill -0 "$laptop_pid" 2>/dev/null; then
     tail -n 30 "$RUN_DIR/laptop-client.log" >&2 || true

@@ -52,7 +52,8 @@ presentation day. Use a literal target such as `<pi-user>@192.168.1.50` only if
 
 The defaults use three rounds, four local batches, and a frozen Pi backbone. The
 real run normally takes about 2–3 minutes; the startup checks take seconds. It
-also waits briefly if the Pi is still finishing its boot.
+also waits briefly if the Pi is still finishing its boot and retries transient
+phone-hotspot SSH handshakes before starting training.
 
 If the SSH check reports that a password or unknown host key is required, set it
 up once from WSL:
