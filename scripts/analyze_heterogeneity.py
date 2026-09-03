@@ -5,7 +5,7 @@ Scans a split directory (real data by default, fixture as a fallback) into a
 client x class count matrix, computes the heterogeneity report (entropy,
 KL/JS/Hellinger to the global pool, EMD, missing classes), and writes a CSV, a
 JSON, a per-client stacked class-distribution bar chart, and a JS-distance bar.
-Pure numpy/matplotlib -- runs in the environment on the real metadata.
+Pure numpy/matplotlib -- runs without torch on the real metadata.
 """
 from __future__ import annotations
 

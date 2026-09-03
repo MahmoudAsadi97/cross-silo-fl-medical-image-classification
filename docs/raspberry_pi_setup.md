@@ -236,7 +236,7 @@ measured straggler gap (Pi vs laptop GPU) from **~17× to <2×**. Laptop control
 
 ```bash
 DATA_ROOT=$HOME/fl_data/fed_isic2019/raw python scripts/live/client.py \
-    --server <LAN_IP>:8080 --client-id 5 --label pi5 --device cpu \
+    --server <LAPTOP_IP>:8080 --client-id 5 --label pi5 --device cpu \
     --max-batches 8 --freeze-backbone
 ```
 

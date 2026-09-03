@@ -71,9 +71,7 @@ mycode.txt
 *secret*
 reports/_render/
 
-# --- Personal prep & notes — KEEP LOCAL ONLY (never upload) ------------------
-docs/technical_study_guide.md
-docs/interview_questions.md
-
-
-
+# --- Local-only notes (never committed) ------------------------------------
+notes/
+*.local.md
+.env.presentation

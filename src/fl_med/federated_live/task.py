@@ -7,7 +7,7 @@ parameters over the network instead of in a Python loop. A result produced here
 is therefore directly comparable to the simulation -- it is the same federated
 math, just genuinely distributed.
 
-Torch is imported lazily so this module (and the torch-less environment/CI) can
+Torch is imported lazily so this module (and torch-free environments such as CI) can
 import it without the GPU stack.
 """
 from __future__ import annotations

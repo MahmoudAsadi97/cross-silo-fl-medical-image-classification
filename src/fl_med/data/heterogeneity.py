@@ -1,7 +1,7 @@
 """Quantifying non-IID label skew across clients (brief §1 sub-question 1, Phase 1).
 
 Everything operates on a client x class *count matrix* and is pure numpy, so it
-runs in the environment on the real metadata and is unit-testable. Measures:
+runs without torch on the real metadata and is unit-testable. Measures:
 
 * per-client Shannon entropy (nats) and normalized entropy in [0, 1]
 * number of missing classes per client

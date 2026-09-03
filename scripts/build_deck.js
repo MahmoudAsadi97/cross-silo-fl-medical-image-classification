@@ -304,7 +304,7 @@ s.addText("Questions welcome — dashboard, technical report, and code are ready
   { x: 0.82, y: 3.7, w: 11.5, h: 0.6, fontFace: "Calibri", fontSize: 16, color: "CFEBEC" });
 s.addText("github.com/MahmoudAsadi97/cross-silo-fl-medical-image-classification", { x: 0.82,
   y: 4.4, w: 11.5, h: 0.4, fontFace: "Consolas", fontSize: 12, color: "AEDFE1" });
-s.addNotes("Offer the live dashboard walkthrough and, if possible, the Pi demo. Have docs/design.md and speaker notes handy.");
+s.addNotes("Offer the live dashboard walkthrough and, if possible, the Pi demo. Have docs/design.md and the speaker notes handy.");
 
 p.writeFile({ fileName: path.join(REPO, "reports", "presentation.pptx") })
   .then((f) => console.log("wrote", f));

@@ -2,7 +2,7 @@
 """Torch-free verification of the correctness-critical math.
 
 Runs the same checks as the numpy portions of ``tests/`` but with only numpy +
-pyyaml, so it executes anywhere (including a torch-less environment / minimal CI).
+pyyaml, so it executes anywhere (including a torch-free environment / minimal CI).
 Prints a PASS/FAIL table and exits non-zero on any failure. This is the evidence
 that FedAvg aggregation, the SCAFFOLD control-variate equations, the metrics, and
 the heterogeneity measures are correct -- independent of the GPU stack.

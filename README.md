@@ -1,6 +1,6 @@
 # Cross-Silo Federated Learning for Privacy-Preserving Medical Image Classification
 
-Six simulated hospitals train one skin-lesion classifier **without ever exchanging raw
+Six naturally partitioned hospital data silos (the real centres of Fed-ISIC2019) train one skin-lesion classifier **without ever exchanging raw
 patient images**, and every trade-off is measured: accuracy vs centralized training,
 data heterogeneity (non-IID), differential privacy, attack resistance (confidentiality
 *and* integrity), communication cost, and real edge deployment on a **Raspberry Pi 5**.
@@ -16,8 +16,8 @@ imbalance and non-IID label mixes). Official metric: **balanced accuracy** (rand
 
 ## Status: COMPLETE
 All 8 research sub-questions answered with reproducible, artifact-backed evidence.
-New here? **Read `docs/design.md` first** — the single-file map of the whole project.
-The chronological build log is `CHANGELOG.md`.
+New here? **Read [`docs/design.md`](docs/design.md) first** — the map of the whole project
+(architecture, design decisions, lessons learned). Release history: [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Headline results (full tier: ResNet-18+GroupNorm, 128 px, 30 rounds, 3 seeds)
 
