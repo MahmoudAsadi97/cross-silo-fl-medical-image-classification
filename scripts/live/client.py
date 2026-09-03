@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import socket
 import sys
 import time
 from pathlib import Path
@@ -33,8 +32,9 @@ sys.path.insert(0, str(REPO / "src"))
 from fl_med.config import resolve_config  # noqa: E402
 from fl_med.data.loaders import build_client_dataloaders  # noqa: E402
 from fl_med.federated_live import (  # noqa: E402
-    build_model, get_ndarrays, local_fit, local_num_examples, set_ndarrays,
+    build_model, get_ndarrays, local_examples_seen, local_fit, local_num_examples, set_ndarrays,
 )
+from fl_med.seeding import set_seed  # noqa: E402
 
 
 def main(argv=None) -> int:
@@ -57,10 +57,26 @@ def main(argv=None) -> int:
                         "clients share one machine)")
     p.add_argument("--data-root", default=None)
     p.add_argument("--label", default=None, help="friendly tag (e.g. 'pi5', 'laptop-c0')")
+    p.add_argument("--seed", type=int, default=42, help="base reproducibility seed")
+    p.add_argument(
+        "--class-counts", default=None,
+        help="comma-separated global train counts used to match centralized class weighting",
+    )
     args = p.parse_args(argv)
 
     import flwr as fl
     import torch
+
+    set_seed(args.seed + args.client_id)
+
+    class_counts = None
+    if args.class_counts:
+        try:
+            class_counts = [int(value) for value in args.class_counts.split(",")]
+        except ValueError as exc:
+            raise SystemExit("--class-counts must contain comma-separated integers") from exc
+        if len(class_counts) != 8 or any(value < 0 for value in class_counts):
+            raise SystemExit("--class-counts must contain eight non-negative integers")
 
     overrides = []
     data_root = args.data_root or os.environ.get("DATA_ROOT")
@@ -70,6 +86,7 @@ def main(argv=None) -> int:
         overrides.append(f"data.image_size={args.image_size}")
     if args.batch_size:
         overrides.append(f"data.batch_size={args.batch_size}")
+    overrides.append(f"seed={args.seed}")
     overrides.append(f"data.num_workers={args.num_workers}")
     # Flower supplies the server's global parameters before local training, so
     # client-side ImageNet weights would immediately be overwritten. Avoiding
@@ -80,8 +97,9 @@ def main(argv=None) -> int:
     device = args.device if (args.device != "cuda" or torch.cuda.is_available()) else "cpu"
     train_loader, _ = build_client_dataloaders(config, args.client_id)
     model = build_model(config).to(device)
-    tag = args.label or f"client{args.client_id}@{socket.gethostname()}"
-    n_examples = local_num_examples(train_loader, args.max_batches)
+    tag = args.label or f"client-{args.client_id}"
+    partition_size = len(train_loader.dataset)
+    examples_per_epoch = local_num_examples(train_loader, args.max_batches)
 
     class Client(fl.client.NumPyClient):
         def get_parameters(self, cfg):
@@ -92,25 +110,30 @@ def main(argv=None) -> int:
             t0 = time.perf_counter()
             hist = local_fit(model, train_loader, config, local_epochs=args.local_epochs,
                              device=device, max_batches=args.max_batches,
-                             freeze_backbone=args.freeze_backbone)
+                             freeze_backbone=args.freeze_backbone,
+                             class_counts=class_counts)
             dt = time.perf_counter() - t0
             last = hist[-1]
+            examples_seen = local_examples_seen(hist)
             metrics = {
-                "tag": tag, "host": socket.gethostname(), "device": device,
-                "fit_seconds": float(dt), "n": int(n_examples),
+                "client_id": int(args.client_id), "tag": tag, "device": device,
+                "fit_seconds": float(dt), "n": int(partition_size),
+                "examples_seen": int(examples_seen),
                 "train_loss": float(last["loss"]),
                 "train_bal_acc": float(last["balanced_accuracy"]),
                 "freeze_backbone": bool(args.freeze_backbone),
             }
-            print(f"[{tag}] fit done: {dt:.1f}s  n={n_examples}  "
+            print(f"[{tag}] fit done: {dt:.1f}s  partition_n={partition_size}  "
+                  f"examples_seen={examples_seen}  "
                   f"loss={last['loss']:.3f}", flush=True)
-            return get_ndarrays(model), int(n_examples), metrics
+            return get_ndarrays(model), int(partition_size), metrics
 
         def evaluate(self, parameters, cfg):
             return 0.0, 1, {}   # central evaluation is done on the server
 
     print(f"[{tag}] connecting to {args.server}  (device={device}, silo={args.client_id}, "
-          f"n={n_examples}, local_epochs={args.local_epochs})", flush=True)
+          f"partition_n={partition_size}, planned_examples_per_epoch={examples_per_epoch}, "
+          f"local_epochs={args.local_epochs})", flush=True)
     fl.client.start_client(server_address=args.server, client=Client().to_client())
     return 0
 

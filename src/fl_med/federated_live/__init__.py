@@ -10,6 +10,7 @@ from .task import (
     evaluate_model,
     get_ndarrays,
     local_fit,
+    local_examples_seen,
     local_num_examples,
     set_ndarrays,
 )
@@ -20,6 +21,7 @@ __all__ = [
     "evaluate_model",
     "get_ndarrays",
     "local_fit",
+    "local_examples_seen",
     "local_num_examples",
     "set_ndarrays",
 ]

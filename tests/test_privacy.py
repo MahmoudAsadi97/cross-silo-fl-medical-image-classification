@@ -29,5 +29,31 @@ def test_epsilon_decreases_with_noise():
 
 
 def test_delta_below_one_over_n():
-    # Config delta must be < 1/N for the smallest client (N=281 -> 1/N ~ 3.56e-3).
-    assert 1e-5 < 1.0 / 281
+    # Config delta must be < 1/N for every client; N=7,947 is the strictest bound.
+    assert 1e-5 < 1.0 / 7947
+
+
+def test_zero_steps_spend_no_privacy():
+    assert compute_epsilon(
+        sample_rate=0.01, noise_multiplier=1.0, steps=0, delta=1e-5
+    ) == 0.0
+
+
+def test_zero_sampling_spends_no_privacy():
+    assert compute_epsilon(
+        sample_rate=0.0, noise_multiplier=1.0, steps=100, delta=1e-5
+    ) == 0.0
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"sample_rate": 1.1, "noise_multiplier": 1.0, "steps": 1, "delta": 1e-5},
+        {"sample_rate": 0.1, "noise_multiplier": 0.0, "steps": 1, "delta": 1e-5},
+        {"sample_rate": 0.1, "noise_multiplier": 1.0, "steps": -1, "delta": 1e-5},
+        {"sample_rate": 0.1, "noise_multiplier": 1.0, "steps": 1, "delta": 1.0},
+    ],
+)
+def test_invalid_accounting_inputs_are_rejected(kwargs):
+    with pytest.raises(ValueError):
+        compute_epsilon(**kwargs)

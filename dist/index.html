@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#06101d">
+    <meta name="description" content="A live, evidence-backed demonstration of cross-silo federated learning on Fed-ISIC2019.">
+    <meta property="og:title" content="Federated Medical Learning Lab">
+    <meta property="og:description" content="Explore real cross-silo training, privacy accounting, non-IID data and measured edge deployment.">
+    <meta property="og:type" content="website">
+    <title>Federated Medical Learning Lab</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#lab">Skip to the live lab</a>
+    <header class="topbar">
+      <a class="brand" href="#lab" aria-label="Federated Medical Learning Lab home">
+        <span class="brand-mark" aria-hidden="true">FL</span>
+        <span><strong>Federated Medical Learning Lab</strong><small>Cross-silo image classification</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#lab">Lab</a><a href="#pipeline">Round</a><a href="#privacy-lab">Privacy</a><a href="#evidence">Evidence</a><a href="#hardware">Hardware</a><a href="#methods">Methods</a><a href="#safety">Limits</a>
+      </nav>
+      <a class="repo-link" href="https://github.com/MahmoudAsadi97/cross-silo-fl-medical-image-classification" target="_blank" rel="noreferrer" aria-label="View source repository">View source <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <div class="safety-banner" role="note"><strong>Research prototype</strong><span>Not a clinically validated medical device. No diagnosis or patient-image upload.</span></div>
+
+    <main>
+      <section id="lab" class="workspace" aria-labelledby="lab-title">
+        <aside class="control-panel">
+          <div class="section-kicker"><span>01</span> Experiment controls</div>
+          <h1 id="lab-title">Run the federation</h1>
+          <p class="intro">Configure a measured replay or connect this interface to the repository’s loopback runner for genuine training.</p>
+          <div class="runtime-state" id="runtime-state" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span><strong>Checking local runtime</strong><small>Hosted mode remains available as a measured replay</small></span></div>
+
+          <form id="run-form">
+            <label for="mode">Execution mode</label>
+            <select id="mode" name="mode"><option value="replay">Measured hardware replay</option><option value="experiment">Six-center experiment</option><option value="networked">Local two-client Flower</option></select>
+            <p class="field-help" id="mode-help">Recorded laptop + Raspberry Pi measurements. No training is running now.</p>
+
+            <div class="form-grid">
+              <div><label for="strategy">Strategy</label><select id="strategy" name="strategy"><option value="fedavg">FedAvg</option><option value="fedprox">FedProx</option><option value="scaffold">SCAFFOLD</option><option value="fedadam">FedAdam</option><option value="dp_fedavg">DP-FedAvg</option></select></div>
+              <div><label for="device">Device</label><select id="device" name="device"><option value="cpu">CPU</option><option value="cuda">CUDA GPU</option></select></div>
+            </div>
+            <label for="rounds">Training rounds <output id="rounds-output" for="rounds">8</output></label><input id="rounds" name="rounds" type="range" min="1" max="30" value="8">
+            <div class="form-grid">
+              <div><label for="local-epochs">Local epochs</label><select id="local-epochs" name="local_epochs"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+              <div><label for="max-batches">Batch cap</label><select id="max-batches" name="max_batches"><option value="2">2 / center</option><option value="4" selected>4 / center</option><option value="8">8 / center</option><option value="16">16 / center</option><option value="60">60 / center</option></select></div>
+            </div>
+
+            <fieldset id="privacy-controls">
+              <legend><span>Privacy plan</span><small id="privacy-availability">DP experiment only</small></legend>
+              <label for="epsilon">Target maximum ε <output id="epsilon-output" for="epsilon">8.0</output></label><input id="epsilon" name="epsilon" type="range" min="1" max="20" step="0.5" value="8">
+              <div class="form-grid">
+                <div><label for="delta">Delta, δ</label><select id="delta" name="delta"><option value="0.000001">1 × 10⁻⁶</option><option value="0.00001" selected>1 × 10⁻⁵</option><option value="0.0001">1 × 10⁻⁴</option></select></div>
+                <div><label for="clip-norm">Clip norm, C</label><select id="clip-norm" name="clip_norm"><option value="0.5">0.5</option><option value="1" selected>1.0</option><option value="2">2.0</option></select></div>
+              </div>
+              <div class="calibration-card"><span>Calibrated noise</span><strong id="sigma-output">σ = —</strong><small id="privacy-plan-copy">Choose DP-FedAvg to calculate a complete-schedule budget.</small></div>
+            </fieldset>
+
+            <div id="hardware-controls" class="toggle-group" hidden><label class="check"><input id="warm-start" type="checkbox"><span>Warm-start from fixed checkpoint</span></label><label class="check"><input id="freeze-edge" type="checkbox" checked><span>Freeze Center 5 backbone</span></label></div>
+            <div class="run-actions"><button id="start-run" class="primary" type="submit">Replay measured run</button><button id="cancel-run" class="secondary" type="button" disabled>Stop</button></div>
+            <p id="run-error" class="run-error" role="alert" hidden></p>
+          </form>
+          <p class="control-note" id="control-note">A hosted page cannot access the licensed dataset or local GPU. Start the repository’s local runner to enable real training.</p>
+        </aside>
+
+        <section class="stage" aria-labelledby="stage-title">
+          <div class="stage-head"><div><div class="section-kicker"><span>Live</span> Federation topology</div><h2 id="stage-title">Private training data. Shared model updates.</h2></div><div class="run-badge replay" id="run-badge"><span aria-hidden="true"></span><strong>Recorded replay</strong></div></div>
+          <div class="truth-line" id="truth-line"><strong>RECORDED REPLAY</strong><span>Measured laptop and Raspberry Pi run; no computation is occurring now.</span></div>
+          <div class="metric-strip" aria-label="Run metrics">
+            <article><small>Evaluated round</small><strong id="metric-round">0 / 8</strong></article>
+            <article><small>Balanced accuracy</small><strong id="metric-accuracy">0.197</strong><em>chance 0.125</em></article>
+            <article><small>Macro-F1</small><strong id="metric-f1">0.100</strong></article>
+            <article><small>Privacy spent</small><strong id="metric-privacy">No finite DP claim</strong></article>
+          </div>
+
+          <div class="network" id="network" aria-label="Federated topology with six data centers and one coordinator">
+            <svg class="connections" viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true"><g><line data-client="0" x1="500" y1="280" x2="170" y2="110"/><line data-client="1" x1="500" y1="280" x2="500" y2="75"/><line data-client="2" x1="500" y1="280" x2="830" y2="110"/><line data-client="3" x1="500" y1="280" x2="830" y2="450"/><line data-client="4" x1="500" y1="280" x2="500" y2="495"/><line data-client="5" x1="500" y1="280" x2="170" y2="450"/></g></svg>
+            <div class="coordinator" id="coordinator"><span>Coordinator</span><strong id="coordinator-model">ResNet-18</strong><small id="coordinator-state">global model ready</small></div>
+            <button class="silo silo-0 active" data-client="0" type="button"><i aria-hidden="true"></i><strong>Center 0</strong><small>7,947 train images</small><em>waiting</em></button>
+            <button class="silo silo-1" data-client="1" type="button"><i aria-hidden="true"></i><strong>Center 1</strong><small>2,531 train images</small><em>not in hardware run</em></button>
+            <button class="silo silo-2" data-client="2" type="button"><i aria-hidden="true"></i><strong>Center 2</strong><small>2,156 train images</small><em>not in hardware run</em></button>
+            <button class="silo silo-3" data-client="3" type="button"><i aria-hidden="true"></i><strong>Center 3</strong><small>1,448 train images</small><em>not in hardware run</em></button>
+            <button class="silo silo-4" data-client="4" type="button"><i aria-hidden="true"></i><strong>Center 4</strong><small>525 train images</small><em>not in hardware run</em></button>
+            <button class="silo silo-5 pi active" data-client="5" type="button"><i aria-hidden="true"></i><strong>Center 5 · Pi</strong><small>281 train images</small><em>waiting</em></button>
+          </div>
+
+          <div class="phase-line"><div><strong id="phase-label">Ready</strong><span id="phase-detail">Select replay to walk through measured rounds</span></div><div class="progress-track" role="progressbar" aria-label="Run progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="phase-progress"></i></div></div>
+          <div class="stage-lower">
+            <article class="chart-card"><div class="card-head"><div><small>Observed performance</small><h3>Balanced accuracy by round</h3></div><span class="legend"><i></i> observed</span></div><svg id="live-chart" class="line-chart" viewBox="0 0 680 220" role="img" aria-labelledby="live-chart-title live-chart-desc"><title id="live-chart-title">Balanced accuracy by training round</title><desc id="live-chart-desc">No active observations yet.</desc></svg></article>
+            <article class="event-card"><div class="card-head"><div><small>Structured telemetry</small><h3>Run events</h3></div><span id="event-count">0 events</span></div><ol id="event-stream"><li><time>—</time><span>Waiting for a run</span></li></ol></article>
+          </div>
+          <div class="center-drawer" id="center-drawer"><div><small>Selected partition</small><h3 id="center-title">Center 0</h3></div><dl><div><dt>Partition images</dt><dd id="center-size">7,947</dd></div><div><dt>Current state</dt><dd id="center-state">Waiting</dd></div><div><dt>Fit time</dt><dd id="center-time">—</dd></div><div><dt>DP budget</dt><dd id="center-epsilon">Not enabled</dd></div></dl></div>
+        </section>
+      </section>
+
+      <section class="fact-ribbon" aria-label="Project facts"><div><strong>23,247</strong><span>dermoscopy images</span></div><div><strong>6</strong><span>natural data centers</span></div><div><strong>8</strong><span>diagnostic classes</span></div><div><strong>3 seeds</strong><span>headline comparison</span></div><div><strong>ResNet-18</strong><span>headline architecture</span></div></section>
+
+      <section id="pipeline" class="section microscope" aria-labelledby="pipeline-title">
+        <div class="section-heading"><div><div class="section-kicker"><span>02</span> Round microscope</div><h2 id="pipeline-title">What exactly happens in one round?</h2></div><p>Open the algorithm—not a black box. These are the implemented data-flow contracts; execution isolation depends on the selected mode.</p></div>
+        <div class="step-grid">
+          <article><span>01</span><div class="step-icon">↓</div><h3>Broadcast</h3><p>The coordinator sends the current ordered <strong id="round-model-name">ResNet-18</strong> parameter arrays to participating clients.</p><code>global_state → clients</code></article>
+          <article><span>02</span><div class="step-icon">∇</div><h3>Train by partition</h3><p>Each logical center optimizes inverse-frequency weighted cross-entropy through its partition-scoped loader.</p><code>no image payload is sent</code></article>
+          <article><span>03</span><div class="step-icon">σ</div><h3>Protect, if enabled</h3><p>Opacus clips each image’s gradient to C, adds Gaussian noise σC, and counts logical steps.</p><code>record-level DP-SGD per center</code></article>
+          <article><span>04</span><div class="step-icon">↑</div><h3>Return updates</h3><p>Clients return model parameters and partition cardinality—not raw images. Non-private demos also expose aggregate run telemetry.</p><code>parameters + n + status</code></article>
+          <article><span>05</span><div class="step-icon">Σ</div><h3>Aggregate</h3><p>FedAvg weights each client update by its training-partition cardinality to create the next model.</p><code>w ← Σ nᵢwᵢ / Σ nᵢ</code></article>
+          <article class="limitation-step"><span>06</span><div class="step-icon">✓</div><h3>Evaluate centrally</h3><p>The current coordinator evaluates on a pooled held-out test loader after every round.</p><code>known methodology limitation</code></article>
+        </div>
+        <div class="payload-lens"><div><div class="section-kicker"><span>Payload lens</span> Boundary inspection</div><h3>What enters an update payload—and what does not</h3></div><div class="payload-columns"><article><strong>Included in the protocol</strong><ul><li>Ordered model parameter arrays</li><li>Partition cardinality used for aggregation weights</li><li>Fit duration and aggregate metrics in non-private mode</li><li>DP step count and sampling rate in DP mode</li></ul></article><article><strong>Excluded from update payloads</strong><ul><li>Raw dermoscopy images</li><li>Per-image labels and predictions</li><li>Per-image gradients</li><li>Dataset file paths</li></ul></article></div><p class="fine-print">Precise scope: the six-center path is a logical federation in one process and does not enforce storage isolation. The localhost Flower path demonstrates transport and process separation, but all processes share one account and configured data root. The coordinator mounts pooled test data for evaluation; moving evaluation to clients is a planned upgrade.</p></div>
+      </section>
+
+      <section id="privacy-lab" class="section privacy-section" aria-labelledby="privacy-title">
+        <div class="section-heading"><div><div class="section-kicker"><span>03</span> Privacy frontier lab</div><h2 id="privacy-title">Tune a guarantee, then measure utility</h2></div><p>The accountant can calculate privacy. It cannot predict accuracy; only a completed training run can measure that.</p></div>
+        <div class="privacy-layout">
+          <article class="privacy-explainer"><div class="formula"><span>ε = accountant</span><strong>(q, σ, steps, δ)</strong></div><h3>How the controls affect training</h3><dl class="definition-list"><div><dt>Target epsilon, ε</dt><dd>The maximum cumulative privacy-loss bound. Lower is tighter. Target mode solves for σ before training.</dd></div><div><dt>Delta, δ</dt><dd>A small relaxation in the reported guarantee. At fixed σ it changes ε only; in this target-ε UI it recalibrates σ, so it can change gradients and measured accuracy.</dd></div><div><dt>Noise, σ</dt><dd>Gaussian noise relative to clipping C. More noise spends privacy more slowly and can make learning harder.</dd></div><div><dt>Clip norm, C</dt><dd>Caps each image-gradient norm and sets absolute noise σC. At fixed σ, C does not change formal ε.</dd></div></dl></article>
+          <article class="budget-card"><div class="card-head"><div><small>Current configured plan</small><h3>Projected ε by center</h3></div><span id="budget-delta">δ = 10⁻⁵</span></div><div id="budget-bars" class="budget-bars" aria-label="Projected epsilon by center"></div><p id="budget-summary">Choose DP-FedAvg in the lab to calculate the full planned schedule.</p></article>
+        </div>
+        <p class="fine-print">Assurance boundary: this is record-level DP-SGD at each center—a per-center guarantee against the coordinator, not client-level DP. Top-line ε reports completed rounds; per-center status records spend immediately after each completed update. Central test evaluation, partition metadata and technical status are outside the budget, and the ledger resets between runs. The research runtime separates DP randomness from the published experiment seed, but uses Opacus <code>secure_mode=false</code>; production needs CSPRNG-backed noise, a persistent cross-run composition ledger and a reviewed public-metadata policy.</p>
+        <article class="historical-card"><div class="card-head"><div><small>Historical single-seed reference · δ = 10⁻⁵</small><h3>Observed privacy–utility points</h3></div><span class="evidence-tag">Measured · not a forecast</span></div><div class="historical-layout"><svg id="privacy-chart" class="scatter-chart" viewBox="0 0 680 300" role="img" aria-labelledby="privacy-chart-title privacy-chart-desc"><title id="privacy-chart-title">Historical privacy budget and balanced accuracy</title><desc id="privacy-chart-desc">Measured points from four historical differential privacy runs.</desc></svg><div class="table-wrap"><table id="privacy-table"><caption>Historical differential privacy experiments</caption><thead><tr><th scope="col">Noise σ</th><th scope="col">ε max</th><th scope="col">Final balanced accuracy</th></tr></thead><tbody></tbody></table></div></div><p class="fine-print">These are archived final-round, single-seed runs under the repository’s earlier accounting pipeline. They demonstrate observed trade-offs; they do not estimate the outcome of a new configuration.</p></article>
+      </section>
+
+      <section id="evidence" class="section evidence-section" aria-labelledby="evidence-title">
+        <div class="section-heading"><div><div class="section-kicker"><span>04</span> Evidence room</div><h2 id="evidence-title">Results with provenance, caveats included</h2></div><p>Balanced accuracy is the primary metric because the eight lesion classes are severely imbalanced. Random chance is 0.125.</p></div>
+        <div class="evidence-grid">
+          <article class="method-card wide"><div class="card-head"><div><small>Full tier · best checkpoint · 3 seeds per method</small><h3>Method comparison</h3></div><span class="evidence-tag">Test-selected</span></div><div id="method-bars" class="method-bars"></div><div class="table-wrap"><table id="method-table"><caption>Mean balanced accuracy and standard deviation</caption><thead><tr><th scope="col">Method</th><th scope="col">Mean</th><th scope="col">± SD</th><th scope="col">Client drift</th></tr></thead><tbody></tbody></table></div></article>
+          <article class="metric-card"><span>Membership inference</span><strong>0.555 <i>→</i> 0.503</strong><p>Attack AUC moves near random; balanced accuracy also moves from 0.409 to 0.183 (recorded ε max 19.65).</p><small>One stress run · auxiliary telemetry not covered</small></article>
+          <article class="metric-card"><span>Communication estimate</span><strong>44.7 <i>→</i> 0.89 MB</strong><p>Layer-wise top-1% sparsification gives an estimated 50× upload reduction.</p><small>Offline payload estimate · not wire bytes</small></article>
+          <article class="metric-card"><span>Secure aggregation</span><strong>2.9 × 10⁻¹³</strong><p>Numerical recovery error when pairwise masks cancel in simulation.</p><small>Mathematical simulation · no key exchange or dropout recovery</small></article>
+          <article class="heterogeneity-card wide"><div class="card-head"><div><small>14,888 training images</small><h3>Each center sees a different clinical mix</h3></div><span class="evidence-tag">Natural partitions</span></div><div class="heatmap-wrap"><div id="class-heatmap" class="heatmap" role="img" aria-label="Class share heatmap across six training centers"></div></div><p class="fine-print">Color encodes the share within each center, not raw volume. Select a center node in the lab for its current runtime status.</p></article>
+          <article class="integrity-card"><small>Exploratory · test-selected best balanced accuracy</small><h3>Two malicious clients</h3><div class="integrity-values"><div><span>Attacked FedAvg</span><strong>0.125</strong></div><div><span>Coordinate median</span><strong>0.191</strong></div><div><span>Krum</span><strong>0.179</strong></div></div><p>Recorded robust-aggregation results remain exploratory because sample-weighting correction and multi-seed revalidation are pending; final scores are lower.</p></article>
+        </div>
+      </section>
+
+      <section id="hardware" class="section hardware-section" aria-labelledby="hardware-title">
+        <div class="hardware-story"><div><div class="section-kicker"><span>05</span> Physical deployment</div><h2 id="hardware-title">A Raspberry Pi makes the bottleneck real</h2><p>The recorded hardware path runs Flower processes on a laptop and Raspberry Pi 5. It proves cross-device execution and exposes straggler behavior—not hospital-scale or clinical readiness.</p></div><div class="pi-comparison"><article><span>Full model</span><strong>8.28 s</strong><div><i style="width:100%"></i></div><small>median local-fit repetition on Pi</small></article><article><span>Frozen backbone</span><strong>0.92 s</strong><div><i style="width:11.1%"></i></div><small>8.99× faster on device</small></article></div></div>
+        <div class="hardware-truths"><div><strong>2 physical clients</strong><span>Laptop center 0 + Pi center 5 in the recorded demonstration</span></div><div><strong>Continued training</strong><span>The presentation path can warm-start from a fixed federated checkpoint</span></div><div><strong>Dense payload remains</strong><span>Freezing reduces Pi compute but not the estimated 44.7 MB raw parameter payload</span></div><div><strong>Local tunnel only</strong><span>Current Flower transport is kept on loopback / SSH; TLS and node identity are future work</span></div></div>
+        <p class="fine-print">Replay provenance: the archived hardware run used the earlier capped-example weighting reported in its artifact (<code>n = 128</code> for both clients). The current local Flower path instead uses full partition cardinality for FedAvg and reports processed examples separately.</p>
+      </section>
+
+      <section id="methods" class="section methods-section" aria-labelledby="methods-title">
+        <div class="section-heading"><div><div class="section-kicker"><span>06</span> Reproducibility</div><h2 id="methods-title">Trace every number back to code</h2></div><p>Every training run records its configuration, seed, commit, dependency context and output metrics.</p></div>
+        <div class="methodology-grid"><article><small>Dataset</small><h3>Fed-ISIC2019</h3><p>23,247 dermoscopy images, eight diagnostic classes, six natural centers originating from four source institutions.</p></article><article><small>Model</small><h3>ResNet-18 + GroupNorm</h3><p>A consistent architecture across centralized, federated and privacy comparisons; class-weighted cross-entropy handles imbalance.</p></article><article><small>Primary metric</small><h3>Balanced accuracy</h3><p>Per-class recall averaged across all eight classes. Random reference: 0.125.</p></article><article><small>Execution</small><h3>Two honest paths</h3><p>Six clients sequentially on one training host, or two Flower clients plus a coordinator in separate local processes.</p></article></div>
+        <div class="local-command"><div><small>Enable genuine training on your own licensed data</small><strong>Run from the repository root</strong></div><code>DATA_ROOT=/absolute/path/to/fed_isic2019/raw make demo-site</code><button id="copy-command" type="button">Copy</button></div>
+        <p class="fine-print">For a safe end-to-end check without private data, run <code>make demo-site-fixture</code>. The interface then says “SYNTHETIC FIXTURE — REAL TRAINING” and never presents fixture scores as medical evidence.</p>
+        <p class="fine-print">Historical evidence manifests record a dirty worktree, so exact source reconstruction for those archived results is incomplete. New runs preserve the current commit and run configuration; regenerate clean tagged evidence before a formal release.</p>
+      </section>
+
+      <section id="safety" class="section safety-section" aria-labelledby="safety-title">
+        <div class="section-heading"><div><div class="section-kicker"><span>07</span> Safety & validity ledger</div><h2 id="safety-title">What this project proves—and what it does not</h2></div><p>Industry-quality work makes its assurance boundary visible.</p></div>
+        <div class="ledger"><article class="supported"><span>Demonstrated</span><h3>Federated optimization</h3><p>Six natural non-IID partitions train one shared model while update payloads exclude training images; the single-host path provides logical, not storage, isolation.</p></article><article class="supported"><span>Demonstrated</span><h3>Research DP accounting</h3><p>DP-SGD uses per-sample clipping, Gaussian noise, actual logical step counts and an independent RDP accountant.</p></article><article class="limited"><span>Current limitation</span><h3>DP release boundary</h3><p>Top-line spend covers completed rounds; client status records each completed update. Test evaluation and metadata remain outside the budget, and spend resets per run.</p></article><article class="limited"><span>Current limitation</span><h3>Evaluation isolation</h3><p>Historical checkpoints were selected on test performance, and live evaluation is centrally pooled each round.</p></article><article class="limited"><span>Current limitation</span><h3>Network security</h3><p>The Flower demo is not production TLS/mTLS, authenticated node identity, or operating-system data isolation.</p></article><article class="limited"><span>Current limitation</span><h3>Clinical validity</h3><p>No external clinical validation, calibration, subgroup fairness study or regulatory assessment has been completed.</p></article><article class="planned"><span>Next engineering step</span><h3>Production federation</h3><p>Federated validation, client identity, TLS, durable job recovery, networked DP and production secure aggregation.</p></article></div>
+      </section>
+    </main>
+
+    <footer><div><strong>Federated Medical Learning Lab</strong><span>Designed and engineered by Mahmoud Asadi Heris</span></div><div><span>Fed-ISIC2019 research demonstration</span><a href="https://github.com/MahmoudAsadi97/cross-silo-fl-medical-image-classification" target="_blank" rel="noreferrer">Repository ↗</a></div></footer>
+    <noscript><p class="noscript">JavaScript is required for the interactive replay and privacy accountant. All project evidence remains available in the repository.</p></noscript>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,546 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "Cross-silo federated learning for medical image classification",
+    "dataset": "Fed-ISIC2019",
+    "task": "Eight-class skin-lesion classification",
+    "training_images": 14888,
+    "total_images": 23247,
+    "natural_centers": 6,
+    "research_only": true
+  },
+  "caveat_taxonomy": {
+    "historical": "Loaded from experiment artifacts already committed in the repository; it is not a forecast for a new run.",
+    "test_selected": "A best value was selected by repeated evaluation on the pooled test split, so it is optimistic and is not a clean held-out model-selection estimate.",
+    "single_seed": "The result comes from one random seed and does not quantify run-to-run uncertainty.",
+    "estimate": "Communication volume is calculated from retained parameter values rather than measured network traffic.",
+    "simulation": "The mechanism is demonstrated in one process and is not a production cryptographic protocol.",
+    "exploratory": "The result is a stress test or prototype result and should not be read as a general benchmark claim."
+  },
+  "method_comparison": {
+    "source": "experiments/comparison.json",
+    "metric": "test balanced accuracy",
+    "tier": "full",
+    "caveats": {
+      "historical": true,
+      "test_selected": true,
+      "single_seed": false,
+      "estimate": false,
+      "simulation": false,
+      "exploratory": false
+    },
+    "notes": [
+      "Each value summarizes three seeds.",
+      "The best values are selected from repeated pooled-test evaluations; final values are included for context.",
+      "These runs execute the six natural centers sequentially on one host.",
+      "Historical run manifests record a dirty worktree, so exact source reconstruction is incomplete."
+    ],
+    "methods": [
+      {
+        "id": "centralized",
+        "label": "Centralized",
+        "n_seeds": 3,
+        "balanced_accuracy_best_mean": 0.45603399600621913,
+        "balanced_accuracy_best_std": 0.003933334658522961,
+        "balanced_accuracy_final_mean": 0.4372340874724925,
+        "balanced_accuracy_final_std": 0.016796380563687534,
+        "macro_f1_best_mean": 0.3443648498107623,
+        "client_drift_final_mean": null
+      },
+      {
+        "id": "fedavg",
+        "label": "FedAvg",
+        "n_seeds": 3,
+        "balanced_accuracy_best_mean": 0.32052596468600136,
+        "balanced_accuracy_best_std": 0.030253387101483252,
+        "balanced_accuracy_final_mean": 0.3176189247694476,
+        "balanced_accuracy_final_std": 0.03250329331653148,
+        "macro_f1_best_mean": 0.22922168158005166,
+        "client_drift_final_mean": 8.561377018232404
+      },
+      {
+        "id": "fedprox",
+        "label": "FedProx",
+        "n_seeds": 3,
+        "balanced_accuracy_best_mean": 0.22432385436528976,
+        "balanced_accuracy_best_std": 0.023936430302288484,
+        "balanced_accuracy_final_mean": 0.2104577678993688,
+        "balanced_accuracy_final_std": 0.024812054830020445,
+        "macro_f1_best_mean": 0.15387958134955232,
+        "client_drift_final_mean": 1.5456240563642887
+      },
+      {
+        "id": "scaffold",
+        "label": "SCAFFOLD",
+        "n_seeds": 3,
+        "balanced_accuracy_best_mean": 0.21714537566154868,
+        "balanced_accuracy_best_std": 0.002787934372040382,
+        "balanced_accuracy_final_mean": 0.20358825578465525,
+        "balanced_accuracy_final_std": 0.017408688463625834,
+        "macro_f1_best_mean": 0.15458421650577228,
+        "client_drift_final_mean": 0.9230516027001693
+      },
+      {
+        "id": "local_only",
+        "label": "Local only",
+        "n_seeds": 3,
+        "balanced_accuracy_best_mean": 0.2087705681292021,
+        "balanced_accuracy_best_std": 0.007983402773567223,
+        "balanced_accuracy_final_mean": 0.2087705681292021,
+        "balanced_accuracy_final_std": 0.007983402773567223,
+        "macro_f1_best_mean": 0.12396370624424725,
+        "client_drift_final_mean": null
+      }
+    ]
+  },
+  "heterogeneity": {
+    "source": "experiments/heterogeneity/heterogeneity.json",
+    "scope": "training partitions",
+    "total_samples": 14888,
+    "caveats": {
+      "historical": true,
+      "test_selected": false,
+      "single_seed": false,
+      "estimate": false,
+      "simulation": false,
+      "exploratory": false
+    },
+    "class_names": [
+      "Melanoma",
+      "Melanocytic nevus",
+      "Basal cell carcinoma",
+      "Actinic keratosis",
+      "Benign keratosis",
+      "Dermatofibroma",
+      "Vascular lesion",
+      "Squamous cell carcinoma"
+    ],
+    "global_distribution": [
+      0.17920472864051584,
+      0.488312735088662,
+      0.14239656098871575,
+      0.03828586781300376,
+      0.10491671144545943,
+      0.009940891993551854,
+      0.010814078452444921,
+      0.026128425577646427
+    ],
+    "global_entropy_nats": 1.4871486204028312,
+    "centers": [
+      {
+        "id": 0,
+        "samples": 7947,
+        "class_counts": [1824, 2691, 1796, 485, 739, 78, 70, 264],
+        "classes_present": 8,
+        "classes_missing": 0,
+        "entropy_nats": 1.6322993103246382,
+        "normalized_entropy": 0.7849700400839436,
+        "js_distance_to_global": 0.14664715661465685
+      },
+      {
+        "id": 1,
+        "samples": 2531,
+        "class_counts": [16, 2382, 1, 0, 77, 19, 36, 0],
+        "classes_present": 6,
+        "classes_missing": 2,
+        "entropy_nats": 0.2956772533443074,
+        "normalized_entropy": 0.142190702367834,
+        "js_distance_to_global": 0.4930365127317119
+      },
+      {
+        "id": 2,
+        "samples": 2156,
+        "class_counts": [427, 1176, 140, 16, 304, 32, 52, 9],
+        "classes_present": 8,
+        "classes_missing": 0,
+        "entropy_nats": 1.3166733030324194,
+        "normalized_entropy": 0.6331860149185876,
+        "js_distance_to_global": 0.1758862452607625
+      },
+      {
+        "id": 3,
+        "samples": 1448,
+        "class_counts": [221, 520, 179, 69, 325, 16, 2, 116],
+        "classes_present": 8,
+        "classes_missing": 0,
+        "entropy_nats": 1.6546045208325162,
+        "normalized_entropy": 0.7956965789458437,
+        "js_distance_to_global": 0.19528909191087393
+      },
+      {
+        "id": 4,
+        "samples": 525,
+        "class_counts": [133, 280, 0, 0, 112, 0, 0, 0],
+        "classes_present": 3,
+        "classes_missing": 5,
+        "entropy_nats": 1.012675602542226,
+        "normalized_entropy": 0.48699402327230423,
+        "js_distance_to_global": 0.3642731224370297
+      },
+      {
+        "id": 5,
+        "samples": 281,
+        "class_counts": [47, 221, 4, 0, 5, 3, 1, 0],
+        "classes_present": 6,
+        "classes_missing": 2,
+        "entropy_nats": 0.6887493377022492,
+        "normalized_entropy": 0.33121841797286433,
+        "js_distance_to_global": 0.3574264098791028
+      }
+    ]
+  },
+  "privacy_utility": {
+    "sources": [
+      "experiments/dp_none_full_seed0/summary.json",
+      "experiments/dp_s0.5_full_seed2/summary.json",
+      "experiments/dp_s1.0_full_seed2/summary.json",
+      "experiments/dp_s2.0_full_seed2/summary.json",
+      "experiments/dp_s4.0_full_seed2/summary.json"
+    ],
+    "rounds": 30,
+    "delta": 0.00001,
+    "metric": "final test balanced accuracy",
+    "caveats": {
+      "historical": true,
+      "test_selected": false,
+      "single_seed": true,
+      "estimate": false,
+      "simulation": false,
+      "exploratory": true
+    },
+    "notes": [
+      "Each point is one run; the non-private baseline uses seed 0 and private runs use seed 2.",
+      "Epsilon values are the historical values stored by those runs. The current live planner uses aligned per-client RDP events, so a newly planned target should not be treated as directly interchangeable with these historical values.",
+      "Changing delta with a fixed noise multiplier changes the reported privacy bound, not the already-trained model.",
+      "Historical run manifests record a dirty worktree, so exact source reconstruction is incomplete."
+    ],
+    "points": [
+      {
+        "label": "Non-private",
+        "seed": 0,
+        "noise_multiplier": null,
+        "epsilon_max": null,
+        "epsilon_mean": null,
+        "balanced_accuracy_final": 0.3317298004696847,
+        "macro_f1_final": 0.224528269079801,
+        "accuracy_final": 0.401505376344086,
+        "loss_final": 1.603731585420588
+      },
+      {
+        "label": "DP, sigma 0.5",
+        "seed": 2,
+        "noise_multiplier": 0.5,
+        "epsilon_max": 234.67370577123006,
+        "epsilon_mean": 136.23993723143553,
+        "balanced_accuracy_final": 0.2516676099773287,
+        "macro_f1_final": 0.24492276926692705,
+        "accuracy_final": 0.5926881720430107,
+        "loss_final": 1.717206684645786
+      },
+      {
+        "label": "DP, sigma 1.0",
+        "seed": 2,
+        "noise_multiplier": 1,
+        "epsilon_max": 37.57063424759008,
+        "epsilon_mean": 16.65511751726531,
+        "balanced_accuracy_final": 0.21026381230035512,
+        "macro_f1_final": 0.19823808232532503,
+        "accuracy_final": 0.5559139784946237,
+        "loss_final": 2.017655238797588
+      },
+      {
+        "label": "DP, sigma 2.0",
+        "seed": 2,
+        "noise_multiplier": 2,
+        "epsilon_max": 13.075156728837378,
+        "epsilon_mean": 5.717591610489314,
+        "balanced_accuracy_final": 0.192857429561048,
+        "macro_f1_final": 0.18089552723143532,
+        "accuracy_final": 0.5406451612903226,
+        "loss_final": 1.8222012421136262
+      },
+      {
+        "label": "DP, sigma 4.0",
+        "seed": 2,
+        "noise_multiplier": 4,
+        "epsilon_max": 5.392422822240294,
+        "epsilon_mean": 2.3860249046457374,
+        "balanced_accuracy_final": 0.15121793013749424,
+        "macro_f1_final": 0.12873104589223358,
+        "accuracy_final": 0.5083870967741936,
+        "loss_final": 1.8074152730613626
+      }
+    ]
+  },
+  "live_replay": {
+    "source": "experiments/live/history.json",
+    "mode": "two-client networked Flower run",
+    "participants": [
+      {
+        "tag": "laptop-c0",
+        "center": 0,
+        "device": "cuda"
+      },
+      {
+        "tag": "pi5",
+        "center": 5,
+        "device": "cpu"
+      }
+    ],
+    "caveats": {
+      "historical": true,
+      "test_selected": false,
+      "single_seed": null,
+      "estimate": false,
+      "simulation": false,
+      "exploratory": true
+    },
+    "notes": [
+      "This is one recorded laptop-plus-Raspberry-Pi run, not six physical hospitals.",
+      "Round zero is the warm-start baseline; rounds one through eight are federated rounds.",
+      "Evaluation used the coordinator's pooled test split.",
+      "The archived run used capped-example weighting (n=128 for both clients); the current live client uses partition cardinality and reports examples seen separately."
+    ],
+    "history": [
+      {"round": 0, "balanced_accuracy": 0.19733886764439842, "macro_f1": 0.0996801341722253, "accuracy": 0.4120430107526882, "loss": 1.563189432544093},
+      {"round": 1, "balanced_accuracy": 0.2062288862880594, "macro_f1": 0.18073083904814463, "accuracy": 0.40236559139784944, "loss": 1.5750406110927624},
+      {"round": 2, "balanced_accuracy": 0.20484402799674034, "macro_f1": 0.08796593718681868, "accuracy": 0.16752688172043012, "loss": 1.8822876042704428},
+      {"round": 3, "balanced_accuracy": 0.20486844593286346, "macro_f1": 0.15866515962048422, "accuracy": 0.5294623655913978, "loss": 1.5135966216876942},
+      {"round": 4, "balanced_accuracy": 0.19906603313528948, "macro_f1": 0.11585955953064497, "accuracy": 0.24903225806451612, "loss": 1.6847703039517967},
+      {"round": 5, "balanced_accuracy": 0.2057224978814925, "macro_f1": 0.15580786194646887, "accuracy": 0.5230107526881721, "loss": 1.475891364312941},
+      {"round": 6, "balanced_accuracy": 0.21321969067487664, "macro_f1": 0.18074604137621927, "accuracy": 0.4593548387096774, "loss": 1.581484649053184},
+      {"round": 7, "balanced_accuracy": 0.1919361816854298, "macro_f1": 0.10097316535206248, "accuracy": 0.21118279569892473, "loss": 1.5438661508149998},
+      {"round": 8, "balanced_accuracy": 0.2061966276468472, "macro_f1": 0.14417010946174696, "accuracy": 0.38064516129032255, "loss": 1.5747924140191847}
+    ],
+    "timings": [
+      {"round": 1, "tag": "pi5", "device": "cpu", "samples": 128, "fit_seconds": 8.670446416999766, "train_balanced_accuracy": 0.22794486215538845, "train_loss": 1.3632720112800598},
+      {"round": 1, "tag": "laptop-c0", "device": "cuda", "samples": 128, "fit_seconds": 1.8339801549996082, "train_balanced_accuracy": 0.1706232492997199, "train_loss": 1.6896334886550903},
+      {"round": 2, "tag": "pi5", "device": "cpu", "samples": 128, "fit_seconds": 8.322129025999857, "train_balanced_accuracy": 0.1545138888888889, "train_loss": 1.8978959619998932},
+      {"round": 2, "tag": "laptop-c0", "device": "cuda", "samples": 128, "fit_seconds": 0.4801202899998316, "train_balanced_accuracy": 0.19747885835095136, "train_loss": 2.0665971487760544},
+      {"round": 3, "tag": "laptop-c0", "device": "cuda", "samples": 128, "fit_seconds": 0.5134173249998639, "train_balanced_accuracy": 0.1727303602303602, "train_loss": 1.8805377632379532},
+      {"round": 3, "tag": "pi5", "device": "cpu", "samples": 128, "fit_seconds": 8.262624117999621, "train_balanced_accuracy": 0.3201238390092879, "train_loss": 1.3396977931261063},
+      {"round": 4, "tag": "pi5", "device": "cpu", "samples": 128, "fit_seconds": 8.300059908000549, "train_balanced_accuracy": 0.26144688644688646, "train_loss": 1.5871733278036118},
+      {"round": 4, "tag": "laptop-c0", "device": "cuda", "samples": 128, "fit_seconds": 0.5322064260003572, "train_balanced_accuracy": 0.24732142857142858, "train_loss": 2.0551028549671173},
+      {"round": 5, "tag": "laptop-c0", "device": "cuda", "samples": 128, "fit_seconds": 0.6039442350001991, "train_balanced_accuracy": 0.2253821163809142, "train_loss": 1.9120538830757141},
+      {"round": 5, "tag": "pi5", "device": "cpu", "samples": 128, "fit_seconds": 8.315317278000293, "train_balanced_accuracy": 0.3689542483660131, "train_loss": 2.2317938581109047},
+      {"round": 6, "tag": "pi5", "device": "cpu", "samples": 128, "fit_seconds": 8.31310368800041, "train_balanced_accuracy": 0.325003928964325, "train_loss": 1.933904767036438},
+      {"round": 6, "tag": "laptop-c0", "device": "cuda", "samples": 128, "fit_seconds": 0.6223413230000006, "train_balanced_accuracy": 0.13800349825087457, "train_loss": 2.05486062169075},
+      {"round": 7, "tag": "laptop-c0", "device": "cuda", "samples": 128, "fit_seconds": 0.5192068190003738, "train_balanced_accuracy": 0.1546883000512033, "train_loss": 2.0275384187698364},
+      {"round": 7, "tag": "pi5", "device": "cpu", "samples": 128, "fit_seconds": 8.276608728999236, "train_balanced_accuracy": 0.11931818181818182, "train_loss": 2.1960269808769226},
+      {"round": 8, "tag": "laptop-c0", "device": "cuda", "samples": 128, "fit_seconds": 0.46922081399998206, "train_balanced_accuracy": 0.12681502525252525, "train_loss": 2.0992743223905563},
+      {"round": 8, "tag": "pi5", "device": "cpu", "samples": 128, "fit_seconds": 8.242347290999533, "train_balanced_accuracy": 0.4037878787878788, "train_loss": 1.8347958028316498}
+    ]
+  },
+  "membership_inference": {
+    "source": "experiments/mia/mia_results.json",
+    "metric": "loss-threshold attack ROC AUC",
+    "caveats": {
+      "historical": true,
+      "test_selected": false,
+      "single_seed": true,
+      "estimate": false,
+      "simulation": false,
+      "exploratory": true
+    },
+    "notes": [
+      "This is one attack configuration, not a comprehensive privacy audit.",
+      "The private run's epsilon is the historical stored value."
+    ],
+    "non_private": {
+      "attack_auc": 0.5551193932618028,
+      "members": 14888,
+      "nonmembers": 4650,
+      "member_loss_mean": 1.2341794935617956,
+      "nonmember_loss_mean": 1.5519137976186677,
+      "test_balanced_accuracy": 0.4088356475641768,
+      "epsilon_max": null
+    },
+    "dp_sigma_1": {
+      "attack_auc": 0.5030285197575589,
+      "members": 14888,
+      "nonmembers": 4650,
+      "member_loss_mean": 2.242942453563541,
+      "nonmember_loss_mean": 2.2982297672425873,
+      "test_balanced_accuracy": 0.18275666678668445,
+      "epsilon_max": 19.647377885920903
+    }
+  },
+  "secure_aggregation": {
+    "source": "experiments/secure_agg/secure_agg.json",
+    "caveats": {
+      "historical": true,
+      "test_selected": false,
+      "single_seed": false,
+      "estimate": false,
+      "simulation": true,
+      "exploratory": true
+    },
+    "notes": [
+      "Pairwise masks cancel in a single-process numerical demonstration.",
+      "This does not implement key exchange, authentication, dropout recovery, transport security, or malicious-client defenses."
+    ],
+    "clients": 6,
+    "aggregate_max_absolute_error_vs_plaintext": 2.90878432451791e-13,
+    "aggregate_exact_within_test_tolerance": true,
+    "mean_hidden_ratio": 4015.2462319009173,
+    "per_client": [
+      {"client": 0, "true_norm": 25.308306148305117, "masked_deviation": 10687.389942771008},
+      {"client": 1, "true_norm": 8.00426217930002, "masked_deviation": 10700.669043803844},
+      {"client": 2, "true_norm": 6.801559432792353, "masked_deviation": 10285.37563299106},
+      {"client": 3, "true_norm": 4.660823866780262, "masked_deviation": 10635.582250386115},
+      {"client": 4, "true_norm": 1.651780010408869, "masked_deviation": 10737.95645840577},
+      {"client": 5, "true_norm": 0.8833120910069602, "masked_deviation": 10632.74566131318}
+    ]
+  },
+  "robustness": {
+    "source": "experiments/robustness/robustness_results.json",
+    "metric": "test balanced accuracy",
+    "caveats": {
+      "historical": true,
+      "test_selected": true,
+      "single_seed": true,
+      "estimate": false,
+      "simulation": false,
+      "exploratory": true
+    },
+    "notes": [
+      "Two of six clients apply a scale-5 sign-flip attack for 12 rounds.",
+      "The exploratory aggregation script weights clients equally rather than by sample count; a weighting correction is pending.",
+      "Best values are selected from repeated pooled-test evaluations."
+    ],
+    "attack": {
+      "type": "sign_flip",
+      "scale": 5,
+      "malicious_clients": [4, 5],
+      "all_clients": [0, 1, 2, 3, 4, 5],
+      "rounds": 12
+    },
+    "series": [
+      {
+        "id": "fedavg_clean",
+        "label": "FedAvg, clean",
+        "curve": [0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.16997222617860702, 0.17280911026319537, 0.16882622808266928, 0.17258211268450288],
+        "best": 0.17280911026319537,
+        "final": 0.17258211268450288
+      },
+      {
+        "id": "fedavg_attacked",
+        "label": "FedAvg, attacked",
+        "curve": [0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125],
+        "best": 0.125,
+        "final": 0.125
+      },
+      {
+        "id": "median_attacked",
+        "label": "Coordinate median, attacked",
+        "curve": [0.125, 0.125, 0.125, 0.125, 0.1425781737027155, 0.1454196581736907, 0.18015993198090297, 0.1739095083672033, 0.19082204202857392, 0.1751898338528957, 0.1754480449628558, 0.17128993658123376],
+        "best": 0.19082204202857392,
+        "final": 0.17128993658123376
+      },
+      {
+        "id": "trimmed_mean_attacked",
+        "label": "Trimmed mean, attacked",
+        "curve": [0.125, 0.125, 0.125, 0.125, 0.12828762810762287, 0.15131193426925665, 0.15087555793830887, 0.14864685980989675, 0.16976483272455675, 0.17141893995174734, 0.1719840478564307, 0.1692797547208],
+        "best": 0.1719840478564307,
+        "final": 0.1692797547208
+      },
+      {
+        "id": "krum_attacked",
+        "label": "Krum, attacked",
+        "curve": [0.125, 0.125, 0.1598381547088059, 0.125, 0.16352109503550047, 0.17054356938854315, 0.14588892058400965, 0.15907421868542754, 0.16901457886475085, 0.1765418807075467, 0.17913479149206857, 0.17055704947801614],
+        "best": 0.17913479149206857,
+        "final": 0.17055704947801614
+      }
+    ]
+  },
+  "communications": {
+    "source": "experiments/comms/comms_results.json",
+    "metric": "estimated bytes per client per round",
+    "caveats": {
+      "historical": true,
+      "test_selected": true,
+      "single_seed": true,
+      "estimate": true,
+      "simulation": false,
+      "exploratory": true
+    },
+    "notes": [
+      "Values estimate retained parameter indices plus values; they are not measured wire bytes and exclude protocol overhead.",
+      "All points use eight warm-started rounds and 11,180,616 model parameters.",
+      "Best balanced accuracy is selected from repeated pooled-test evaluations."
+    ],
+    "rounds": 8,
+    "warm_start": true,
+    "model_parameters": 11180616,
+    "levels": [
+      {
+        "retained_fraction": 1,
+        "observed_kept_fraction": 1,
+        "bytes_per_client_round": 44722464,
+        "compression_ratio": 1,
+        "balanced_accuracy_curve": [0.19467440126646718, 0.19536821865231374, 0.20109276153085515, 0.2037890898391633, 0.20139893886351878, 0.20231741123178654, 0.20274991413319848, 0.2054436059558849],
+        "balanced_accuracy_best": 0.2054436059558849,
+        "balanced_accuracy_final": 0.2054436059558849
+      },
+      {
+        "retained_fraction": 0.1,
+        "observed_kept_fraction": 0.09999728548051379,
+        "bytes_per_client_round": 8944248,
+        "compression_ratio": 5.000136847726047,
+        "balanced_accuracy_curve": [0.19655948848601157, 0.19004514140422205, 0.18999828947879532, 0.19388360039498728, 0.19280085239837563, 0.19321455489989361, 0.19594057455112446, 0.19660071818038705],
+        "balanced_accuracy_best": 0.19660071818038705,
+        "balanced_accuracy_final": 0.19660071818038705
+      },
+      {
+        "retained_fraction": 0.01,
+        "observed_kept_fraction": 0.009998470790875924,
+        "bytes_per_client_round": 894312,
+        "compression_ratio": 50.00767517376486,
+        "balanced_accuracy_curve": [0.1981751745132655, 0.20159912010380343, 0.19159465514807383, 0.18699464300982116, 0.18859371724460666, 0.19528769297030302, 0.19482977502898002, 0.19189690412699018],
+        "balanced_accuracy_best": 0.20159912010380343,
+        "balanced_accuracy_final": 0.19189690412699018
+      }
+    ]
+  },
+  "raspberry_pi_benchmark": {
+    "source": "experiments/live/bench_pi_raspberrypi.json",
+    "hardware": "Raspberry Pi 5",
+    "caveats": {
+      "historical": true,
+      "test_selected": false,
+      "single_seed": false,
+      "estimate": false,
+      "simulation": false,
+      "exploratory": false
+    },
+    "notes": [
+      "The benchmark measures three short local-fit repetitions on one device; it is not an end-to-end federated-round benchmark.",
+      "Freezing the backbone demonstrates an edge-compute tradeoff, not clinical readiness or hospital-scale deployment."
+    ],
+    "config": {
+      "center": 5,
+      "max_batches": 8,
+      "tier": "dev",
+      "device": "cpu",
+      "warm_start": true
+    },
+    "parameters": {
+      "total": 11180616,
+      "classifier_head": 4104,
+      "classifier_head_fraction": 0.000367
+    },
+    "timing_seconds": {
+      "full_model": [8.26, 8.3, 8.28],
+      "frozen_backbone": [0.92, 0.93, 0.92],
+      "median_full_model": 8.28,
+      "median_frozen_backbone": 0.92,
+      "speedup": 8.99
+    },
+    "checks": {
+      "frozen_backbone_unchanged": true,
+      "classifier_head_changed": true,
+      "full_model_backbone_changed": true,
+      "state_dict_keys_fedavg_compatible": true
+    }
+  }
+}

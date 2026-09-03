@@ -3,13 +3,14 @@
 # Clients run as separate processes/machines and exchange only model updates
 # over the network via Flower -- this is GENUINE distributed federated learning,
 # not the in-process simulation. Kept small + short so a Raspberry Pi can join in
-# real time. Model / metrics are identical to the simulation, so the run is
-# directly comparable. Resolve at --tier dev (ResNet-18 + GroupNorm, image 64).
+# real time. Matching initialization, schedule and class weights makes the
+# result directly comparable. Resolve at --tier dev (ResNet-18 + GroupNorm).
 #
 # Inverse-frequency weighted cross-entropy (same as the scientific runs) -- on
 # Fed-ISIC2019 plain CE collapses to the majority class (balanced accuracy = 1/8).
-# Weights come from each client's LOCAL label counts (shareable meta-info, never
-# raw images).
+# The supervised local demo passes one global count vector to both clients so
+# the weighting matches the in-process experiment. Direct clients fall back to
+# local counts unless --class-counts is supplied.
 experiment: live_fedavg
 task: federated
 strategy:

@@ -5,6 +5,8 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+!dist/
+!dist/**
 
 # Virtual environments
 .venv/
@@ -34,6 +36,7 @@ experiments/**/*.pt
 experiments/**/*.pth
 experiments/**/run.log
 experiments/live/presentation_runs/
+experiments/site_runs/
 
 # Legacy results tree (pre-restructure)
 results/checkpoints/*

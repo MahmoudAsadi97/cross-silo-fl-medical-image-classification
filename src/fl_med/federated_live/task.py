@@ -1,11 +1,9 @@
 """Shared task code for REAL (networked) federated learning via Flower.
 
-This reuses the EXACT same model, data loaders, training loop and metrics as the
-in-process simulation (``fl_med.engine``). The only thing that changes is the
-transport: clients now run as separate processes/machines and exchange model
-parameters over the network instead of in a Python loop. A result produced here
-is therefore directly comparable to the simulation -- it is the same federated
-math, just genuinely distributed.
+This reuses the same model, data loaders, training loop and metrics as the
+in-process simulation (``fl_med.engine``). Clients run as separate processes or
+machines and exchange model parameters through Flower. Exact comparison also
+requires the same initialization, schedule and class-weight vector.
 
 Torch is imported lazily so this module (and torch-free environments such as CI) can
 import it without the GPU stack.
@@ -40,12 +38,8 @@ def build_model(config: Dict[str, Any]):
     return _bm(config)
 
 
-def _make_criterion(config: Dict[str, Any], train_loader, device):
-    """Weighted CE from this client's LOCAL label counts (reusing the engine's
-    ``build_criterion``) when ``loss.class_weights`` is 'balanced'/'inverse_frequency',
-    else plain CE. Weighting is essential on Fed-ISIC2019: plain CE collapses to the
-    majority class (balanced accuracy = 1/K). Only label counts are used -- shareable
-    meta-information, never raw images."""
+def _make_criterion(config: Dict[str, Any], train_loader, device, class_counts=None):
+    """Build weighted CE from supplied/global counts, with a local fallback."""
     mode = str((config.get("loss") or {}).get("class_weights", "none")).lower()
     if mode not in ("balanced", "inverse_frequency"):
         import torch.nn as nn
@@ -55,6 +49,13 @@ def _make_criterion(config: Dict[str, Any], train_loader, device):
     from ..losses import build_criterion
 
     num_classes = int(config.get("model", {}).get("num_classes", 8))
+    if class_counts is None:
+        class_counts = (config.get("loss") or {}).get("fixed_class_counts")
+    if class_counts is not None:
+        counts = np.asarray(class_counts, dtype=np.float64)
+        if counts.shape != (num_classes,) or np.any(counts < 0) or counts.sum() <= 0:
+            raise ValueError("class_counts must contain one non-negative value per class")
+        return build_criterion(config, counts, device=device)
     ds = train_loader.dataset
     if hasattr(ds, "labels"):
         labels = ds.labels()
@@ -106,7 +107,8 @@ def apply_freeze_backbone(model):
 
 
 def local_fit(model, train_loader, config: Dict[str, Any], *, local_epochs: int,
-              device: str, max_batches=None, freeze_backbone: bool = False) -> List[Dict[str, Any]]:
+              device: str, max_batches=None, freeze_backbone: bool = False,
+              class_counts=None) -> List[Dict[str, Any]]:
     """Train ``model`` on this client's local data with the SAME loop the
     simulation uses. ``max_batches`` caps steps/epoch so a slow device (the Pi)
     stays responsive; ``freeze_backbone`` trains only the classifier head
@@ -133,7 +135,7 @@ def local_fit(model, train_loader, config: Dict[str, Any], *, local_epochs: int,
             optimizer = torch.optim.Adam(params, lr=lr, weight_decay=wd)
     else:
         optimizer = _build_optimizer(model, config.get("optimizer", {"name": "adam", "lr": 1e-3}))
-    criterion = _make_criterion(config, train_loader, device)
+    criterion = _make_criterion(config, train_loader, device, class_counts=class_counts)
     num_classes = int(config.get("model", {}).get("num_classes", 8))
 
     history: List[Dict[str, Any]] = []
@@ -153,9 +155,14 @@ def evaluate_model(model, test_loader, device: str, num_classes: int = 8) -> Dic
 
 
 def local_num_examples(train_loader, max_batches=None) -> int:
-    """Images actually trained on this round (for FedAvg's sample weighting)."""
+    """Maximum images processed per epoch under the configured batch cap."""
     n = len(train_loader.dataset)
     if max_batches is not None:
         bs = int(getattr(train_loader, "batch_size", 1) or 1)
         return min(n, int(max_batches) * bs)
     return n
+
+
+def local_examples_seen(history) -> int:
+    """Sum the observed per-epoch example counts reported by the training loop."""
+    return sum(int(epoch.get("num_examples", 0)) for epoch in history)

@@ -6,7 +6,7 @@ PYTHONPATH := src
 
 export PYTHONPATH
 
-.PHONY: help install install-torch fixture verify test smoke dev heterogeneity figures lint clean
+.PHONY: help install install-torch fixture verify test smoke dev heterogeneity figures lint demo-site demo-site-fixture clean
 
 help:
 	@echo "install        - editable install of the pure-python core"
@@ -19,6 +19,8 @@ help:
 	@echo "heterogeneity  - Phase-1 non-IID analysis + figures"
 	@echo "figures        - regenerate report figures from experiments/"
 	@echo "lint           - ruff (if installed)"
+	@echo "demo-site      - open the site with real-data training controls"
+	@echo "demo-site-fixture - open the site with real training on the test fixture"
 
 install:
 	$(PY) -m pip install -e .
@@ -49,6 +51,12 @@ figures:
 
 lint:
 	-$(PY) -m ruff check src scripts tests
+
+demo-site:
+	$(PY) scripts/demo/control_server.py
+
+demo-site-fixture:
+	$(PY) scripts/demo/control_server.py --allow-fixture
 
 clean:
 	rm -rf experiments/*_smoke_* experiments/heterogeneity **/__pycache__ .pytest_cache

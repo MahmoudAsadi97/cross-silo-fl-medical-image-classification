@@ -2,15 +2,30 @@
 # gradients are well-defined. The matched NON-private baseline is plain FedAvg on the
 # same GroupNorm model + same Adam optimizer -> the only difference is DP clip+noise,
 # isolating the DP effect (brief §4.1). Reports per-client (epsilon, delta) via the
-# independent RDP accountant. delta=1e-5 < 1/N for all clients (min N=281 -> 1/N~3.6e-3).
+# independent RDP accountant. delta=1e-5 < 1/N for all clients
+# (the strictest center has N=7,947 -> 1/N~1.26e-4).
 experiment: dp_fedavg
 task: federated
 strategy:
   name: fedavg
 model:
   norm: group
+loss:
+  class_weights: balanced
+  # Public, fixed Fed-ISIC2019 training counts. Keeping these constants outside
+  # the private mechanism avoids deriving the loss weights from a live DP run.
+  fixed_class_counts: [2668, 7270, 2120, 570, 1562, 148, 161, 389]
 privacy:
   enabled: true
   noise_multiplier: 1.0     # sigma
   max_grad_norm: 1.0        # per-sample clip C
   target_delta: 1.0e-5
+  accountant: rdp
+  secure_mode: false
+tiers:
+  smoke:
+    federated: { max_batches: null }
+  dev:
+    federated: { max_batches: null }
+  full:
+    federated: { max_batches: null }

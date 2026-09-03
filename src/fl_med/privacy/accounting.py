@@ -53,6 +53,14 @@ def _rdp_gaussian_int(q: float, sigma: float, alpha: int) -> float:
 def compute_rdp(q: float, noise_multiplier: float, steps: int,
                 orders: Sequence[int] = tuple(DEFAULT_ORDERS)) -> np.ndarray:
     """RDP at each order after ``steps`` subsampled-Gaussian steps."""
+    if not 0.0 <= q <= 1.0:
+        raise ValueError("sample rate q must be between 0 and 1")
+    if noise_multiplier <= 0.0:
+        raise ValueError("noise_multiplier must be positive")
+    if isinstance(steps, bool) or int(steps) != steps or steps < 0:
+        raise ValueError("steps must be a non-negative integer")
+    if any(int(order) != order or order < 2 for order in orders):
+        raise ValueError("RDP orders must be integers greater than or equal to 2")
     return np.array([_rdp_gaussian_int(q, noise_multiplier, int(a)) for a in orders]) * steps
 
 
@@ -71,6 +79,10 @@ def compute_epsilon(
     orders: Iterable[int] = tuple(DEFAULT_ORDERS),
 ) -> float:
     """Convenience: epsilon for DP-SGD with the given (q, sigma, steps, delta)."""
+    if not 0.0 < delta < 1.0:
+        raise ValueError("delta must be between 0 and 1")
+    if steps == 0 or sample_rate == 0.0:
+        return 0.0
     orders = list(orders)
     rdp = compute_rdp(sample_rate, noise_multiplier, steps, orders)
     eps, _ = get_privacy_spent(orders, rdp, delta)

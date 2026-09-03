@@ -57,6 +57,22 @@ def build_centralized_dataloaders(config: dict) -> Tuple[object, object]:
     return train_loader, test_loader
 
 
+def build_centralized_test_dataloader(config: dict):
+    """Build only the pooled held-out test loader for a coordinator."""
+    data = _cfg(config)
+    root = Path(resolve_data_root(config))
+    test_ds = ISICFederatedFolderDataset(
+        root / "test", transform=get_eval_transforms(data["image_size"])
+    )
+    return _make_loader(
+        test_ds,
+        batch_size=data["batch_size"],
+        shuffle=False,
+        num_workers=data["num_workers"],
+        seed=data["seed"],
+    )
+
+
 def build_client_dataloaders(config: dict, client_id: int) -> Tuple[object, object]:
     """Per-client train loader + that client's local test loader."""
     data = _cfg(config)

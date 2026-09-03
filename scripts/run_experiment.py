@@ -12,7 +12,11 @@ and curve plots into its output directory so every artifact is traceable.
 from __future__ import annotations
 
 import argparse
+import json
+import math
+import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -32,8 +36,33 @@ def parse_args(argv=None):
     p.add_argument("--seed", type=int, default=None, help="Override the single seed")
     p.add_argument("--output", default=None, help="Output dir (default experiments/<name>)")
     p.add_argument("--device", default="cpu")
+    p.add_argument(
+        "--status-file",
+        default=None,
+        help="Optional atomic JSON status feed for the local interactive demo",
+    )
     p.add_argument("overrides", nargs="*", help="dotted.key=value overrides")
     return p.parse_args(argv)
+
+
+def _json_safe(value):
+    """Convert metric payloads to strict JSON without leaking implementation objects."""
+    if isinstance(value, dict):
+        return {str(k): _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if hasattr(value, "item"):
+        return _json_safe(value.item())
+    return value
+
+
+def _atomic_status(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    tmp.write_text(json.dumps(_json_safe(payload), indent=2, allow_nan=False), encoding="utf-8")
+    os.replace(tmp, path)
 
 
 def _default_output(config, tier, seed) -> Path:
@@ -59,6 +88,88 @@ def main(argv=None) -> int:
     task = config.get("task", "federated")
     logger.info("task=%s tier=%s seed=%d output=%s", task, args.tier, seed, output_dir)
 
+    status_path = Path(args.status_file).resolve() if args.status_file else None
+    status = {
+        "schema_version": 1,
+        "run_id": os.environ.get("FL_DEMO_RUN_ID"),
+        "mode": "experiment",
+        "dataset_kind": os.environ.get("FL_DEMO_DATASET_KIND", "unknown"),
+        "status": "preflight",
+        "phase": "preflight",
+        "round": 0,
+        "completed_rounds": 0,
+        "total_rounds": int((config.get("federated") or {}).get("rounds", 0)),
+        "strategy": str((config.get("strategy") or {}).get("name", task)),
+        "history": [],
+        "clients": [],
+        "events": [],
+        "privacy": {
+            "enabled": bool((config.get("privacy") or {}).get("enabled", False)),
+            "noise_multiplier": (config.get("privacy") or {}).get("noise_multiplier"),
+            "max_grad_norm": (config.get("privacy") or {}).get("max_grad_norm"),
+            "delta": (config.get("privacy") or {}).get("target_delta"),
+            "target_epsilon": (config.get("privacy") or {}).get("target_epsilon"),
+            "accountant": (config.get("privacy") or {}).get("accountant", "rdp"),
+            "scope": "record_level_dp_sgd_per_center" if (config.get("privacy") or {}).get("enabled") else None,
+        },
+    }
+    client_status: dict[int, dict] = {}
+    event_seq = 0
+
+    def publish_status() -> None:
+        if status_path is not None:
+            status["updated_at"] = datetime.now(timezone.utc).isoformat()
+            status["clients"] = [client_status[cid] for cid in sorted(client_status)]
+            _atomic_status(status_path, status)
+
+    def on_training_event(event: dict) -> None:
+        nonlocal event_seq
+        event_seq += 1
+        kind = str(event.get("event", "training_event"))
+        rnd = int(event.get("round", status.get("round", 0)))
+        status["round"] = max(int(status.get("round", 0)), rnd)
+        status["status"] = "training"
+        status["phase"] = {
+            "round_started": "broadcasting",
+            "client_started": "local_training",
+            "client_completed": "collecting_updates",
+            "aggregation_started": "aggregating",
+            "evaluation_started": "central_evaluation",
+            "round_completed": "round_complete",
+        }.get(kind, "training")
+
+        cid = event.get("client_id")
+        if cid is not None:
+            cid = int(cid)
+            rec = client_status.setdefault(cid, {"client_id": cid})
+            rec.update({k: event[k] for k in (
+                "num_samples", "train_loss", "train_balanced_accuracy",
+                "examples_seen", "dp_steps", "dp_sample_rate",
+                "epsilon", "delta",
+            ) if k in event})
+            rec["status"] = "training" if kind == "client_started" else "complete"
+
+        if kind == "round_started":
+            for rec in client_status.values():
+                rec["status"] = "waiting"
+        elif kind == "round_completed":
+            metrics = dict(event.get("metrics") or {})
+            status["history"].append(metrics)
+            status["latest_metrics"] = metrics
+            status["completed_rounds"] = rnd
+            for rec in client_status.values():
+                rec["status"] = "waiting"
+
+        status["events"].append({
+            "sequence": event_seq,
+            "time": datetime.now(timezone.utc).isoformat(),
+            **{k: _json_safe(v) for k, v in event.items() if k != "metrics"},
+        })
+        status["events"] = status["events"][-80:]
+        publish_status()
+
+    publish_status()
+
     # torch-dependent imports deferred so --help / config resolution need no torch.
     from fl_med.data.loaders import (
         build_centralized_dataloaders, build_client_dataloaders, list_clients,
@@ -77,14 +188,18 @@ def main(argv=None) -> int:
     # (label counts are shareable meta-info, so global weights don't leak images).
     criterion = None
     try:
-        counts = counts_from_dataset(
-            Path(resolve_data_root(config)) / "train",
-            num_classes=int(config.get("model", {}).get("num_classes", 8)),
-        ).sum(axis=0)
+        fixed_counts = (config.get("loss") or {}).get("fixed_class_counts")
+        counts = fixed_counts
+        if counts is None:
+            counts = counts_from_dataset(
+                Path(resolve_data_root(config)) / "train",
+                num_classes=int(config.get("model", {}).get("num_classes", 8)),
+            ).sum(axis=0)
         criterion = build_criterion(config, counts, device=args.device)
         logger.info(
             "loss=%s train_class_counts=%s",
-            (config.get("loss") or {}).get("class_weights", "none"), counts.tolist(),
+            (config.get("loss") or {}).get("class_weights", "none"),
+            counts.tolist() if hasattr(counts, "tolist") else list(counts),
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("weighted criterion unavailable (%s); using unweighted CE", exc)
@@ -121,6 +236,7 @@ def main(argv=None) -> int:
             strategy=build_strategy(config), client_ids=clients,
             client_loader_fn=lambda cid: build_client_dataloaders(config, cid)[0],
             test_loader=test_loader, device=args.device, criterion=criterion, logger=logger,
+            event_callback=on_training_event if status_path is not None else None,
         )
         save_history_csv(result["history"], output_dir / "metrics.csv")
         plot_curves(result["history"], "round",
@@ -135,6 +251,21 @@ def main(argv=None) -> int:
         raise SystemExit(f"Unknown task '{task}'")
 
     logger.info("done -> %s", output_dir)
+    if status_path is not None:
+        status["status"] = "completed"
+        status["phase"] = "completed"
+        status["round"] = int(status.get("total_rounds", status.get("round", 0)))
+        status["completed_rounds"] = status["round"]
+        for rec in client_status.values():
+            rec["status"] = "complete"
+        event_seq += 1
+        status["events"].append({
+            "sequence": event_seq,
+            "time": datetime.now(timezone.utc).isoformat(),
+            "event": "run_completed",
+            "round": status["round"],
+        })
+        publish_status()
     print(f"OK: results in {output_dir}")
     return 0
 

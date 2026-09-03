@@ -14,6 +14,7 @@ DP for that client's own training. NOT client-level DP (see design notes).
 from __future__ import annotations
 
 import types
+import secrets
 from typing import Any, Tuple
 
 
@@ -83,15 +84,28 @@ def fix_model(model):
 
 def make_private(
     *, model, optimizer, data_loader, noise_multiplier: float, max_grad_norm: float,
+    accountant: str = "rdp", secure_mode: bool = False,
 ) -> Tuple[Any, Any, Any, Any]:
     """Attach an Opacus ``PrivacyEngine``. Returns (model, optimizer, loader, engine)."""
     from opacus import PrivacyEngine
 
-    engine = PrivacyEngine()
+    engine = PrivacyEngine(accountant=accountant, secure_mode=secure_mode)
+    noise_generator = None
+    if not secure_mode:
+        # Keep DP sampling/noise independent from the published experiment seed.
+        # This is still the research-grade path; secure_mode uses torchcsprng.
+        import torch
+
+        sampling_generator = torch.Generator()
+        sampling_generator.manual_seed(secrets.randbits(63))
+        engine.secure_rng = sampling_generator
+        parameter = next(model.parameters())
+        noise_generator = torch.Generator(device=parameter.device)
+        noise_generator.manual_seed(secrets.randbits(63))
     model, optimizer, data_loader = engine.make_private(
         module=model, optimizer=optimizer, data_loader=data_loader,
         noise_multiplier=float(noise_multiplier), max_grad_norm=float(max_grad_norm),
-        poisson_sampling=True,
+        poisson_sampling=True, noise_generator=noise_generator,
     )
     return model, optimizer, data_loader, engine
 

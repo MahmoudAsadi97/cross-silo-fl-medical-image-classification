@@ -52,27 +52,37 @@ def local_train(
     """Train ``model`` locally and return an update dict for the server."""
     model.to(device)
     model.load_state_dict(global_state)
-    optimizer = _build_optimizer(model, optimizer_cfg)
+    num_samples = len(train_loader.dataset)
 
     dp_enabled = bool(privacy_cfg and privacy_cfg.get("enabled"))
+    dp_engine = None
+    dp_sample_rate = None
     if dp_enabled:
         from ..privacy.dp_engine import fix_model, make_private
 
-        model = fix_model(model)                       # GroupNorm + no in-place ops
-        model, optimizer, train_loader, _engine = make_private(
+        if max_batches is not None:
+            raise ValueError(
+                "DP-SGD requires a complete local DataLoader pass. "
+                "Set federated.max_batches=null so Opacus sampling and privacy accounting agree."
+            )
+
+        model = fix_model(model).to(device)            # GroupNorm + no in-place ops
+        optimizer = _build_optimizer(model, optimizer_cfg)
+        model, optimizer, train_loader, dp_engine = make_private(
             model=model, optimizer=optimizer, data_loader=train_loader,
             noise_multiplier=float(privacy_cfg["noise_multiplier"]),
             max_grad_norm=float(privacy_cfg["max_grad_norm"]),
+            accountant=str(privacy_cfg.get("accountant", "rdp")),
+            secure_mode=bool(privacy_cfg.get("secure_mode", False)),
+        )
+        dp_sample_rate = float(
+            getattr(train_loader, "sample_rate", 1.0 / max(len(train_loader), 1))
         )
         max_phys = int(privacy_cfg.get("max_physical_batch_size", 16))
+    else:
+        optimizer = _build_optimizer(model, optimizer_cfg)
 
     client_state = {"c_global": c_global, "c_local": c_local} if c_global is not None else None
-
-    # Logical optimizer steps per epoch (== accounting steps under Poisson sampling).
-    try:
-        steps_per_epoch = max_batches if max_batches is not None else len(train_loader)
-    except TypeError:
-        steps_per_epoch = max_batches or 1
 
     history = []
     for epoch in range(1, local_epochs + 1):
@@ -99,16 +109,29 @@ def local_train(
     # so state-dict keys match the global model for aggregation.
     underlying = getattr(model, "_module", model)
     new_state = clone_state(underlying.state_dict())
+    examples_seen = sum(int(epoch.get("num_examples", 0)) for epoch in history)
+    dp_steps = 0
+    if dp_enabled and dp_engine is not None:
+        # Opacus records one entry per distinct (noise, sample-rate) segment. Reading
+        # its history counts the logical optimizer steps that actually consumed budget.
+        accountant_history = getattr(dp_engine.accountant, "history", ())
+        dp_steps = sum(int(segment[2]) for segment in accountant_history)
     update: Dict[str, Any] = {
         "client_id": client_id,
-        "num_samples": len(train_loader.dataset),
+        "num_samples": int(num_samples),
+        "examples_seen": int(examples_seen),
         "state_dict": new_state,
         "local_history": history,
-        "dp_steps": local_epochs * int(steps_per_epoch),
+        "dp_steps": int(dp_steps),
     }
+    if dp_enabled:
+        update["dp_sample_rate"] = float(dp_sample_rate)
 
     if c_global is not None and c_local is not None:  # SCAFFOLD bookkeeping
-        num_steps = max(1, local_epochs * int(steps_per_epoch))
+        num_steps = max(
+            1,
+            sum(int(epoch.get("optimizer_steps", 0)) for epoch in history),
+        )
         new_c_local = scaffold_math.updated_client_control(
             c_local, c_global, global_state, new_state,
             num_steps=num_steps, lr=float(optimizer_cfg.get("lr", 1e-3)),

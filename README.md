@@ -46,6 +46,8 @@ New here? **Read [`docs/design.md`](docs/design.md) first** — the map of the w
   (8.28 → 0.92 s/round; 4/4 on-device correctness checks; gap shrinks to <2×).
 
 ## Deliverables
+- `dist/` — portfolio-grade interactive site with measured replay, privacy planner,
+  evidence room, and a loopback connection for genuine training
 - `reports/technical_report.docx` — 11-page technical report (all figures, 13 IEEE refs)
 - `reports/dashboard.html` — self-explanatory results dashboard (single file, open in a browser)
 - `reports/fl_process_visualizer.html` — animated replay of the real 30-round federated run
@@ -62,6 +64,44 @@ python scripts/verify_core_math.py             # 21 torch-free correctness check
 make smoke                                     # end-to-end FedAvg on the tiny fixture
 make test                                      # unit + integration tests
 ```
+
+### Interactive training lab
+
+The public site is an artifact-backed replay because the licensed dataset and GPU are
+not hosted publicly. Run the same interface beside your local dataset to launch real
+training and stream round/client telemetry:
+
+```bash
+python -m pip install -e ".[demo,dev]"
+DATA_ROOT=/absolute/path/to/fed_isic2019/raw make demo-site
+```
+
+The control service binds to `127.0.0.1`, serves only `dist/`, accepts a small allowlist
+of typed parameters, and supervises one process group at a time. It offers two accurate
+execution modes:
+
+- **Six-center experiment:** all six partitions train sequentially on one host; FedAvg,
+  FedProx, SCAFFOLD, FedAdam, and record-level DP-FedAvg are available.
+- **Local two-client Flower demo:** center 0 and center 5 run as genuine Flower clients
+  on the local host; this path currently supports non-private FedAvg only. The separate
+  presentation launcher remains the path for a physical Raspberry Pi.
+
+The local Flower mode proves the network protocol and process boundary, not host-level
+data isolation: all client, coordinator and supervisor processes run under the same
+operating-system account. DP controls
+apply only to the six-center experiment. Its displayed epsilon covers model updates for
+that run; pooled test evaluation and metadata are outside the budget, and production use
+still requires secure randomness plus durable privacy composition across releases.
+
+Use the committed synthetic fixture for an end-to-end runtime check without licensed data:
+
+```bash
+make demo-site-fixture
+```
+
+The interface labels this mode `SYNTHETIC FIXTURE — REAL TRAINING`; fixture scores are
+never presented as medical evidence.
+
 Real-data runs (see manuals for details):
 ```bash
 DATA_ROOT=$HOME/fl_data/fed_isic2019/raw bash scripts/run_comparison.sh dev cuda 0 1 2

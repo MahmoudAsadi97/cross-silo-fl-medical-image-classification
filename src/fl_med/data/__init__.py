@@ -7,6 +7,7 @@ from .fixture import fixture_class_counts, generate_fixture
 from .heterogeneity import counts_from_dataset, heterogeneity_report
 from .loaders import (
     build_centralized_dataloaders,
+    build_centralized_test_dataloader,
     build_client_dataloaders,
     list_clients,
 )
@@ -16,6 +17,7 @@ __all__ = [
     "heterogeneity",
     "ISICFederatedFolderDataset",
     "build_centralized_dataloaders",
+    "build_centralized_test_dataloader",
     "build_client_dataloaders",
     "list_clients",
     "heterogeneity_report",

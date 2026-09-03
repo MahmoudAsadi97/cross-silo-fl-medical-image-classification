@@ -39,7 +39,7 @@ def train_one_epoch(
 
     criterion = criterion or nn.CrossEntropyLoss()
     model.train()
-    running_loss, seen = 0.0, 0
+    running_loss, seen, optimizer_steps = 0.0, 0, 0
     y_true, y_pred = [], []
 
     for i, batch in enumerate(loader):
@@ -61,6 +61,7 @@ def train_one_epoch(
         if grad_clip is not None:
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=grad_clip)
         optimizer.step()
+        optimizer_steps += 1
 
         bs = images.size(0)
         running_loss += float(loss.item()) * bs
@@ -70,6 +71,8 @@ def train_one_epoch(
 
     metrics = compute_metrics(y_true, y_pred, num_classes)
     metrics["loss"] = running_loss / max(seen, 1)
+    metrics["num_examples"] = int(seen)
+    metrics["optimizer_steps"] = int(optimizer_steps)
     return metrics
 
 
